@@ -4,3 +4,4 @@ out
 reference
 *.config.js
 *.config.ts
+packages/*/template

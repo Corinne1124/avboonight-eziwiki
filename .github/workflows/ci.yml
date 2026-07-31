@@ -7,8 +7,8 @@ on:
     branches: [main, develop]
 
 jobs:
-  lint-and-typecheck:
-    name: Lint & Type Check
+  quality:
+    name: Lint, Format & Types
     runs-on: ubuntu-latest
 
     steps:
@@ -24,8 +24,13 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # `lint` no longer passes --fix: a CI step that repairs its own input can
+      # pass while leaving the committed code broken.
       - name: Run ESLint
         run: npm run lint
+
+      - name: Check formatting
+        run: npm run format:check
 
       - name: Run Type Check
         run: npm run type-check
@@ -67,6 +72,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # Dangling links only warn during a local build; on a pull request they
+      # should block, so the published site never ships one.
+      - name: Check content links
+        run: npm run check:links -- --strict
+
       - name: Build project
         run: npm run build
 
@@ -74,7 +84,56 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: build-output
-          path: |
-            .next
-            out
+          path: out
           retention-days: 7
+
+  scaffold:
+    name: Scaffold a project and build it
+    runs-on: ubuntu-latest
+
+    # The `create-eziwiki` template is generated from this repository's source
+    # rather than committed, so nothing in the normal build exercises it. This
+    # job creates a project the way a user would and builds it, which is what
+    # catches a change here breaking the scaffolded output.
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build the CLI template
+        run: npm run build:template
+
+      - name: Test the scaffolder
+        run: npx vitest --run packages/create-eziwiki/lib
+
+      # Scaffolded outside the checkout, so the new project cannot accidentally
+      # resolve anything from this repository's node_modules or config. The
+      # argument is a bare name because that is all the CLI accepts.
+      - name: Create a project
+        working-directory: ${{ runner.temp }}
+        run: node "$GITHUB_WORKSPACE/packages/create-eziwiki/bin/create-eziwiki.mjs" ci-scaffold-test
+
+      - name: Install, build and test it
+        working-directory: ${{ runner.temp }}/ci-scaffold-test
+        run: |
+          npm install --no-audit --no-fund
+          npm run type-check
+          npm test
+          npm run build
+
+      - name: Verify the site was actually produced
+        working-directory: ${{ runner.temp }}/ci-scaffold-test
+        run: |
+          test -f out/index.html
+          test -f out/search-index.json
+          test -f out/intro/index.html
+          test -f out/graph/index.html
+          echo "Scaffolded site built successfully."

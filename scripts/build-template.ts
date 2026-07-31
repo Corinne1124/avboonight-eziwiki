@@ -1,0 +1,243 @@
+#!/usr/bin/env tsx
+
+/**
+ * Assembles the `create-eziwiki` template from this repository.
+ *
+ * The engine — app, components, lib, styles, build scripts — is copied from
+ * source rather than duplicated, so there is exactly one copy to maintain and
+ * the scaffolded project can never drift from what is tested here. Only the
+ * parts specific to *this* site (the demo content, the demo config, the
+ * repository README) are replaced with starter equivalents.
+ */
+
+import fs from 'fs';
+import path from 'path';
+
+const ROOT = process.cwd();
+const PACKAGE_DIR = path.join(ROOT, 'packages', 'create-eziwiki');
+const STARTER_DIR = path.join(PACKAGE_DIR, 'starter');
+const TEMPLATE_DIR = path.join(PACKAGE_DIR, 'template');
+
+/**
+ * Engine directories copied verbatim from the repository.
+ */
+const ENGINE_DIRS = ['app', 'components', 'lib', 'styles', 'scripts'];
+
+/**
+ * Root files copied verbatim.
+ *
+ * Dotfiles are renamed on the way in, because npm strips or rewrites some of
+ * them in a published tarball; `scaffold.mjs` restores the real names.
+ */
+const ROOT_FILES: Array<[source: string, target: string]> = [
+  // Shipping the lockfile makes a scaffolded install both reproducible and
+  // fast, and pins the exact dependency tree this repository tests against.
+  ['package-lock.json', 'package-lock.json'],
+  ['next.config.js', 'next.config.js'],
+  ['postcss.config.js', 'postcss.config.js'],
+  ['tailwind.config.ts', 'tailwind.config.ts'],
+  ['tsconfig.json', 'tsconfig.json'],
+  ['vitest.config.ts', 'vitest.config.ts'],
+  ['next-env.d.ts', 'next-env.d.ts'],
+  ['.gitignore', 'gitignore'],
+  ['.eslintrc.js', 'eslintrc.js'],
+  ['.eslintignore', 'eslintignore'],
+  ['.prettierrc', 'prettierrc'],
+  ['.prettierignore', 'prettierignore'],
+];
+
+/** Public assets copied from the repository, excluding demo imagery. */
+const PUBLIC_INCLUDE = ['favicon.svg'];
+
+/**
+ * Collects the font files the stylesheet actually loads.
+ *
+ * `public/fonts/` holds every weight of each family, but the stylesheet only
+ * declares a few. Copying the directory wholesale put eight megabytes of
+ * unreferenced woff2 into the npm package — most of the download, for files no
+ * scaffolded site ever requests. Deriving the list from the CSS keeps it
+ * correct when a weight is added or dropped.
+ *
+ * @returns Paths relative to `public/`, e.g. 'fonts/Pretandard/Pretendard-Bold.woff2'
+ */
+function findReferencedFonts(): string[] {
+  const sources = ['app/globals.css', 'styles/theme.css', 'styles/markdown.css', 'app/layout.tsx'];
+  const found = new Set<string>();
+
+  for (const source of sources) {
+    const file = path.join(ROOT, source);
+    if (!fs.existsSync(file)) continue;
+
+    const text = fs.readFileSync(file, 'utf-8');
+    for (const match of text.matchAll(/\/(fonts\/[^"')\s]+\.woff2?)/g)) {
+      found.add(match[1]);
+    }
+  }
+
+  return [...found].sort();
+}
+
+/**
+ * Files excluded from the engine copy.
+ *
+ * Tests of the demo content assert against pages the starter does not have, so
+ * shipping them would hand every new project a failing suite. The engine's own
+ * unit tests travel with it; content-dependent ones do not.
+ */
+const EXCLUDE_FILES = new Set([
+  'scripts/build-template.ts',
+  'lib/content/registry.test.ts',
+  'lib/navigation/auto.test.ts',
+  'lib/graph/build.test.ts',
+  'lib/search/build.test.ts',
+  'lib/search/client.test.ts',
+  'lib/markdown/render.test.ts',
+]);
+
+/** Directories never copied. */
+const SKIP_DIRS = new Set(['node_modules', '.next', 'out']);
+
+/**
+ * Recursively copies a directory, honouring the exclusion lists.
+ *
+ * @param from - Absolute source directory
+ * @param to - Absolute destination directory
+ * @param relativeBase - Path relative to the repository root, for exclusions
+ * @returns Number of files copied
+ */
+function copyDir(from: string, to: string, relativeBase: string): number {
+  let count = 0;
+
+  fs.mkdirSync(to, { recursive: true });
+
+  for (const entry of fs.readdirSync(from, { withFileTypes: true })) {
+    if (SKIP_DIRS.has(entry.name)) continue;
+
+    const relative = path.posix.join(relativeBase, entry.name);
+    if (EXCLUDE_FILES.has(relative)) continue;
+
+    const source = path.join(from, entry.name);
+    const destination = path.join(to, entry.name);
+
+    if (entry.isDirectory()) {
+      count += copyDir(source, destination, relative);
+    } else if (entry.isFile()) {
+      fs.copyFileSync(source, destination);
+      count += 1;
+    }
+  }
+
+  return count;
+}
+
+/**
+ * Builds the package.json shipped inside the template.
+ *
+ * Scripts and dependencies come from the repository so a scaffolded project
+ * builds with exactly the versions tested here.
+ */
+function buildTemplateManifest(): Record<string, unknown> {
+  const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf-8'));
+
+  const scripts = { ...pkg.scripts };
+  // Only meaningful inside this repository.
+  delete scripts['build:template'];
+
+  return {
+    name: 'my-wiki',
+    version: '0.1.0',
+    private: true,
+    description: 'Documentation site built with eziwiki',
+    scripts,
+    dependencies: pkg.dependencies,
+    devDependencies: pkg.devDependencies,
+  };
+}
+
+function main() {
+  fs.rmSync(TEMPLATE_DIR, { recursive: true, force: true });
+  fs.mkdirSync(TEMPLATE_DIR, { recursive: true });
+
+  let files = 0;
+
+  for (const dir of ENGINE_DIRS) {
+    const source = path.join(ROOT, dir);
+    if (!fs.existsSync(source)) continue;
+    files += copyDir(source, path.join(TEMPLATE_DIR, dir), dir);
+  }
+
+  for (const [source, target] of ROOT_FILES) {
+    const from = path.join(ROOT, source);
+    if (!fs.existsSync(from)) continue;
+
+    fs.copyFileSync(from, path.join(TEMPLATE_DIR, target));
+    files += 1;
+  }
+
+  // Selected public assets; the demo screenshots and images stay behind.
+  const publicDir = path.join(TEMPLATE_DIR, 'public');
+  fs.mkdirSync(path.join(publicDir, 'images'), { recursive: true });
+
+  for (const entry of PUBLIC_INCLUDE) {
+    const from = path.join(ROOT, 'public', entry);
+    if (!fs.existsSync(from)) continue;
+
+    if (fs.statSync(from).isDirectory()) {
+      files += copyDir(from, path.join(publicDir, entry), `public/${entry}`);
+    } else {
+      fs.copyFileSync(from, path.join(publicDir, entry));
+      files += 1;
+    }
+  }
+
+  // Only the font weights the stylesheet declares.
+  const fonts = findReferencedFonts();
+
+  for (const font of fonts) {
+    const from = path.join(ROOT, 'public', font);
+    if (!fs.existsSync(from)) {
+      console.warn(`⚠️  Stylesheet references a missing font: public/${font}`);
+      continue;
+    }
+
+    const to = path.join(publicDir, font);
+    fs.mkdirSync(path.dirname(to), { recursive: true });
+    fs.copyFileSync(from, to);
+    files += 1;
+  }
+
+  console.log(`   fonts: ${fonts.length} referenced weights`);
+
+  // Keep the images directory present in the tarball.
+  fs.writeFileSync(path.join(publicDir, 'images', '.gitkeep'), '', 'utf-8');
+
+  // Starter content and config replace this site's own.
+  files += copyDir(STARTER_DIR, TEMPLATE_DIR, 'starter');
+
+  fs.writeFileSync(
+    path.join(TEMPLATE_DIR, 'package.json'),
+    `${JSON.stringify(buildTemplateManifest(), null, 2)}\n`,
+    'utf-8',
+  );
+  files += 1;
+
+  // The lockfile records the source repository's name at its root; leave it
+  // matching the template manifest so npm does not have to reconcile the two.
+  const lockPath = path.join(TEMPLATE_DIR, 'package-lock.json');
+  if (fs.existsSync(lockPath)) {
+    const lock = JSON.parse(fs.readFileSync(lockPath, 'utf-8'));
+
+    lock.name = 'my-wiki';
+    lock.version = '0.1.0';
+    if (lock.packages?.['']) {
+      lock.packages[''].name = 'my-wiki';
+      lock.packages[''].version = '0.1.0';
+    }
+
+    fs.writeFileSync(lockPath, `${JSON.stringify(lock, null, 2)}\n`, 'utf-8');
+  }
+
+  console.log(`📦 Template built: ${files} files → packages/create-eziwiki/template\n`);
+}
+
+main();

@@ -1,0 +1,38 @@
+{
+  "name": "create-eziwiki",
+  "version": "0.1.0",
+  "description": "Scaffold a new eziwiki documentation site",
+  "type": "module",
+  "bin": {
+    "create-eziwiki": "./bin/create-eziwiki.mjs"
+  },
+  "scripts": {
+    "test": "vitest --run lib",
+    "//prepack": "The template is generated from the repository source rather than committed, so it must be rebuilt before packing. npm runs prepack for both `npm pack` and `npm publish`, which is what stops a stale engine being shipped to users.",
+    "prepack": "cd ../.. && npm run build:template"
+  },
+  "files": [
+    "bin",
+    "lib",
+    "template",
+    "README.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/i3months/eziwiki.git",
+    "directory": "packages/create-eziwiki"
+  },
+  "homepage": "https://github.com/i3months/eziwiki#readme",
+  "bugs": "https://github.com/i3months/eziwiki/issues",
+  "keywords": [
+    "wiki",
+    "documentation",
+    "static-site-generator",
+    "markdown",
+    "nextjs"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  }
+}

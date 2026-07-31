@@ -7,6 +7,7 @@ import { MobileMenu } from './MobileMenu';
 import { TabBar } from './TabBar';
 import { NavigationButtons } from './NavigationButtons';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { SearchTrigger } from '@/components/search/SearchTrigger';
 
 /**
  * Props for the PageLayout component
@@ -57,6 +58,7 @@ export function PageLayout({ navigation, children }: PageLayoutProps) {
               />
             </svg>
           </button>
+          <SearchTrigger className="mx-3 min-w-0 flex-1" />
           <ThemeToggle />
         </div>
       </header>
@@ -73,7 +75,10 @@ export function PageLayout({ navigation, children }: PageLayoutProps) {
           </div>
 
           <div className="flex-1 overflow-y-auto">
-            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12">
+            {/* Wide enough to seat the table-of-contents rail beside the
+                article; the article itself stays measured by its own prose
+                width. */}
+            <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-12">
               {children}
             </div>
           </div>

@@ -1,6 +1,7 @@
 ---
 title: Frontmatter
 description: Add metadata to your Markdown files
+order: 2
 ---
 
 # Frontmatter

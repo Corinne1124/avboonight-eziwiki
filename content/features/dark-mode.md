@@ -1,6 +1,7 @@
 ---
 title: Dark Mode
 description: Built-in dark mode with automatic theme switching
+order: 7
 ---
 
 # Dark Mode
@@ -371,4 +372,4 @@ export function ThemeSelector() {
 
 - [Customize Theme Colors](/configuration/theme)
 - [Learn About Syntax Highlighting](/features/syntax-highlighting)
-- [Explore Hash Navigation](/features/hash-navigation)
+- [[url-strategies|Choose a URL strategy]]

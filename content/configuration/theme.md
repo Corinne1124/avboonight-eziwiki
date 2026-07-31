@@ -1,6 +1,7 @@
 ---
 title: Theme Customization
 description: Customize colors and appearance of your wiki
+order: 3
 ---
 
 # Theme Customization

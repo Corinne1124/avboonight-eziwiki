@@ -1,6 +1,8 @@
 ---
 title: Secret Demo Page
 description: This is a hidden page example - you found it!
+order: 99
+hidden: true
 ---
 
 # 🎉 You Found the Secret Page!
@@ -20,16 +22,18 @@ You probably:
 
 ## What Makes This Page Special?
 
-This page has `hidden: true` in the navigation config:
+This page has `hidden: true` in its frontmatter:
 
-```typescript
-// payload/config.ts
-{
-  name: 'Secret Demo Page',
-  path: 'secret-demo',
-  hidden: true,  // 👈 This makes it hidden
-}
+```markdown
+---
+title: Secret Demo Page
+description: This is a hidden page example - you found it!
+hidden: true # 👈 This makes it hidden
+---
 ```
+
+That is the whole mechanism — no configuration file involved. See
+[[hidden-pages]] for what "hidden" does and does not cover.
 
 ## Hidden Page Features
 
@@ -126,21 +130,12 @@ Look for pages marked with 🔒 [HIDDEN].
 
 Create your own hidden page:
 
-1. Add to `payload/config.ts`:
-
-   ```typescript
-   {
-     name: 'My Secret Page',
-     path: 'my-secret',
-     hidden: true,
-   }
-   ```
-
-2. Create `content/my-secret.md`:
+1. Create `content/my-secret.md`:
 
    ```markdown
    ---
    title: My Secret Page
+   hidden: true
    ---
 
    # My Secret Page
@@ -148,13 +143,15 @@ Create your own hidden page:
    This is my hidden page!
    ```
 
-3. Find the URL:
+2. Find the URL:
 
    ```bash
    npm run show-urls | grep "my-secret"
    ```
 
-4. Share the URL with others!
+3. Share the URL with others!
+
+There is no step for registering the page anywhere — the file is enough.
 
 ## Navigation
 
@@ -162,7 +159,7 @@ Want to go back?
 
 - [Home](/intro)
 - [Learn About Hidden Pages](/features/hidden-pages)
-- [Hash Navigation](/features/hash-navigation)
+- [[url-strategies|URL Strategies]]
 
 ---
 

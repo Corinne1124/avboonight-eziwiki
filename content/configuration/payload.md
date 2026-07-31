@@ -1,208 +1,132 @@
 ---
 title: Payload Configuration
-description: Complete guide to configuring your eziwiki site
+description: Every field in payload/config.ts, and what it does
+order: 1
 ---
 
 # Payload Configuration
 
-The `payload/config.ts` file is the heart of your eziwiki configuration. It defines your site's metadata, navigation structure, and theme.
+`payload/config.ts` holds your site's metadata, URL behaviour, and theme. It is
+deliberately small — pages come from the filesystem, not from here.
 
-## Basic Structure
-
-```typescript
-import { Payload } from '@/lib/payload/types';
-
-export const payload: Payload = {
-  global: {
-    // Site metadata
-  },
-  navigation: [
-    // Navigation structure
-  ],
-  theme: {
-    // Theme colors (optional)
-  },
-};
-```
-
-## Global Configuration
-
-### Required Fields
-
-```typescript
-global: {
-  title: 'My Wiki',
-  description: 'My personal knowledge base',
-}
-```
-
-- **title** - Your site's title (appears in browser tab and header)
-- **description** - Site description for SEO
-
-### Optional Fields
-
-```typescript
-global: {
-  title: 'My Wiki',
-  description: 'My personal knowledge base',
-  favicon: '/favicon.svg',
-  baseUrl: 'https://mywiki.com',
-  seo: {
-    openGraph: {
-      title: 'My Wiki - Knowledge Base',
-      description: 'My personal knowledge base',
-      images: [
-        {
-          url: '/og-image.png',
-          width: 1200,
-          height: 630,
-          alt: 'My Wiki',
-        },
-      ],
-    },
-  },
-}
-```
-
-- **favicon** - Path to favicon file in `public/` directory
-- **baseUrl** - Your site's URL (for SEO and Open Graph)
-- **seo.openGraph** - Open Graph metadata for social sharing
-
-## Navigation Configuration
-
-See the [Navigation Guide](/configuration/navigation) for detailed navigation setup.
-
-## Theme Configuration
-
-Customize your site's colors:
-
-```typescript
-theme: {
-  primary: '#2563eb',      // Primary color (links, buttons)
-  secondary: '#7c3aed',    // Secondary color
-  background: '#ffffff',   // Page background
-  text: '#1f2937',         // Text color
-  sidebarBg: '#f9fafb',    // Sidebar background
-  codeBg: '#f3f4f6',       // Code block background
-}
-```
-
-All theme fields are optional. If not specified, default colors are used.
-
-See [Theme Customization](/configuration/theme) for more details.
-
-## Complete Example
+## Minimum viable config
 
 ```typescript
 import { Payload } from '@/lib/payload/types';
 
 export const payload: Payload = {
   global: {
-    title: 'TechCorp Documentation',
-    description: 'Complete documentation for TechCorp products',
-    favicon: '/favicon.svg',
-    baseUrl: 'https://docs.techcorp.com',
-    seo: {
-      openGraph: {
-        title: 'TechCorp Documentation',
-        description: 'Complete documentation for TechCorp products',
-        images: [
-          {
-            url: '/og-image.png',
-            width: 1200,
-            height: 630,
-            alt: 'TechCorp Documentation',
-          },
-        ],
-      },
-    },
-  },
-  navigation: [
-    {
-      name: 'Introduction',
-      path: 'intro',
-    },
-    {
-      name: 'Getting Started',
-      color: '#dbeafe',
-      children: [
-        {
-          name: 'Installation',
-          path: 'getting-started/installation',
-        },
-        {
-          name: 'Quick Start',
-          path: 'getting-started/quick-start',
-        },
-      ],
-    },
-    {
-      name: 'API Reference',
-      color: '#fef3c7',
-      children: [
-        {
-          name: 'Authentication',
-          path: 'api/authentication',
-        },
-        {
-          name: 'Endpoints',
-          path: 'api/endpoints',
-        },
-      ],
-    },
-  ],
-  theme: {
-    primary: '#2563eb',
-    secondary: '#7c3aed',
-    background: '#ffffff',
-    text: '#1f2937',
-    sidebarBg: '#f9fafb',
-    codeBg: '#f3f4f6',
+    title: 'My Wiki',
+    description: 'My personal knowledge base',
   },
 };
 
 export default payload;
 ```
 
-## Validation
+That is a complete, working site. Everything else is optional.
 
-eziwiki validates your configuration at build time using JSON Schema:
+## `global`
 
-```bash
-# Validate your configuration
-npm run validate:payload
-```
+### Required
 
-Common validation errors:
+| Field         | Purpose                                          |
+| ------------- | ------------------------------------------------ |
+| `title`       | Site title, shown in the browser tab             |
+| `description` | Site description, used for SEO and as a fallback |
 
-- Missing required fields (`title`, `description`)
-- Invalid navigation structure
-- Invalid color format (must be hex color)
-- Missing content files referenced in navigation
-
-## Environment-Specific Configuration
-
-You can use environment variables in your configuration:
+### Behaviour
 
 ```typescript
 global: {
-  title: 'My Wiki',
-  description: 'My personal knowledge base',
+  urlStrategy: 'path',     // 'path' | 'hash'   — default 'path'
+  autoNavigation: true,    // boolean           — default true
+}
+```
+
+- **`urlStrategy`** — whether URLs mirror the content tree or are hashed. See
+  [[url-strategies]].
+- **`autoNavigation`** — whether pages under `content/` are discovered and added
+  to the sidebar without being listed. See [[navigation]].
+
+### Presentation and SEO
+
+```typescript
+global: {
+  favicon: '/favicon.svg',
+  baseUrl: 'https://mywiki.com',
+  seo: {
+    openGraph: {
+      title: 'My Wiki — Knowledge Base',
+      description: 'My personal knowledge base',
+      images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'My Wiki' }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      site: '@myhandle',
+    },
+  },
+}
+```
+
+- **`favicon`** — path to a file in `public/`
+- **`baseUrl`** — used for canonical URLs, the sitemap, and Open Graph tags. Set
+  it before you publish; social previews and `robots.txt` depend on it.
+
+Individual pages override the title, description, and OG image through their
+[[frontmatter]].
+
+## `navigation`
+
+Optional. Omit it and the sidebar is built from `content/`. Provide it to
+control naming and ordering — see [[navigation]] for the full picture.
+
+## `theme`
+
+```typescript
+theme: {
+  primary: '#2563eb',      // Links and accents
+  secondary: '#7c3aed',    // Secondary accent
+  background: '#ffffff',   // Page background
+  text: '#1f2937',         // Body text
+  sidebarBg: '#f9fafb',    // Sidebar background
+  codeBg: '#f3f4f6',       // Inline code background
+}
+```
+
+Every field is optional and falls back to the default palette. Colours must be
+six-digit hex. See [[theme]].
+
+## Validation
+
+The config is checked against a JSON Schema before every build:
+
+```bash
+npm run validate:payload
+```
+
+It catches missing required fields, malformed colours, and an invalid
+`urlStrategy`. It runs automatically as the first step of `npm run build`, so a
+broken config fails immediately rather than partway through rendering.
+
+## Environment variables
+
+```typescript
+global: {
   baseUrl: process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000',
 }
 ```
 
-## TypeScript Support
+The config is ordinary TypeScript, so anything available at build time works.
 
-The configuration is fully typed. Your IDE will provide:
+## Types
 
-- Autocomplete for all fields
-- Type checking
-- Inline documentation
-- Error detection
+`Payload` is fully typed, so your editor will autocomplete fields, flag typos,
+and show the documentation for each option inline. If a field is not in the
+type, it is not a real option.
 
-## Next Steps
+## Next
 
-- [Configure Navigation](/configuration/navigation)
-- [Customize Theme](/configuration/theme)
-- [Write Content](/content/markdown-basics)
+- [[navigation]] — how the sidebar is assembled
+- [[theme]] — colours and appearance
+- [[frontmatter]] — per-page settings

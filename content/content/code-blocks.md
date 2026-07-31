@@ -1,6 +1,7 @@
 ---
 title: Code Blocks
 description: Syntax highlighting and code examples in eziwiki
+order: 3
 ---
 
 # Code Blocks

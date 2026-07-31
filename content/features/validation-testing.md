@@ -1,23 +1,19 @@
 ---
 title: Validation & Testing
-description: Built-in validation and testing tools
+description: Catch broken configuration and dangling links before you deploy
+order: 9
 ---
 
 # Validation & Testing
 
-eziwiki includes powerful validation and testing tools to ensure your wiki is error-free.
+Three checks run as part of `npm run build`, so problems surface at build time
+rather than in front of a reader.
 
-## Payload Validation
-
-### Automatic Validation
-
-Payload configuration is automatically validated before every build:
+## Config validation
 
 ```bash
-npm run build
+npm run validate:payload
 ```
-
-Output:
 
 ```
 🔍 Validating payload configuration...
@@ -25,441 +21,106 @@ Output:
 ✅ Payload validation passed!
 ```
 
-### Manual Validation
+`payload/config.ts` is checked against a JSON Schema. It catches:
 
-Validate without building:
+- missing required fields (`global.title`, `global.description`)
+- malformed colours — theme values must be `#rrggbb`
+- an invalid `urlStrategy` — only `path` and `hash` are accepted
+- navigation entries missing a `name`, or nested wrongly
 
-```bash
-npm run validate:payload
-```
+A failure stops the build immediately, before anything is rendered.
 
-### What Gets Validated
-
-- **Required fields**: `title`, `description`
-- **Navigation structure**: Valid hierarchy
-- **Color format**: Hex colors (`#rrggbb`)
-- **File existence**: All referenced Markdown files exist
-- **Path uniqueness**: No duplicate paths
-- **JSON Schema**: Full schema validation
-
-### Validation Errors
-
-Common errors and fixes:
-
-#### Missing Required Field
+### Example failure
 
 ```
 ❌ Payload validation failed:
-
-  • global.title is required
+  - /global/title must NOT have fewer than 1 characters
 ```
 
-Fix:
-
-```typescript
-global: {
-  title: 'My Wiki',  // Add title
-  description: 'My description',
-}
-```
-
-#### Invalid Color Format
-
-```
-❌ Payload validation failed:
-
-  • navigation[0].color must be a valid hex color
-```
-
-Fix:
-
-```typescript
-{
-  name: 'Section',
-  color: '#dbeafe',  // Must be #rrggbb format
-}
-```
-
-#### Missing Content File
-
-```
-❌ Payload validation failed:
-
-  • Content file not found: content/missing-page.md
-```
-
-Fix:
+## Link checking
 
 ```bash
-# Create the missing file
-touch content/missing-page.md
+npm run check:links
 ```
 
-## Testing
+```
+🔗 Links OK — 61 links across 21 pages
+```
 
-### Run Tests
+Every [[wiki-links|wiki link]] and internal Markdown link is resolved against
+the content tree. Anything pointing at no page is reported with the file it was
+written in:
+
+```
+🔗 2 unresolved links:
+
+  content/guides/setup.md
+    [[instalation]] matches no page
+
+  content/guides/api.md
+    [[overview]] is ambiguous — matches api/overview, guides/overview
+    Use the full path to disambiguate.
+```
+
+By default this **reports without failing**. A dangling link in one page is not
+a reason to block a deploy of the other twenty, and content is often written
+before the page it references exists.
+
+To make it fatal — in CI, for instance:
 
 ```bash
-# Run all tests
-npm run test
-
-# Watch mode (for development)
-npm run test:watch
+npm run check:links -- --strict
 ```
 
-### Test Structure
+The same list appears at the bottom of the [Graph](/graph) page.
 
-Tests are located in `__tests__` directories:
+## Tests
 
-```
-lib/
-├── navigation/
-│   ├── builder.ts
-│   └── __tests__/
-│       └── builder.test.ts
+```bash
+npm test           # once
+npm run test:watch # on change
 ```
 
-### Example Test
+The suite covers the engine: content discovery, navigation assembly, URL
+resolution under both strategies, the Markdown pipeline, wiki-link parsing,
+search indexing and ranking, and the graph layout.
 
-```typescript
-import { describe, it, expect } from 'vitest';
-import { extractAllPaths } from '../builder';
+It also asserts against this site's own content — that every section in the
+search index points at a real anchor, and that no page contains a dangling
+link — so the tests fail if the documentation drifts from the code.
 
-describe('extractAllPaths', () => {
-  it('should extract all paths from navigation', () => {
-    const navigation = [
-      { name: 'Home', path: 'intro' },
-      {
-        name: 'Guides',
-        children: [{ name: 'Quick Start', path: 'guides/quick-start' }],
-      },
-    ];
-
-    const paths = extractAllPaths(navigation);
-
-    expect(paths).toEqual(['intro', 'guides/quick-start']);
-  });
-});
-```
-
-### Writing Tests
-
-Create a test file:
-
-```typescript
-// lib/utils/__tests__/helper.test.ts
-import { describe, it, expect } from 'vitest';
-import { myFunction } from '../helper';
-
-describe('myFunction', () => {
-  it('should do something', () => {
-    const result = myFunction('input');
-    expect(result).toBe('expected output');
-  });
-
-  it('should handle edge cases', () => {
-    expect(myFunction('')).toBe('');
-    expect(myFunction(null)).toBe(null);
-  });
-});
-```
-
-## Type Checking
-
-### Run Type Check
+## Types
 
 ```bash
 npm run type-check
 ```
 
-This runs TypeScript compiler without emitting files, catching type errors:
+`payload/config.ts` is typed, so most configuration mistakes are caught in your
+editor before any script runs. If a field is not in the `Payload` type, it is
+not a real option.
 
-```
-src/components/Example.tsx:10:5 - error TS2322: Type 'string' is not assignable to type 'number'.
-
-10     count: "invalid"
-       ~~~~~
-```
-
-### Strict Mode
-
-eziwiki uses strict TypeScript mode:
-
-```json
-{
-  "compilerOptions": {
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true
-  }
-}
-```
-
-## Linting
-
-### Run Linter
+## Formatting and lint
 
 ```bash
-npm run lint
+npm run lint     # ESLint, with --fix
+npm run format   # Prettier
 ```
 
-This runs ESLint with auto-fix:
+## In CI
 
-```
-✔ No ESLint warnings or errors
-```
-
-### Linting Rules
-
-Configured in `.eslintrc.js`:
-
-```javascript
-module.exports = {
-  extends: ['next/core-web-vitals', 'plugin:@typescript-eslint/recommended', 'prettier'],
-  rules: {
-    '@typescript-eslint/no-unused-vars': 'error',
-    '@typescript-eslint/no-explicit-any': 'warn',
-  },
-};
-```
-
-## Formatting
-
-### Format Code
-
-```bash
-npm run format
-```
-
-This runs Prettier on all files:
-
-```
-Checking formatting...
-All matched files use Prettier code style!
-```
-
-### Format Configuration
-
-Configured in `.prettierrc`:
-
-```json
-{
-  "semi": true,
-  "trailingComma": "all",
-  "singleQuote": true,
-  "printWidth": 100,
-  "tabWidth": 2
-}
-```
-
-## Pre-commit Checks
-
-### Recommended Workflow
-
-Before committing:
-
-```bash
-# 1. Format code
-npm run format
-
-# 2. Run linter
-npm run lint
-
-# 3. Type check
-npm run type-check
-
-# 4. Run tests
-npm run test
-
-# 5. Validate payload
-npm run validate:payload
-```
-
-### Git Hooks
-
-Set up pre-commit hooks with Husky:
-
-```bash
-npm install -D husky lint-staged
-
-# Initialize husky
-npx husky install
-
-# Add pre-commit hook
-npx husky add .husky/pre-commit "npm run lint && npm run type-check"
-```
-
-`.husky/pre-commit`:
-
-```bash
-#!/bin/sh
-. "$(dirname "$0")/_/husky.sh"
-
-npm run lint
-npm run type-check
-npm run test
-npm run validate:payload
-```
-
-## CI/CD Integration
-
-### GitHub Actions
-
-`.github/workflows/test.yml`:
+A workflow that runs everything:
 
 ```yaml
-name: Test
-
-on: [push, pull_request]
-
-jobs:
-  test:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 18
-          cache: 'npm'
-
-      - run: npm ci
-
-      - run: npm run lint
-
-      - run: npm run type-check
-
-      - run: npm run test
-
-      - run: npm run validate:payload
-
-      - run: npm run build
+- run: npm ci
+- run: npm run type-check
+- run: npm run lint
+- run: npm test
+- run: npm run check:links -- --strict
+- run: npm run build
 ```
 
-## Show URLs Script
+## Next
 
-View all hash-based URLs:
-
-```bash
-npm run show-urls
-```
-
-Output:
-
-```
-📋 Hash-Based URLs
-================================================================================
-📄 intro
-   → /2c8f9a1b
-   → https://eziwiki.dev/2c8f9a1b
-
-📄 getting-started/quick-start
-   → /7d3e4f2a
-   → https://eziwiki.dev/7d3e4f2a
-
-🔒 [HIDDEN] secret-page
-   → /9f1a2b3c
-   → https://eziwiki.dev/9f1a2b3c
-
-================================================================================
-Total pages: 15
-Hidden pages: 1
-
-💡 Tip: Hidden pages are not shown in the sidebar but can be accessed via their hash URL.
-```
-
-Useful for:
-
-- Finding hidden page URLs
-- Debugging navigation issues
-- Sharing direct links
-- Testing all pages
-
-## Best Practices
-
-### Validate Early
-
-Run validation before committing:
-
-```bash
-npm run validate:payload
-```
-
-### Write Tests
-
-Test critical functionality:
-
-```typescript
-// Test navigation builder
-// Test hash generation
-// Test content parsing
-// Test validation logic
-```
-
-### Use Type Safety
-
-Leverage TypeScript:
-
-```typescript
-✅ Good:
-interface User {
-  name: string;
-  email: string;
-}
-
-function greet(user: User): string {
-  return `Hello, ${user.name}!`;
-}
-
-❌ Bad:
-function greet(user: any) {
-  return `Hello, ${user.name}!`;
-}
-```
-
-### Keep Tests Fast
-
-```typescript
-✅ Good - unit tests:
-expect(add(1, 2)).toBe(3);
-
-❌ Bad - slow integration tests:
-await fetch('https://api.example.com/test');
-```
-
-## Troubleshooting
-
-### Validation Fails
-
-If validation fails:
-
-1. Read error messages carefully
-2. Check `payload/config.ts` for issues
-3. Verify all Markdown files exist
-4. Check color format (`#rrggbb`)
-
-### Tests Fail
-
-If tests fail:
-
-1. Read test output
-2. Check for recent code changes
-3. Update tests if behavior changed
-4. Fix bugs if tests are correct
-
-### Type Errors
-
-If type checking fails:
-
-1. Read error messages
-2. Add missing type annotations
-3. Fix type mismatches
-4. Use `any` sparingly (last resort)
-
-## Next Steps
-
-- [Learn About Hash Navigation](/features/hash-navigation)
-- [Explore Dark Mode](/features/dark-mode)
-- [Configure Your Wiki](/configuration/payload)
+- [[payload]] — what the config can contain
+- [[graph-and-backlinks]] — see unresolved links in context
+- [[static-export]] — deploying the result

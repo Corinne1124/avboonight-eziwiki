@@ -1,76 +1,47 @@
 ---
 title: Quick Start
 description: Get up and running with eziwiki in 5 minutes
+order: 1
 ---
 
 # Quick Start
 
 ![eziwiki](/images/eziwiki.png)
 
-Get your wiki up and running in less than 5 minutes!
-
 ## Prerequisites
 
-- Node.js 18+ installed
-- npm or yarn package manager
-- Basic knowledge of Markdown
+- Node.js 18 or newer
+- Basic familiarity with Markdown
 
-## Step 1: Clone the Repository
+## Step 1: Create a wiki
 
 ```bash
-git clone https://github.com/yourusername/eziwiki.git
-cd eziwiki
+npx create-eziwiki my-docs
 ```
 
-## Step 2: Install Dependencies
+This scaffolds a complete project — engine, config, and two starter pages.
+
+> Prefer to work from the repository itself? See [[installation]].
+
+## Step 2: Install and run
 
 ```bash
+cd my-docs
 npm install
-```
-
-Or with yarn:
-
-```bash
-yarn install
-```
-
-## Step 3: Start Development Server
-
-```bash
 npm run dev
 ```
 
-Your wiki will be available at [http://localhost:3000](http://localhost:3000)
+Open <http://localhost:3000>.
 
-## Step 4: Customize Your Wiki
+## Step 3: Write a page
 
-### Edit the Configuration
-
-Open `payload/config.ts` and customize your wiki:
-
-```typescript
-export const payload: Payload = {
-  global: {
-    title: 'My Awesome Wiki',
-    description: 'My personal knowledge base',
-  },
-  navigation: [
-    {
-      name: 'Home',
-      path: 'intro',
-    },
-  ],
-};
-```
-
-### Add Your Content
-
-Create Markdown files in the `content/` directory:
+Create `content/notes/first.md`:
 
 ```markdown
 ---
 title: My First Page
 description: This is my first wiki page
+order: 1
 ---
 
 # My First Page
@@ -78,38 +49,78 @@ description: This is my first wiki page
 Welcome to my wiki!
 ```
 
-## Step 5: Build for Production
+Save it. The page appears in the sidebar under a **Notes** section — no config
+change, no restart. That is the whole workflow: **a file is a page**.
 
-When you're ready to deploy:
+## Step 4: Name the section
+
+The folder became a section called "Notes". To label or order it, add
+`content/notes/_meta.json`:
+
+```json
+{
+  "name": "📓 Notes",
+  "order": 1,
+  "color": "#dbeafe"
+}
+```
+
+See [[navigation]] for the full set of options.
+
+## Step 5: Link pages together
+
+```markdown
+See [[first]] for the basics.
+```
+
+Wiki links resolve by file name, full path, or page title, so you can link
+without knowing where a page sits. The target page automatically gains a
+backlink at its bottom. See [[wiki-links]].
+
+## Step 6: Make it yours
+
+Edit `payload/config.ts`:
+
+```typescript
+export const payload: Payload = {
+  global: {
+    title: 'My Awesome Wiki',
+    description: 'My personal knowledge base',
+    baseUrl: 'https://mywiki.com',
+  },
+};
+```
+
+Set `baseUrl` before publishing — canonical URLs, the sitemap, and social
+previews all use it. See [[payload]] and [[theme]].
+
+## Step 7: Build
 
 ```bash
 npm run build
 ```
 
-This generates a static site in the `out/` directory.
+A fully static site lands in `out/`. Deploy it anywhere — see
+[[static-export]].
 
-## Next Steps
-
-- [Learn about configuration options](/configuration/payload)
-- [Explore navigation setup](/configuration/navigation)
-- [Customize your theme](/configuration/theme)
-- [Deploy your wiki](/deployment/static-export)
-
-## Common Commands
+## Commands
 
 ```bash
-# Development
-npm run dev          # Start dev server
-npm run build        # Build for production
-npm run start        # Preview production build
+npm run dev              # Development server
+npm run build            # Static production build
+npm run start            # Preview the production build
 
-# Quality
-npm run lint         # Run ESLint
-npm run format       # Format with Prettier
-npm run test         # Run tests
+npm run show-urls        # List every page and its URL
+npm run check:links      # Report links that point at no page
+npm run validate:payload # Check the config
 
-# Validation
-npm run validate:payload  # Validate configuration
+npm run lint             # ESLint
+npm run format           # Prettier
+npm test                 # Test suite
 ```
 
-That's it! You're ready to start building your wiki. 🎉
+## Next
+
+- [[markdown-basics]] — what a page can contain
+- [[frontmatter]] — per-page settings
+- [[search]] — how readers will find things

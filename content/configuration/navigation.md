@@ -1,281 +1,158 @@
 ---
 title: Navigation Configuration
-description: Learn how to structure your wiki's navigation
+description: How the sidebar is built, and how to take control of it
+order: 2
 ---
 
 # Navigation Configuration
 
-The navigation array in `payload/config.ts` defines your wiki's sidebar structure.
+**You usually do not configure navigation.** Every Markdown file under
+`content/` is published and placed in the sidebar automatically, grouped by
+folder. This site's sidebar is built that way — `payload/config.ts` contains no
+navigation array at all.
 
-## Basic Navigation Item
+Configure it only when you want something the filesystem cannot express.
 
-```typescript
+## The default: from the filesystem
+
+```
+content/
+├── intro.md                    → a top-level page
+└── getting-started/            → a section
+    ├── quick-start.md          → a page inside it
+    └── installation.md
+```
+
+Names come from each page's frontmatter `title`, falling back to a tidied-up
+file name (`quick-start.md` → "Quick Start").
+
+Files and folders whose names start with `_` or `.` are skipped, so drafts can
+live in `content/_drafts/` without being published.
+
+## Ordering
+
+### Pages — frontmatter `order`
+
+```markdown
+---
+title: Quick Start
+order: 1
+---
+```
+
+Lower numbers come first. Pages without an `order` sort after those that have
+one, alphabetically by title.
+
+### Sections — `_meta.json`
+
+Drop a `_meta.json` beside a folder's pages:
+
+```json
 {
-  name: 'Introduction',
-  path: 'intro',
+  "name": "📚 Getting Started",
+  "order": 2,
+  "color": "#dbeafe"
 }
 ```
 
-- **name** - Display name in sidebar
-- **path** - Path to Markdown file (without `.md` extension)
+| Field    | Purpose                                           |
+| -------- | ------------------------------------------------- |
+| `name`   | Section label; defaults to the tidied folder name |
+| `order`  | Position among siblings                           |
+| `color`  | Background tint, as `#rrggbb`                     |
+| `icon`   | Icon identifier                                   |
+| `hidden` | Keep the whole section out of the sidebar         |
 
-The path `'intro'` maps to `content/intro.md`.
+### Mixing pages and sections
 
-## Nested Navigation
+Top-level pages and sections share one sequence. A root page's own `order` ranks
+it against the sections' `_meta.json` orders:
 
-Create sections with children:
-
-```typescript
-{
-  name: 'Getting Started',
-  children: [
-    {
-      name: 'Installation',
-      path: 'getting-started/installation',
-    },
-    {
-      name: 'Quick Start',
-      path: 'getting-started/quick-start',
-    },
-  ],
-}
+```
+content/intro.md         order: 1   → first
+content/getting-started/ order: 2   → second
+content/configuration/   order: 3   → third
 ```
 
-The path `'getting-started/installation'` maps to `content/getting-started/installation.md`.
+## Hiding a page
 
-## Section Colors
-
-Add background colors to sections:
-
-```typescript
-{
-  name: 'API Reference',
-  color: '#dbeafe',  // Light blue
-  children: [
-    {
-      name: 'Authentication',
-      path: 'api/authentication',
-    },
-  ],
-}
+```markdown
+---
+title: Draft
+hidden: true
+---
 ```
 
-Colors must be in hex format (`#rrggbb`).
+The page still builds and is still reachable by URL — it just does not appear in
+the sidebar, [[search]], the [[graph-and-backlinks|graph]], or the sitemap. See
+[[hidden-pages]].
 
-## Unlimited Nesting
+## Taking manual control
 
-You can nest as deep as you need:
-
-```typescript
-{
-  name: 'Guides',
-  children: [
-    {
-      name: 'Advanced',
-      children: [
-        {
-          name: 'Security',
-          children: [
-            {
-              name: 'Authentication',
-              path: 'guides/advanced/security/authentication',
-            },
-            {
-              name: 'Authorization',
-              path: 'guides/advanced/security/authorization',
-            },
-          ],
-        },
-      ],
-    },
-  ],
-}
-```
-
-## Section Headers
-
-Items without `path` act as section headers:
-
-```typescript
-{
-  name: 'Documentation',  // Not clickable
-  children: [
-    {
-      name: 'Getting Started',
-      path: 'docs/getting-started',
-    },
-  ],
-}
-```
-
-## Hidden Pages
-
-Hide pages from navigation but keep them accessible:
-
-```typescript
-{
-  name: 'Secret Page',
-  path: 'secret',
-  hidden: true,
-}
-```
-
-Hidden pages:
-
-- Don't appear in sidebar
-- Are still accessible via direct URL
-- Useful for draft pages or unlisted content
-
-## Emojis in Navigation
-
-Add emojis to make navigation more visual:
+Add a `navigation` array to `payload/config.ts` when you want an order or a
+grouping the folder structure cannot produce:
 
 ```typescript
 navigation: [
-  {
-    name: '🏠 Home',
-    path: 'intro',
-  },
-  {
-    name: '📚 Documentation',
-    children: [
-      {
-        name: '🚀 Quick Start',
-        path: 'docs/quick-start',
-      },
-      {
-        name: '⚙️ Configuration',
-        path: 'docs/configuration',
-      },
-    ],
-  },
-];
-```
-
-## Complete Example
-
-```typescript
-navigation: [
-  {
-    name: '🏠 Introduction',
-    path: 'intro',
-  },
+  { name: '🏠 Introduction', path: 'intro' },
   {
     name: '📚 Getting Started',
     color: '#dbeafe',
     children: [
-      {
-        name: 'Installation',
-        path: 'getting-started/installation',
-      },
-      {
-        name: 'Quick Start',
-        path: 'getting-started/quick-start',
-      },
-      {
-        name: 'Your First Wiki',
-        path: 'getting-started/first-wiki',
-      },
-    ],
-  },
-  {
-    name: '⚙️ Configuration',
-    color: '#fef3c7',
-    children: [
-      {
-        name: 'Payload Config',
-        path: 'configuration/payload',
-      },
-      {
-        name: 'Navigation',
-        path: 'configuration/navigation',
-      },
-      {
-        name: 'Theme',
-        path: 'configuration/theme',
-      },
-    ],
-  },
-  {
-    name: '✍️ Writing Content',
-    color: '#e9d5ff',
-    children: [
-      {
-        name: 'Markdown Basics',
-        path: 'content/markdown-basics',
-      },
-      {
-        name: 'Frontmatter',
-        path: 'content/frontmatter',
-      },
-      {
-        name: 'Code Blocks',
-        path: 'content/code-blocks',
-      },
+      { name: 'Quick Start', path: 'getting-started/quick-start' },
+      { name: 'Installation', path: 'getting-started/installation' },
     ],
   },
 ];
 ```
 
-## Best Practices
+| Field      | Purpose                                                   |
+| ---------- | --------------------------------------------------------- |
+| `name`     | Label in the sidebar                                      |
+| `path`     | Content path without `.md`; omit to make a section header |
+| `children` | Nested items, to any depth                                |
+| `color`    | Background tint for the item and its children             |
+| `icon`     | Icon identifier                                           |
+| `hidden`   | Hide this item, and everything under it                   |
 
-### Keep It Shallow
+### Manual and automatic together
 
-Avoid more than 3-4 levels of nesting:
+A `navigation` array does not have to be exhaustive. Entries you write control
+naming and order; any page it does not mention is still discovered and appended
+to the section covering its folder.
 
-```typescript
-// ✅ Good - 3 levels
-Guides → Advanced → Security
+That means adding a page never _requires_ editing config — it only lets you
+override where it lands.
 
-// ❌ Too deep - 5 levels
-Docs → Guides → Advanced → Security → Auth → OAuth
-```
+A section is taken to cover a folder when all its entries live in that folder.
+Sections spanning several folders are left alone, since appending to them would
+be a guess; discovered pages from an unclaimed folder get a new section instead.
 
-### Use Descriptive Names
-
-```typescript
-// ✅ Good
-{ name: 'Getting Started', path: 'getting-started' }
-
-// ❌ Too vague
-{ name: 'Start', path: 'start' }
-```
-
-### Group Related Content
+To make the array exhaustive and stop discovery entirely:
 
 ```typescript
-{
-  name: 'API Reference',
-  children: [
-    { name: 'Authentication', path: 'api/auth' },
-    { name: 'Users', path: 'api/users' },
-    { name: 'Posts', path: 'api/posts' },
-  ],
+global: {
+  autoNavigation: false,
 }
 ```
 
-### Use Colors Consistently
+## Nesting
 
-```typescript
-// ✅ Good - consistent color scheme
-{
-  name: 'Tutorials',
-  color: '#dbeafe',  // Blue for learning content
-  children: [...]
-},
-{
-  name: 'Reference',
-  color: '#fef3c7',  // Yellow for reference content
-  children: [...]
-}
+Nest as deep as you need — the filesystem and the array both support it. Past
+three or four levels a sidebar gets hard to scan; consider whether [[search]]
+and [[wiki-links|wiki links]] would serve readers better than another tier of
+folders.
+
+## Checking the result
+
+```bash
+npm run show-urls
 ```
 
-## Navigation State
+Lists every page that will be built, in order, with its URL.
 
-Navigation state (expanded/collapsed sections) is automatically saved to localStorage and persists across page reloads.
+## Next
 
-## Next Steps
-
-- [Customize Theme Colors](/configuration/theme)
-- [Write Markdown Content](/content/markdown-basics)
-- [Deploy Your Wiki](/deployment/static-export)
+- [[payload]] — everything else in the config file
+- [[theme]] — colours and appearance
+- [[frontmatter]] — the full list of page fields

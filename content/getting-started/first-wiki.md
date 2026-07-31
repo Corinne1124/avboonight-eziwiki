@@ -1,6 +1,7 @@
 ---
 title: Your First Wiki
 description: Create your first wiki page from scratch
+order: 3
 ---
 
 # Your First Wiki
@@ -66,41 +67,20 @@ console.log(greet('World'));
 I'm going to learn more about [Markdown basics](/content/markdown-basics).
 ```
 
-## Step 4: Add to Navigation
+## Step 4: View Your Page
 
-Open `payload/config.ts` and add your page to navigation:
+Save the file and go to <http://localhost:3000>. **That is it** — the page is
+already in the sidebar under a section named after its folder, and already
+searchable.
 
-```typescript
-export const payload: Payload = {
-  global: {
-    title: 'My Wiki',
-    description: 'My personal knowledge base',
-  },
-  navigation: [
-    {
-      name: 'Home',
-      path: 'intro',
-    },
-    {
-      name: 'My First Page',
-      path: 'my-first-page',
-    },
-  ],
-};
-```
-
-## Step 5: View Your Page
-
-1. Save all files
-2. Go to [http://localhost:3000](http://localhost:3000)
-3. Click "My First Page" in the sidebar
-4. See your content!
+There is no navigation array to update. Every Markdown file under `content/` is
+published automatically.
 
 ## Organizing Content
 
 ### Create Folders
 
-Organize related pages in folders:
+Folders become sidebar sections:
 
 ```bash
 mkdir -p content/guides
@@ -108,28 +88,38 @@ touch content/guides/getting-started.md
 touch content/guides/advanced.md
 ```
 
-### Nested Navigation
+Both pages appear immediately, grouped under a **Guides** section.
 
-Reflect folder structure in navigation:
+### Name and Order a Section
 
-```typescript
-navigation: [
-  {
-    name: 'Guides',
-    color: '#dbeafe',
-    children: [
-      {
-        name: 'Getting Started',
-        path: 'guides/getting-started',
-      },
-      {
-        name: 'Advanced',
-        path: 'guides/advanced',
-      },
-    ],
-  },
-];
+To control how a folder is presented, add a `_meta.json` beside its pages:
+
+```json
+{
+  "name": "📖 Guides",
+  "order": 1,
+  "color": "#dbeafe"
+}
 ```
+
+### Order Pages
+
+Use `order` in each page's frontmatter — lower comes first:
+
+```markdown
+---
+title: Getting Started
+order: 1
+---
+```
+
+Pages without an `order` sort after those that have one, alphabetically.
+
+### Take Manual Control
+
+If you want a structure the folders cannot express, add a `navigation` array to
+`payload/config.ts`. It does not have to list everything — pages it omits are
+still discovered and appended. See [[navigation]].
 
 ## Tips for Great Wiki Pages
 

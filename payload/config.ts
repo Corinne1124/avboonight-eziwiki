@@ -1,8 +1,11 @@
 import { Payload } from '@/lib/payload/types';
 
 /**
- * Main payload configuration for eziwiki
- * This defines the site structure, navigation, and theme
+ * Site configuration.
+ *
+ * Navigation is intentionally absent: every page under `content/` is discovered
+ * automatically, grouped by folder, and ordered by frontmatter. See
+ * `content/configuration/navigation.md` for how to override that.
  */
 export const payload: Payload = {
   global: {
@@ -11,6 +14,24 @@ export const payload: Payload = {
       'A beautiful, minimal wiki and documentation site generator inspired by Notion and Obsidian',
     favicon: '/favicon.svg',
     baseUrl: 'https://eziwiki.dev',
+    /**
+     * URL form for content pages.
+     *
+     * 'path' mirrors the content tree (`/getting-started/quick-start`) and is
+     * what search engines and readers can make sense of.
+     * 'hash' emits opaque digests (`/a3f2e9d1-...`), concealing the structure
+     * at the cost of SEO and shareable links.
+     */
+    urlStrategy: 'path',
+    /**
+     * Publish pages found under `content/` without listing them anywhere.
+     *
+     * This site relies on it entirely: there is no `navigation` array below.
+     * Section names, order, and colours come from each folder's `_meta.json`,
+     * and page order from frontmatter. Add a `navigation` array here to take
+     * manual control of naming and ordering.
+     */
+    autoNavigation: true,
     seo: {
       openGraph: {
         title: 'eziwiki - Beautiful Documentation Made Easy',
@@ -34,133 +55,6 @@ export const payload: Payload = {
       },
     },
   },
-  navigation: [
-    {
-      name: '🏠 Introduction',
-      path: 'intro',
-    },
-    {
-      name: '📚 Getting Started',
-      color: '#dbeafe',
-      children: [
-        {
-          name: 'Quick Start',
-          path: 'getting-started/quick-start',
-        },
-        {
-          name: 'Installation',
-          path: 'getting-started/installation',
-        },
-        {
-          name: 'Your First Wiki',
-          path: 'getting-started/first-wiki',
-        },
-      ],
-    },
-    {
-      name: '⚙️ Configuration',
-      color: '#fef3c7',
-      children: [
-        {
-          name: 'Payload Config',
-          path: 'configuration/payload',
-        },
-        {
-          name: 'Navigation',
-          path: 'configuration/navigation',
-        },
-        {
-          name: 'Theme Customization',
-          path: 'configuration/theme',
-        },
-      ],
-    },
-    {
-      name: '✍️ Writing Content',
-      color: '#e9d5ff',
-      children: [
-        {
-          name: 'Markdown Basics',
-          path: 'content/markdown-basics',
-        },
-        {
-          name: 'Frontmatter',
-          path: 'content/frontmatter',
-        },
-        {
-          name: 'Code Blocks',
-          path: 'content/code-blocks',
-        },
-      ],
-    },
-    {
-      name: '🔧 Features',
-      color: '#fcd34d',
-      children: [
-        {
-          name: 'Hash-based Navigation',
-          path: 'features/hash-navigation',
-        },
-        {
-          name: 'Hidden Pages',
-          path: 'features/hidden-pages',
-        },
-        {
-          name: 'Dark Mode',
-          path: 'features/dark-mode',
-        },
-        {
-          name: 'Syntax Highlighting',
-          path: 'features/syntax-highlighting',
-        },
-        {
-          name: 'Validation & Testing',
-          path: 'features/validation-testing',
-        },
-      ],
-    },
-    {
-      name: '🚀 Deployment',
-      color: '#fecaca',
-      children: [
-        {
-          name: 'Static Export',
-          path: 'deployment/static-export',
-        },
-        {
-          name: 'GitHub Pages',
-          path: 'deployment/github-pages',
-        },
-        {
-          name: 'Vercel',
-          path: 'deployment/vercel',
-        },
-      ],
-    },
-    {
-      name: '🎨 Examples',
-      color: '#d1fae5',
-      children: [
-        {
-          name: 'Personal Wiki',
-          path: 'examples/personal-wiki',
-        },
-        {
-          name: 'API Documentation',
-          path: 'examples/api-docs',
-        },
-        {
-          name: 'Knowledge Base',
-          path: 'examples/knowledge-base',
-        },
-      ],
-    },
-    {
-      name: 'Secret Demo Page',
-      path: 'secret-demo',
-      hidden: true,
-    },
-  ],
   theme: {
     primary: '#2563eb',
     secondary: '#7c3aed',

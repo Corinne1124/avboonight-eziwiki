@@ -6,7 +6,7 @@ import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { useTabStore } from '@/lib/store/tabStore';
 import { NavigationItem } from '@/lib/payload/types';
 import { Breadcrumb } from './Breadcrumb';
-import { resolvePathToHash } from '@/lib/navigation/hash';
+import { useUrlMap } from '@/components/providers/UrlMapProvider';
 
 interface NavigationButtonsProps {
   navigation: NavigationItem[];
@@ -17,6 +17,7 @@ interface NavigationButtonsProps {
  */
 export function NavigationButtons({ navigation }: NavigationButtonsProps) {
   const router = useRouter();
+  const { href: urlFor } = useUrlMap();
   const { activeTabId, goBack, goForward, canGoBack, canGoForward } = useTabStore();
 
   const canNavigateBack = activeTabId ? canGoBack(activeTabId) : false;
@@ -27,12 +28,7 @@ export function NavigationButtons({ navigation }: NavigationButtonsProps) {
 
     const result = goBack(activeTabId);
     if (result) {
-      if (!result.path) {
-        router.replace('/');
-        return;
-      }
-      const hash = resolvePathToHash(result.path, navigation);
-      router.replace(`/${hash || ''}`);
+      router.replace(urlFor(result.path));
     }
   };
 
@@ -41,12 +37,7 @@ export function NavigationButtons({ navigation }: NavigationButtonsProps) {
 
     const result = goForward(activeTabId);
     if (result) {
-      if (!result.path) {
-        router.replace('/');
-        return;
-      }
-      const hash = resolvePathToHash(result.path, navigation);
-      router.replace(`/${hash || ''}`);
+      router.replace(urlFor(result.path));
     }
   };
 

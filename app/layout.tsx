@@ -1,10 +1,13 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import '@/styles/theme.css';
+import 'katex/dist/katex.min.css';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { TabInitializer } from '@/components/layout/TabInitializer';
+import { UrlMapProvider } from '@/components/providers/UrlMapProvider';
+import { SearchDialog } from '@/components/search/SearchDialog';
 import { payload } from '@/payload/config';
 import { validatePayload } from '@/lib/payload/validator';
+import { getSite } from '@/lib/site';
 
 // Validate payload at build time
 const validation = validatePayload(payload);
@@ -42,7 +45,8 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  const baseUrl = payload.global.baseUrl || 'https://example.com';
+  const site = getSite();
+  const baseUrl = site.global.baseUrl || 'https://example.com';
 
   return (
     <html lang="en">
@@ -67,16 +71,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             __html: JSON.stringify({
               '@context': 'https://schema.org',
               '@type': 'WebSite',
-              name: payload.global.title,
-              description: payload.global.description,
+              name: site.global.title,
+              description: site.global.description,
               url: baseUrl,
             }),
           }}
         />
       </head>
       <body>
-        <TabInitializer navigation={payload.navigation} />
-        <PageLayout navigation={payload.navigation}>{children}</PageLayout>
+        <UrlMapProvider value={site.urlMap}>
+          <TabInitializer navigation={site.navigation} />
+          <PageLayout navigation={site.navigation}>{children}</PageLayout>
+          <SearchDialog />
+        </UrlMapProvider>
       </body>
     </html>
   );

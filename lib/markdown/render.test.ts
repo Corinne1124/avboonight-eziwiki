@@ -1,0 +1,207 @@
+import { describe, it, expect } from 'vitest';
+import { renderDoc, renderMarkdown } from './render';
+
+describe('renderMarkdown', () => {
+  it('renders headings with anchor ids and collects them', async () => {
+    const { html, headings } = await renderMarkdown('# Title\n\n## Setup\n\n### Details\n');
+
+    expect(html).toContain('id="setup"');
+    expect(headings).toEqual([
+      { id: 'setup', text: 'Setup', depth: 2 },
+      { id: 'details', text: 'Details', depth: 3 },
+    ]);
+  });
+
+  it('excludes h1 from the table of contents', async () => {
+    const { headings } = await renderMarkdown('# Page Title\n\n## Section\n');
+
+    expect(headings.map((heading) => heading.text)).toEqual(['Section']);
+  });
+
+  it('wraps code blocks with a language label and copy button', async () => {
+    const { html } = await renderMarkdown('```typescript\nconst x = 1;\n```\n');
+
+    expect(html).toContain('class="ezw-code"');
+    expect(html).toContain('data-language="typescript"');
+    expect(html).toContain('data-ezw-copy');
+    expect(html).toContain('>typescript<');
+  });
+
+  it('labels a fence with no language as text', async () => {
+    const { html } = await renderMarkdown('```\nplain\n```\n');
+
+    expect(html).toContain('data-language="text"');
+  });
+
+  it('highlights code with both themes as CSS variables', async () => {
+    const { html } = await renderMarkdown('```js\nconst x = 1;\n```\n');
+
+    expect(html).toContain('--shiki-light');
+    expect(html).toContain('--shiki-dark');
+    // With defaultColor disabled neither theme is baked in as a plain colour.
+    expect(html).not.toMatch(/<pre[^>]*style="[^"]*(?<!-)color:\s*#/);
+  });
+
+  it('does not fail the build on an unknown code language', async () => {
+    const { html } = await renderMarkdown('```not-a-real-language\nx\n```\n');
+
+    expect(html).toContain('class="ezw-code"');
+  });
+
+  it('rewrites internal links to site URLs', async () => {
+    const { html } = await renderMarkdown('[Quick Start](getting-started/quick-start)\n');
+
+    expect(html).toContain('href="/getting-started/quick-start"');
+  });
+
+  it('resolves internal links written with a .md extension or leading slash', async () => {
+    const { html } = await renderMarkdown(
+      '[a](/getting-started/quick-start) [b](getting-started/quick-start.md)\n',
+    );
+
+    expect(html.match(/href="\/getting-started\/quick-start"/g)).toHaveLength(2);
+  });
+
+  it('preserves the anchor when resolving an internal link', async () => {
+    const { html } = await renderMarkdown('[Step](getting-started/quick-start#step-two)\n');
+
+    expect(html).toContain('href="/getting-started/quick-start#step-two"');
+  });
+
+  it('leaves in-page anchors alone', async () => {
+    const { html } = await renderMarkdown('## Setup\n\n[Jump](#setup)\n');
+
+    expect(html).toContain('href="#setup"');
+  });
+
+  it('leaves unresolvable internal links as authored', async () => {
+    const { html } = await renderMarkdown('[Missing](no/such/page)\n');
+
+    expect(html).toContain('href="no/such/page"');
+  });
+
+  it('opens external links in a new tab with a safe rel', async () => {
+    const { html } = await renderMarkdown('[Next.js](https://nextjs.org)\n');
+
+    expect(html).toContain('target="_blank"');
+    expect(html).toContain('rel="noopener noreferrer"');
+  });
+
+  it('renders GitHub Flavored Markdown tables and task lists', async () => {
+    const { html } = await renderMarkdown('| a | b |\n| - | - |\n| 1 | 2 |\n\n- [x] done\n');
+
+    expect(html).toContain('<table>');
+    expect(html).toContain('type="checkbox"');
+  });
+
+  it('renders math with KaTeX', async () => {
+    const { html } = await renderMarkdown('$E = mc^2$\n');
+
+    expect(html).toContain('katex');
+  });
+
+  it('keeps raw HTML written inside Markdown', async () => {
+    const { html } = await renderMarkdown('<div class="custom">hello</div>\n');
+
+    expect(html).toContain('<div class="custom">hello</div>');
+  });
+
+  it('marks images as lazily loaded', async () => {
+    const { html } = await renderMarkdown('![alt](/images/x.png)\n');
+
+    expect(html).toContain('loading="lazy"');
+    expect(html).toContain('ezw-img');
+  });
+});
+
+describe('renderDoc', () => {
+  it('renders a document from the content registry', async () => {
+    const rendered = await renderDoc('intro');
+
+    expect(rendered).not.toBeNull();
+    expect(rendered!.html.length).toBeGreaterThan(0);
+  });
+
+  it('memoises repeated renders of the same document', async () => {
+    expect(await renderDoc('intro')).toBe(await renderDoc('intro'));
+  });
+
+  it('returns null for a document that does not exist', async () => {
+    expect(await renderDoc('does-not-exist')).toBeNull();
+  });
+});
+
+describe('wiki links', () => {
+  it('resolves a full path', async () => {
+    const { html } = await renderMarkdown('[[getting-started/quick-start]]\n');
+
+    expect(html).toContain('href="/getting-started/quick-start"');
+    expect(html).toContain('ezw-wikilink');
+    // With no label, the target's own title is used as the link text.
+    expect(html).toContain('>Quick Start<');
+  });
+
+  it('resolves a bare file name', async () => {
+    const { html } = await renderMarkdown('[[quick-start]]\n');
+
+    expect(html).toContain('href="/getting-started/quick-start"');
+  });
+
+  it('resolves a page title', async () => {
+    const { html } = await renderMarkdown('[[Quick Start]]\n');
+
+    expect(html).toContain('href="/getting-started/quick-start"');
+  });
+
+  it('uses an explicit label', async () => {
+    const { html } = await renderMarkdown('[[quick-start|start here]]\n');
+
+    expect(html).toContain('>start here<');
+  });
+
+  it('appends an anchor', async () => {
+    const { html } = await renderMarkdown('[[quick-start#prerequisites]]\n');
+
+    expect(html).toContain('href="/getting-started/quick-start#prerequisites"');
+  });
+
+  it('links an anchor-only reference within the page', async () => {
+    const { html } = await renderMarkdown('## Setup\n\n[[#setup]]\n');
+
+    expect(html).toContain('href="#setup"');
+  });
+
+  it('marks an unresolved link as broken instead of linking nowhere', async () => {
+    const { html } = await renderMarkdown('[[no-such-page]]\n');
+
+    expect(html).toContain('ezw-broken-link');
+    expect(html).not.toContain('href="/no-such-page"');
+    expect(html).toContain('>no-such-page<');
+  });
+
+  it('leaves wiki links inside code untouched', async () => {
+    const inline = await renderMarkdown('Use `[[quick-start]]` to link.\n');
+    const fenced = await renderMarkdown('```\n[[quick-start]]\n```\n');
+
+    expect(inline.html).not.toContain('ezw-wikilink');
+    expect(inline.html).toContain('[[quick-start]]');
+    expect(fenced.html).not.toContain('ezw-wikilink');
+  });
+
+  it('handles several links in one paragraph with text between them', async () => {
+    const { html } = await renderMarkdown('See [[intro]] and then [[quick-start]] next.\n');
+
+    expect(html).toContain('href="/intro"');
+    expect(html).toContain('href="/getting-started/quick-start"');
+    expect(html).toContain('See ');
+    expect(html).toContain(' and then ');
+    expect(html).toContain(' next.');
+  });
+
+  it('leaves unmatched brackets as literal text', async () => {
+    const { html } = await renderMarkdown('An array like [[1, 2], [3]] stays put.\n');
+
+    expect(html).not.toContain('ezw-wikilink');
+    expect(html).not.toContain('ezw-broken-link');
+  });
+});

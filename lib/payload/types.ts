@@ -1,3 +1,5 @@
+import type { UrlStrategy } from '../navigation/url';
+
 /**
  * Navigation item in the sidebar hierarchy
  */
@@ -28,6 +30,20 @@ export interface GlobalConfig {
   favicon?: string;
   /** Base URL for the site */
   baseUrl?: string;
+  /**
+   * How content paths are expressed in URLs.
+   *
+   * `path` produces readable, indexable URLs mirroring the content tree.
+   * `hash` produces opaque hashes that conceal the structure at the cost of
+   * SEO and shareability. Defaults to `path`.
+   */
+  urlStrategy?: UrlStrategy;
+  /**
+   * Discover documents under `content/` and add any that navigation does not
+   * already reference. Enabled by default, so a new Markdown file appears in
+   * the sidebar without touching this config.
+   */
+  autoNavigation?: boolean;
   /** SEO metadata */
   seo?: {
     openGraph?: {
@@ -75,8 +91,15 @@ export interface ThemeConfig {
 export interface Payload {
   /** Global site configuration */
   global: GlobalConfig;
-  /** Navigation structure */
-  navigation: NavigationItem[];
+  /**
+   * Curated navigation structure.
+   *
+   * Optional: when omitted, navigation is derived entirely from the content
+   * directory. When present, these entries control naming and ordering, and
+   * undeclared documents are appended automatically unless
+   * {@link GlobalConfig.autoNavigation} is disabled.
+   */
+  navigation?: NavigationItem[];
   /** Theme customization */
   theme?: Partial<ThemeConfig>;
 }

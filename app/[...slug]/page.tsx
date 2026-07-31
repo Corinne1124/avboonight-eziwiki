@@ -1,12 +1,13 @@
-import { parseMarkdownFile } from '@/lib/markdown/parser';
-import { MarkdownRenderer } from '@/components/markdown/MarkdownRenderer';
-import { MarkdownSkeleton } from '@/components/markdown/MarkdownSkeleton';
+import { MarkdownContent } from '@/components/markdown/MarkdownContent';
 import { PageTransition } from '@/components/markdown/PageTransition';
-import { extractAllPaths } from '@/lib/navigation/builder';
-import { generatePathHash, resolveHashToPath } from '@/lib/navigation/hash';
-import { payload } from '@/payload/config';
+import { TableOfContents } from '@/components/layout/TableOfContents';
+import { Backlinks } from '@/components/layout/Backlinks';
+import { getBacklinks } from '@/lib/graph/build';
+import { renderDoc } from '@/lib/markdown/render';
+import { getDoc, type ContentDoc } from '@/lib/content/registry';
+import { docPathToUrl, urlToDocPath } from '@/lib/navigation/url';
+import { getSite } from '@/lib/site';
 import { notFound } from 'next/navigation';
-import { Suspense } from 'react';
 import type { Metadata } from 'next';
 
 interface PageProps {
@@ -16,159 +17,145 @@ interface PageProps {
 }
 
 /**
- * Generate metadata for each page based on frontmatter
+ * Resolves a route's slug segments to a document in the content registry.
+ *
+ * Under the `path` strategy a slug has one segment per directory level; under
+ * `hash` it is a single opaque segment. Joining first and resolving through the
+ * URL map handles both without the route needing to know which is in effect.
+ *
+ * @param slug - Route segments captured by the catch-all route
+ * @returns The content path and its canonical URL segment, or null
  */
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { slug } = params;
-  const hash = slug.join('/');
+function resolveSlug(slug: string[]): { path: string; url: string } | null {
+  const { urlMap } = getSite();
+  const url = slug.join('/');
+  const path = urlToDocPath(urlMap, url);
 
-  // Resolve hash to actual path
-  const path = resolveHashToPath(hash, payload.navigation);
-
-  if (!path) {
-    return {
-      title: payload.global.title,
-      description: payload.global.description,
-    };
-  }
-
-  try {
-    const { frontmatter } = await parseMarkdownFile(path);
-
-    const title = (frontmatter.title as string) || payload.global.title;
-    const description = (frontmatter.description as string) || payload.global.description;
-    const ogImage = frontmatter.ogImage as string | undefined;
-    const baseUrl = payload.global.baseUrl || 'https://example.com';
-    const canonicalUrl = `${baseUrl}/${hash}`;
-
-    return {
-      title,
-      description,
-      alternates: {
-        canonical: canonicalUrl,
-      },
-      icons: {
-        icon: (frontmatter.favicon as string) || payload.global.favicon || '/favicon.ico',
-      },
-      openGraph: {
-        title,
-        description,
-        url: canonicalUrl,
-        images: ogImage ? [ogImage] : undefined,
-      },
-      twitter: {
-        card: 'summary_large_image',
-        title,
-        description,
-        images: ogImage ? [ogImage] : undefined,
-      },
-    };
-  } catch {
-    return {
-      title: payload.global.title,
-      description: payload.global.description,
-    };
-  }
+  return path ? { path, url } : null;
 }
 
 /**
- * Generate static params for all navigation paths using hash-based URLs
- * This enables static site generation for all content pages
+ * Generates per-page metadata from the document's frontmatter.
  */
-export async function generateStaticParams() {
-  const paths = extractAllPaths(payload.navigation);
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { global, hiddenPaths } = getSite();
+  const resolved = resolveSlug(params.slug);
+  const doc = resolved ? getDoc(resolved.path) : undefined;
 
-  // Validate that content files exist for all paths
-  const validPaths: string[] = [];
-
-  for (const path of paths) {
-    try {
-      await parseMarkdownFile(path);
-      validPaths.push(path);
-    } catch (error) {
-      console.error(
-        `⚠️  Warning: Missing content file for navigation path: ${path}\n` +
-          `   Expected file: content/${path}.md\n` +
-          '   This path will not be generated.',
-      );
-    }
+  if (!resolved || !doc) {
+    return { title: global.title, description: global.description };
   }
 
-  // Convert paths to hash-based slug arrays for Next.js
-  return validPaths.map((path) => {
-    const hash = generatePathHash(path);
-    return {
-      slug: hash.split('/'),
-    };
+  const title = doc.title;
+  const description = doc.description || global.description;
+  const ogImage = doc.frontmatter.ogImage as string | undefined;
+  const baseUrl = global.baseUrl || 'https://example.com';
+  const canonicalUrl = `${baseUrl}/${resolved.url}`;
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    icons: {
+      icon: (doc.frontmatter.favicon as string) || global.favicon || '/favicon.ico',
+    },
+    // Hidden pages stay reachable by direct link but should not be indexed.
+    robots: hiddenPaths.has(resolved.path) ? { index: false, follow: false } : undefined,
+    openGraph: {
+      title,
+      description,
+      url: canonicalUrl,
+      images: ogImage ? [ogImage] : undefined,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: ogImage ? [ogImage] : undefined,
+    },
+  };
+}
+
+/**
+ * Enumerates every document for static generation.
+ *
+ * The list comes from the content registry, so a Markdown file is built whether
+ * or not navigation references it. That is what lets hidden and unlisted pages
+ * work without a parallel registration step.
+ */
+export async function generateStaticParams() {
+  const { urlMap, docPaths } = getSite();
+
+  return docPaths.flatMap((path) => {
+    const url = docPathToUrl(urlMap, path);
+    return url ? [{ slug: url.split('/') }] : [];
   });
 }
 
 /**
- * Content component that loads and renders markdown
+ * Emits Article structured data for a document.
  */
-async function MarkdownContent({ path, hash }: { path: string; hash: string }) {
-  try {
-    const { content, frontmatter } = await parseMarkdownFile(path);
-    const baseUrl = payload.global.baseUrl || 'https://example.com';
-    const canonicalUrl = `${baseUrl}/${hash}`;
-    const hasMath = content.includes('$') || content.includes('\\[') || content.includes('\\(');
+function ArticleSchema({ doc, url }: { doc: ContentDoc; url: string }) {
+  const { global } = getSite();
+  const baseUrl = global.baseUrl || 'https://example.com';
+  const published = doc.frontmatter.date ?? null;
+  const modified = doc.frontmatter.updated ?? published;
 
-    return (
-      <>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              '@context': 'https://schema.org',
-              '@type': 'Article',
-              headline: (frontmatter.title as string) || payload.global.title,
-              description: (frontmatter.description as string) || payload.global.description,
-              url: canonicalUrl,
-              datePublished: frontmatter.date || new Date().toISOString(),
-              dateModified: frontmatter.updated || frontmatter.date || new Date().toISOString(),
-              author: {
-                '@type': 'Organization',
-                name: payload.global.title,
-              },
-            }),
-          }}
-        />
-        {hasMath && (
-          <link
-            rel="stylesheet"
-            href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"
-          />
-        )}
-        <MarkdownRenderer content={content} />
-      </>
-    );
-  } catch (error) {
-    notFound();
-  }
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{
+        __html: JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'Article',
+          headline: doc.title,
+          description: doc.description || global.description,
+          url: `${baseUrl}/${url}`,
+          // Dates are omitted when absent rather than stamped with the build
+          // time: a fabricated date misleads both readers and crawlers.
+          ...(published ? { datePublished: published } : {}),
+          ...(modified ? { dateModified: modified } : {}),
+          author: {
+            '@type': 'Organization',
+            name: global.title,
+          },
+        }),
+      }}
+    />
+  );
 }
 
 /**
- * Dynamic content page component
- * Renders Markdown content based on the hash-based URL slug
+ * Renders a content page: the document body, plus its table of contents on
+ * screens wide enough to carry a second column.
  */
 export default async function ContentPage({ params }: PageProps) {
-  const { slug } = params;
-  const hash = slug.join('/');
+  const resolved = resolveSlug(params.slug);
 
-  // Resolve hash to actual file path
-  const path = resolveHashToPath(hash, payload.navigation);
+  if (!resolved) notFound();
 
-  if (!path) {
-    notFound();
-  }
+  const doc = getDoc(resolved.path);
+  const rendered = await renderDoc(resolved.path);
+
+  if (!doc || !rendered) notFound();
 
   return (
     <PageTransition>
-      <article className="prose prose-slate max-w-none dark:prose-invert">
-        <Suspense fallback={<MarkdownSkeleton />}>
-          <MarkdownContent path={path} hash={hash} />
-        </Suspense>
-      </article>
+      <div className="flex gap-8">
+        <article className="prose prose-slate min-w-0 max-w-none flex-1 dark:prose-invert">
+          <ArticleSchema doc={doc} url={resolved.url} />
+          <MarkdownContent html={rendered.html} />
+          <Backlinks links={getBacklinks(resolved.path)} />
+        </article>
+
+        <aside className="hidden w-56 flex-shrink-0 xl:block">
+          <div className="sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto">
+            <TableOfContents headings={rendered.headings} />
+          </div>
+        </aside>
+      </div>
     </PageTransition>
   );
 }

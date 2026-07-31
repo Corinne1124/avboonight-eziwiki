@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import { useTabStore } from '@/lib/store/tabStore';
 import { NavigationItem } from '@/lib/payload/types';
-import { resolveHashToPath } from '@/lib/navigation/hash';
+import { useUrlMap } from '@/components/providers/UrlMapProvider';
 
 interface TabInitializerProps {
   navigation: NavigationItem[];
@@ -46,6 +46,7 @@ export function findNavigationItemByPath(
  */
 export function TabInitializer({ navigation }: TabInitializerProps) {
   const pathname = usePathname();
+  const { toPath } = useUrlMap();
   const { tabs, addTab, activeTabId, updateTabPath, navigateInHistory, hasHydrated } =
     useTabStore();
   const isInitialMount = useRef(true);
@@ -54,10 +55,7 @@ export function TabInitializer({ navigation }: TabInitializerProps) {
   useEffect(() => {
     if (!hasHydrated) return;
 
-    const currentHash = pathname === '/' ? '' : pathname.slice(1).replace(/\/$/, '');
-    const currentPath = currentHash
-      ? resolveHashToPath(currentHash, navigation) || currentHash
-      : '';
+    const currentPath = pathname === '/' ? '' : (toPath(pathname) ?? '');
 
     // Initial mount - set up first tab
     if (isInitialMount.current) {
@@ -90,6 +88,7 @@ export function TabInitializer({ navigation }: TabInitializerProps) {
     tabs.length,
     pathname,
     navigation,
+    toPath,
     addTab,
     activeTabId,
     updateTabPath,

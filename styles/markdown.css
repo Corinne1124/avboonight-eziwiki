@@ -1,0 +1,167 @@
+/**
+ * Styles for build-time rendered Markdown.
+ *
+ * The document body is plain HTML produced by the unified pipeline, so these
+ * rules replace the per-element Tailwind classes the old runtime renderer
+ * applied. Typography comes from @tailwindcss/typography via `.prose`; what
+ * follows covers the parts it does not know about — Shiki output, code-block
+ * chrome, and anchor targets.
+ */
+
+/* ---------------------------------------------------------------- code ---- */
+
+.ezw-code {
+  margin: 1.5rem 0;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+}
+
+.ezw-code__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
+  background: var(--color-code-bg);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.ezw-code__lang {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--color-text-muted);
+}
+
+.ezw-code__copy {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  color: var(--color-text-muted);
+  background: transparent;
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.ezw-code__copy:hover {
+  color: var(--color-text);
+  background: var(--color-sidebar-hover);
+}
+
+.ezw-code__copy[data-copied] {
+  color: #16a34a;
+}
+
+/* Shiki emits its own background and padding; strip the prose defaults so the
+   two do not fight over the same box. */
+.ezw-code pre {
+  margin: 0;
+  padding: 1rem;
+  border-radius: 0;
+  overflow-x: auto;
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+.ezw-code pre code {
+  background: transparent;
+  padding: 0;
+  font-size: inherit;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+/* Typography adds quotation marks around inline code; they read as noise in
+   technical prose. */
+.ezw-prose :where(code):not(:where(pre code))::before,
+.ezw-prose :where(code):not(:where(pre code))::after {
+  content: none;
+}
+
+.ezw-prose :where(code):not(:where(pre code)) {
+  background: var(--color-code-bg);
+  color: var(--color-code-text);
+  padding: 0.15em 0.4em;
+  border-radius: 0.25rem;
+  font-weight: 400;
+  font-size: 0.9em;
+}
+
+/* --------------------------------------------------------- shiki themes ---- */
+
+/* Shiki is configured with `defaultColor: false`, so it writes both themes as
+   CSS variables on each token and neither is applied until one is selected
+   here. This is what makes theme switching instant and flash-free. */
+.shiki,
+.shiki span {
+  color: var(--shiki-light);
+}
+
+.shiki {
+  background-color: var(--shiki-light-bg);
+}
+
+html.dark .shiki,
+html.dark .shiki span {
+  color: var(--shiki-dark);
+}
+
+html.dark .shiki {
+  background-color: var(--shiki-dark-bg);
+}
+
+/* ----------------------------------------------------------- wikilinks ---- */
+
+.ezw-wikilink {
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-primary) 40%, transparent);
+}
+
+.ezw-wikilink:hover {
+  border-bottom-color: var(--color-primary);
+}
+
+/* An unresolved link is styled as visibly broken rather than left to look like
+   working text — a dangling reference is a content bug worth surfacing. */
+.ezw-broken-link {
+  font-style: normal;
+  color: #b91c1c;
+  border-bottom: 1px dashed currentColor;
+  cursor: help;
+}
+
+html.dark .ezw-broken-link {
+  color: #f87171;
+}
+
+/* ------------------------------------------------------------- anchors ---- */
+
+/* The header is sticky, so an anchored heading would otherwise land underneath
+   it. */
+.ezw-prose :where(h1, h2, h3, h4, h5, h6)[id] {
+  scroll-margin-top: 6rem;
+}
+
+/* -------------------------------------------------------------- images ---- */
+
+.ezw-img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+}
+
+/* --------------------------------------------------------------- misc ----- */
+
+.ezw-prose table {
+  display: block;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+@media (min-width: 640px) {
+  .ezw-prose table {
+    display: table;
+    white-space: normal;
+  }
+}

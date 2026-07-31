@@ -32,3 +32,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+.kiro
+# Generated search index
+/public/search-index.json
+
+# Generated CLI template
+/packages/create-eziwiki/template/

@@ -2,12 +2,14 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
-import { ChevronRight, ChevronsLeft, ChevronsRight, Search } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { ChevronRight, ChevronsLeft, ChevronsRight, Search, Share2 } from 'lucide-react';
 import { NavigationItem } from '@/lib/payload/types';
 import { useTabStore } from '@/lib/store/tabStore';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { resolvePathToHash } from '@/lib/navigation/hash';
+import { useUrlMap } from '@/components/providers/UrlMapProvider';
+import { SearchTrigger } from '@/components/search/SearchTrigger';
+import { useSearchStore } from '@/lib/store/searchStore';
 import { filterHiddenItems } from '@/lib/navigation/builder';
 
 /**
@@ -24,16 +26,12 @@ interface SidebarProps {
 interface NavigationItemComponentProps {
   /** Navigation item to render */
   item: NavigationItem;
-  /** Current page path for highlighting active item */
-  currentPath: string;
   /** Nesting level for indentation (0 = top level) */
   level: number;
   /** Array of booleans indicating which levels should show vertical lines */
   parentLines?: boolean[];
   /** Background color inherited from parent */
   backgroundColor?: string;
-  /** Full navigation tree for hash resolution */
-  navigation: NavigationItem[];
 }
 
 /**
@@ -59,21 +57,19 @@ function isLightColor(hexColor: string): boolean {
  *
  * @param props - Component props
  * @param props.item - Navigation item to render
- * @param props.currentPath - Current page path for active state
  * @param props.level - Nesting depth for indentation
  * @param props.isLast - Whether this is the last item in its parent's children
  * @param props.parentLines - Array indicating which levels should show vertical lines
  */
 function NavigationItemComponent({
   item,
-  currentPath,
   level,
   parentLines = [],
   backgroundColor,
-  navigation,
 }: NavigationItemComponentProps) {
   const [isExpanded, setIsExpanded] = useState(true);
   const router = useRouter();
+  const { href: urlFor } = useUrlMap();
   const { activeTabId, tabs } = useTabStore();
   const hasChildren = item.children && item.children.length > 0;
 
@@ -105,7 +101,7 @@ function NavigationItemComponent({
     }
   };
 
-  const handleLinkClick = (e: React.MouseEvent, navigation: NavigationItem[]) => {
+  const handleLinkClick = (e: React.MouseEvent) => {
     if (item.path) {
       e.preventDefault();
       const { tabs, addTab: storeAddTab, navigateInHistory } = useTabStore.getState();
@@ -121,9 +117,7 @@ function NavigationItemComponent({
         navigateInHistory(firstTab.id, item.path, item.name);
       }
 
-      // Convert path to hash for URL
-      const hash = resolvePathToHash(item.path, navigation);
-      router.replace(`/${hash}`);
+      router.replace(urlFor(item.path));
     }
   };
 
@@ -169,8 +163,8 @@ function NavigationItemComponent({
           )}
           {item.path ? (
             <Link
-              href={`/${resolvePathToHash(item.path, navigation)}`}
-              onClick={(e) => handleLinkClick(e, navigation)}
+              href={urlFor(item.path)}
+              onClick={handleLinkClick}
               className={`flex-1 px-2 py-1 rounded-md text-sm transition-colors touch-manipulation ${
                 isActive
                   ? 'bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-100 font-medium'
@@ -212,11 +206,9 @@ function NavigationItemComponent({
               <NavigationItemComponent
                 key={`${child.name}-${index}`}
                 item={child}
-                currentPath={currentPath}
                 level={level + 1}
                 parentLines={newParentLines}
                 backgroundColor={bgColor}
-                navigation={navigation}
               />
             );
           })}
@@ -241,15 +233,13 @@ function NavigationItemComponent({
  *
  */
 export function Sidebar({ navigation }: SidebarProps) {
-  const pathname = usePathname();
-  const currentPath = pathname === '/' ? '' : pathname.slice(1);
   const { sidebarWidth, sidebarCollapsed, setSidebarWidth, setSidebarCollapsed } = useTabStore();
 
   const visibleNavigation = filterHiddenItems(navigation);
 
+  const openSearch = useSearchStore((state) => state.open);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const [isResizing, setIsResizing] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
 
   const MIN_WIDTH = 200;
   const MAX_WIDTH = 600;
@@ -305,28 +295,6 @@ export function Sidebar({ navigation }: SidebarProps) {
     setIsResizing(true);
   };
 
-  const filterNavigation = (items: NavigationItem[], query: string): NavigationItem[] => {
-    if (!query.trim()) return items;
-
-    const lowerQuery = query.toLowerCase();
-
-    return items.reduce<NavigationItem[]>((acc, item) => {
-      const matchesName = item.name.toLowerCase().includes(lowerQuery);
-      const filteredChildren = item.children ? filterNavigation(item.children, query) : [];
-
-      if (matchesName || filteredChildren.length > 0) {
-        acc.push({
-          ...item,
-          children: filteredChildren.length > 0 ? filteredChildren : item.children,
-        });
-      }
-
-      return acc;
-    }, []);
-  };
-
-  const filteredNavigation = filterNavigation(visibleNavigation, searchQuery);
-
   return (
     <aside
       ref={sidebarRef}
@@ -339,16 +307,7 @@ export function Sidebar({ navigation }: SidebarProps) {
       <div className="flex items-center gap-2 px-2 py-1 border-b border-gray-200 dark:border-gray-800">
         {!sidebarCollapsed ? (
           <>
-            <div className="flex-1 flex items-center gap-2 px-2 py-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md min-w-0">
-              <Search className="w-4 h-4 text-gray-400 dark:text-gray-500 flex-shrink-0" />
-              <input
-                type="text"
-                placeholder="Search titles..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="flex-1 bg-transparent text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 outline-none min-w-0"
-              />
-            </div>
+            <SearchTrigger className="min-w-0 flex-1" />
             <ThemeToggle className="w-4 h-4" />
             <button
               onClick={handleToggle}
@@ -360,36 +319,42 @@ export function Sidebar({ navigation }: SidebarProps) {
             </button>
           </>
         ) : (
-          <button
-            onClick={handleToggle}
-            className="p-2 mx-auto text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-800 rounded-md transition-colors"
-            aria-label="Expand sidebar"
-            title="Expand sidebar"
-          >
-            <ChevronsRight className="w-4 h-4" />
-          </button>
+          <div className="mx-auto flex flex-col items-center gap-1">
+            <button
+              onClick={openSearch}
+              className="rounded-md p-2 text-gray-600 transition-colors hover:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-800"
+              aria-label="Search documentation"
+              title="Search documentation"
+            >
+              <Search className="h-4 w-4" />
+            </button>
+            <button
+              onClick={handleToggle}
+              className="rounded-md p-2 text-gray-600 transition-colors hover:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-800"
+              aria-label="Expand sidebar"
+              title="Expand sidebar"
+            >
+              <ChevronsRight className="h-4 w-4" />
+            </button>
+          </div>
         )}
       </div>
 
       {!sidebarCollapsed && (
         <nav className="p-2 space-y-1">
-          {filteredNavigation.length > 0 ? (
-            filteredNavigation.map((item, index) => (
-              <div key={`${item.name}-${index}`} className="rounded-md overflow-hidden">
-                <NavigationItemComponent
-                  item={item}
-                  currentPath={currentPath}
-                  level={0}
-                  parentLines={[]}
-                  navigation={navigation}
-                />
-              </div>
-            ))
-          ) : (
-            <div className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">
-              No results found
+          {visibleNavigation.map((item, index) => (
+            <div key={`${item.name}-${index}`} className="rounded-md overflow-hidden">
+              <NavigationItemComponent item={item} level={0} parentLines={[]} />
             </div>
-          )}
+          ))}
+
+          <Link
+            href="/graph"
+            className="mt-2 flex items-center gap-2 rounded-md px-2 py-1 text-sm text-gray-600 transition-colors hover:bg-black/5 dark:text-gray-400 dark:hover:bg-white/10"
+          >
+            <Share2 className="h-4 w-4 flex-shrink-0" />
+            Graph
+          </Link>
         </nav>
       )}
 

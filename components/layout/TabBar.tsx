@@ -4,11 +4,11 @@ import React, { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTabStore } from '@/lib/store/tabStore';
 import { TabBarSkeleton } from './TabBarSkeleton';
-import { resolvePathToHash } from '@/lib/navigation/hash';
-import { payload } from '@/payload/config';
+import { useUrlMap } from '@/components/providers/UrlMapProvider';
 
 export function TabBar() {
   const router = useRouter();
+  const { href: urlFor } = useUrlMap();
   const {
     tabs,
     activeTabId,
@@ -37,8 +37,7 @@ export function TabBar() {
   const handleTabClick = (tabId: string, path: string) => {
     setActiveTab(tabId);
 
-    const hash = path ? resolvePathToHash(path, payload.navigation) : '';
-    router.replace(`/${hash}`);
+    router.replace(path ? urlFor(path) : '/');
   };
 
   const closeTab = (tabId: string) => {
@@ -58,10 +57,7 @@ export function TabBar() {
         const newActiveTab = remainingTabs[Math.min(index, remainingTabs.length - 1)];
 
         if (newActiveTab) {
-          const hash = newActiveTab.path
-            ? resolvePathToHash(newActiveTab.path, payload.navigation)
-            : '';
-          router.replace(`/${hash}`);
+          router.replace(newActiveTab.path ? urlFor(newActiveTab.path) : '/');
         }
       }
     }

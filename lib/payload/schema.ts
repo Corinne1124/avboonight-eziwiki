@@ -4,7 +4,7 @@
 export const payloadSchema = {
   $schema: 'http://json-schema.org/draft-07/schema#',
   type: 'object',
-  required: ['global', 'navigation'],
+  required: ['global'],
   properties: {
     global: {
       type: 'object',
@@ -14,6 +14,8 @@ export const payloadSchema = {
         description: { type: 'string', minLength: 1 },
         favicon: { type: 'string' },
         baseUrl: { type: 'string', format: 'uri' },
+        urlStrategy: { type: 'string', enum: ['path', 'hash'] },
+        autoNavigation: { type: 'boolean' },
         seo: {
           type: 'object',
           properties: {
@@ -43,7 +45,6 @@ export const payloadSchema = {
     },
     navigation: {
       type: 'array',
-      minItems: 1,
       items: {
         $ref: '#/definitions/navigationItem',
       },
@@ -68,6 +69,8 @@ export const payloadSchema = {
         name: { type: 'string', minLength: 1 },
         path: { type: 'string' },
         icon: { type: 'string' },
+        color: { type: 'string' },
+        hidden: { type: 'boolean' },
         children: {
           type: 'array',
           items: { $ref: '#/definitions/navigationItem' },

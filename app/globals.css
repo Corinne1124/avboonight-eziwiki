@@ -5,6 +5,9 @@
 /* Import theme CSS variables */
 @import '../styles/theme.css';
 
+/* Styles for build-time rendered Markdown */
+@import '../styles/markdown.css';
+
 /* SUITE Font Family - Only load commonly used weights */
 @font-face {
   font-family: 'SUITE';

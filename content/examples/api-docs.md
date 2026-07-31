@@ -1,6 +1,7 @@
 ---
 title: API Documentation Example
 description: Use eziwiki for beautiful API documentation
+order: 3
 ---
 
 # API Documentation Example
@@ -11,67 +12,28 @@ eziwiki is perfect for creating clean, organized API documentation.
 
 ## Example Structure
 
-```typescript
-navigation: [
-  {
-    name: '🏠 Introduction',
-    path: 'intro',
-  },
-  {
-    name: '🚀 Getting Started',
-    color: '#dbeafe',
-    children: [
-      { name: 'Authentication', path: 'getting-started/authentication' },
-      { name: 'Quick Start', path: 'getting-started/quick-start' },
-      { name: 'Rate Limiting', path: 'getting-started/rate-limiting' },
-    ],
-  },
-  {
-    name: '📡 API Reference',
-    color: '#fef3c7',
-    children: [
-      {
-        name: 'Users',
-        children: [
-          { name: 'List Users', path: 'api/users/list' },
-          { name: 'Get User', path: 'api/users/get' },
-          { name: 'Create User', path: 'api/users/create' },
-          { name: 'Update User', path: 'api/users/update' },
-          { name: 'Delete User', path: 'api/users/delete' },
-        ],
-      },
-      {
-        name: 'Posts',
-        children: [
-          { name: 'List Posts', path: 'api/posts/list' },
-          { name: 'Get Post', path: 'api/posts/get' },
-          { name: 'Create Post', path: 'api/posts/create' },
-          { name: 'Update Post', path: 'api/posts/update' },
-          { name: 'Delete Post', path: 'api/posts/delete' },
-        ],
-      },
-    ],
-  },
-  {
-    name: '🔧 SDKs',
-    color: '#e9d5ff',
-    children: [
-      { name: 'JavaScript', path: 'sdks/javascript' },
-      { name: 'Python', path: 'sdks/python' },
-      { name: 'Ruby', path: 'sdks/ruby' },
-    ],
-  },
-  {
-    name: '📚 Guides',
-    color: '#d1fae5',
-    children: [
-      { name: 'Webhooks', path: 'guides/webhooks' },
-      { name: 'Pagination', path: 'guides/pagination' },
-      { name: 'Error Handling', path: 'guides/error-handling' },
-    ],
-  },
-];
 ```
+content/
+├── intro.md
+├── authentication/
+│   ├── _meta.json              → { "name": "🔐 Authentication", "order": 1 }
+│   ├── api-keys.md
+│   └── oauth.md
+├── endpoints/
+│   ├── _meta.json              → { "name": "🔌 Endpoints", "order": 2 }
+│   ├── users.md
+│   ├── posts.md
+│   └── webhooks.md
+└── reference/
+    ├── _meta.json              → { "name": "📕 Reference", "order": 3 }
+    ├── errors.md
+    └── rate-limits.md
+```
+
+For API documentation, [[search]] matters more than navigation depth — readers
+arrive looking for one endpoint or one error code. Code inside fenced blocks is
+indexed, so searching a field name or status code finds the page that documents
+it.
 
 ## Example API Endpoint Page
 

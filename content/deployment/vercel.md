@@ -1,6 +1,7 @@
 ---
 title: Deploy to Vercel
 description: Deploy your eziwiki to Vercel in minutes
+order: 2
 ---
 
 # Deploy to Vercel

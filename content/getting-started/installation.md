@@ -1,6 +1,7 @@
 ---
 title: Installation
 description: Detailed installation guide for eziwiki
+order: 2
 ---
 
 # Installation
@@ -9,47 +10,46 @@ description: Detailed installation guide for eziwiki
 
 This guide covers different ways to install and set up eziwiki.
 
-## Method 1: Clone from GitHub (Recommended)
-
-The easiest way to get started:
+## Method 1: `npx create-eziwiki` (recommended)
 
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/eziwiki.git
-
-# Navigate to the directory
-cd eziwiki
-
-# Install dependencies
+npx create-eziwiki my-docs
+cd my-docs
 npm install
-
-# Start development server
 npm run dev
 ```
 
-## Method 2: Use as Template
+This scaffolds a self-contained project with the engine, a config file, and two
+starter pages. Nothing is linked back to the eziwiki repository — the result is
+yours to edit freely.
 
-1. Go to the [eziwiki GitHub repository](https://github.com/yourusername/eziwiki)
-2. Click "Use this template"
-3. Create your new repository
-4. Clone your new repository
-5. Install dependencies and start
+The project name must be a valid npm package name: lowercase, no spaces. The
+command refuses to write into a directory that already has files in it.
+
+## Method 2: Clone the repository
+
+Use this if you want the full demo content, or intend to modify the engine
+itself:
+
+```bash
+git clone https://github.com/i3months/eziwiki.git
+cd eziwiki
+npm install
+npm run dev
+```
+
+You will want to empty `content/` and rewrite `payload/config.ts` before
+publishing, since both are this documentation site.
+
+## Method 3: Use as a GitHub template
+
+1. Open the [eziwiki repository](https://github.com/i3months/eziwiki)
+2. Click **Use this template**
+3. Clone your new repository, then install and run:
 
 ```bash
 git clone https://github.com/yourusername/your-wiki.git
 cd your-wiki
-npm install
-npm run dev
-```
-
-## Method 3: Download ZIP
-
-1. Download the latest release from GitHub
-2. Extract the ZIP file
-3. Open terminal in the extracted directory
-4. Install and run:
-
-```bash
 npm install
 npm run dev
 ```

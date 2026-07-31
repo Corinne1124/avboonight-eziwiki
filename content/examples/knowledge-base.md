@@ -1,6 +1,7 @@
 ---
 title: Knowledge Base Example
 description: Build a team knowledge base with eziwiki
+order: 2
 ---
 
 # Knowledge Base Example
@@ -19,63 +20,31 @@ Use eziwiki to create a comprehensive team knowledge base.
 
 ## Example Structure
 
-```typescript
-navigation: [
-  {
-    name: '🏠 Welcome',
-    path: 'intro',
-  },
-  {
-    name: '🎯 Getting Started',
-    color: '#dbeafe',
-    children: [
-      { name: 'New Employee Onboarding', path: 'onboarding/new-employee' },
-      { name: 'Team Structure', path: 'onboarding/team-structure' },
-      { name: 'Tools & Access', path: 'onboarding/tools-access' },
-      { name: 'First Week Checklist', path: 'onboarding/first-week' },
-    ],
-  },
-  {
-    name: '📋 Processes',
-    color: '#fef3c7',
-    children: [
-      { name: 'Code Review', path: 'processes/code-review' },
-      { name: 'Deployment', path: 'processes/deployment' },
-      { name: 'Bug Reporting', path: 'processes/bug-reporting' },
-      { name: 'Feature Requests', path: 'processes/feature-requests' },
-    ],
-  },
-  {
-    name: '💻 Development',
-    color: '#e9d5ff',
-    children: [
-      { name: 'Setup Guide', path: 'development/setup' },
-      { name: 'Coding Standards', path: 'development/coding-standards' },
-      { name: 'Git Workflow', path: 'development/git-workflow' },
-      { name: 'Testing', path: 'development/testing' },
-    ],
-  },
-  {
-    name: '🔧 Troubleshooting',
-    color: '#fecaca',
-    children: [
-      { name: 'Common Issues', path: 'troubleshooting/common-issues' },
-      { name: 'Database Problems', path: 'troubleshooting/database' },
-      { name: 'Build Errors', path: 'troubleshooting/build-errors' },
-      { name: 'Production Issues', path: 'troubleshooting/production' },
-    ],
-  },
-  {
-    name: '❓ FAQ',
-    color: '#d1fae5',
-    children: [
-      { name: 'General', path: 'faq/general' },
-      { name: 'Technical', path: 'faq/technical' },
-      { name: 'HR & Benefits', path: 'faq/hr-benefits' },
-    ],
-  },
-];
+Folders become sections, so the team's mental model and the sidebar stay in
+sync automatically:
+
 ```
+content/
+├── intro.md
+├── onboarding/
+│   ├── _meta.json              → { "name": "🚀 Onboarding", "order": 1 }
+│   ├── first-week.md
+│   └── tools-and-access.md
+├── engineering/
+│   ├── _meta.json              → { "name": "⚙️ Engineering", "order": 2 }
+│   ├── architecture.md
+│   ├── deployment.md
+│   └── runbooks/
+│       ├── incident-response.md
+│       └── database-restore.md
+└── processes/
+    ├── _meta.json              → { "name": "📋 Processes", "order": 3 }
+    ├── code-review.md
+    └── on-call.md
+```
+
+Nobody has to edit a config file to publish a runbook, which is usually what
+stops team wikis from staying current.
 
 ## Example Pages
 

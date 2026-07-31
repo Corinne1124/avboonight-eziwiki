@@ -1,6 +1,7 @@
 ---
 title: Markdown Basics
 description: Learn Markdown syntax for writing wiki content
+order: 1
 ---
 
 # Markdown Basics
@@ -178,7 +179,6 @@ See [Code Blocks](/content/code-blocks) for more details.
 
 ```markdown
 ---
-
 ---
 
 ---

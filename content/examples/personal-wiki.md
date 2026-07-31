@@ -1,6 +1,7 @@
 ---
 title: Personal Wiki Example
 description: Build your own personal knowledge base
+order: 1
 ---
 
 # Personal Wiki Example
@@ -20,62 +21,32 @@ Use eziwiki to build your personal knowledge base - your second brain.
 
 ## Example Structure
 
-```typescript
-navigation: [
-  {
-    name: '🏠 Home',
-    path: 'intro',
-  },
-  {
-    name: '📚 Learning',
-    color: '#dbeafe',
-    children: [
-      {
-        name: 'JavaScript',
-        children: [
-          { name: 'Promises', path: 'learning/javascript/promises' },
-          { name: 'Async/Await', path: 'learning/javascript/async-await' },
-          { name: 'Closures', path: 'learning/javascript/closures' },
-        ],
-      },
-      {
-        name: 'TypeScript',
-        children: [
-          { name: 'Generics', path: 'learning/typescript/generics' },
-          { name: 'Utility Types', path: 'learning/typescript/utility-types' },
-        ],
-      },
-    ],
-  },
-  {
-    name: '💡 Projects',
-    color: '#fef3c7',
-    children: [
-      { name: 'Todo App', path: 'projects/todo-app' },
-      { name: 'Blog Engine', path: 'projects/blog-engine' },
-      { name: 'Portfolio Site', path: 'projects/portfolio' },
-    ],
-  },
-  {
-    name: '📖 Books',
-    color: '#e9d5ff',
-    children: [
-      { name: 'Clean Code', path: 'books/clean-code' },
-      { name: 'Design Patterns', path: 'books/design-patterns' },
-      { name: 'Refactoring', path: 'books/refactoring' },
-    ],
-  },
-  {
-    name: '💻 Code Snippets',
-    color: '#d1fae5',
-    children: [
-      { name: 'React Hooks', path: 'snippets/react-hooks' },
-      { name: 'CSS Tricks', path: 'snippets/css-tricks' },
-      { name: 'Bash Scripts', path: 'snippets/bash-scripts' },
-    ],
-  },
-];
+Your folder layout _is_ your navigation — nothing to register:
+
 ```
+content/
+├── intro.md
+├── learning/
+│   ├── _meta.json              → { "name": "📚 Learning", "order": 1 }
+│   ├── javascript/
+│   │   ├── promises.md
+│   │   ├── async-await.md
+│   │   └── closures.md
+│   └── typescript/
+│       ├── generics.md
+│       └── utility-types.md
+├── projects/
+│   ├── _meta.json              → { "name": "💡 Projects", "order": 2 }
+│   ├── todo-app.md
+│   └── blog-engine.md
+└── books/
+    ├── _meta.json              → { "name": "📖 Books", "order": 3 }
+    └── atomic-habits.md
+```
+
+Drop a file in, and it appears. Use `order` in a page's frontmatter to rank it
+among its siblings, and `_meta.json` to name and colour the section — see
+[[navigation]].
 
 ## Example Pages
 

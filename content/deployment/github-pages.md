@@ -1,6 +1,7 @@
 ---
 title: GitHub Pages
 description: Deploy your wiki to GitHub Pages for free
+order: 3
 ---
 
 # GitHub Pages

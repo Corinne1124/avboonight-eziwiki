@@ -1,6 +1,7 @@
 ---
 title: Syntax Highlighting
 description: Beautiful code highlighting powered by Shiki
+order: 8
 ---
 
 # Syntax Highlighting
@@ -9,25 +10,29 @@ eziwiki uses [Shiki](https://shiki.matsu.io/) for beautiful, accurate syntax hig
 
 ## Why Shiki?
 
-- **Accurate** - Uses VS Code's grammar engine
-- **Beautiful** - Same highlighting as VS Code
-- **Fast** - Pre-rendered at build time
-- **100+ Languages** - Supports virtually every language
-- **Theme Support** - Multiple color themes available
+- **Accurate** — uses the same TextMate grammars as VS Code
+- **Beautiful** — the highlighting you already know from your editor
+- **Zero client cost** — code is highlighted during the build, so no
+  highlighter is sent to the browser
+- **Both themes at once** — light and dark are emitted as CSS variables, so
+  switching theme never flashes or re-highlights
 
 ## Supported Languages
 
-### Popular Languages
+Shiki bundles grammars for over a hundred languages — JavaScript, TypeScript,
+Python, Go, Rust, C, C++, C#, Java, Ruby, PHP, SQL, GraphQL, HTML, CSS, YAML,
+TOML, Bash, and so on.
 
-- JavaScript, TypeScript, JSX, TSX
-- Python, Java, C, C++, C#, Go, Rust
-- HTML, CSS, SCSS, Sass, Less
-- JSON, YAML, TOML, XML
-- Bash, Shell, PowerShell
-- SQL, GraphQL
-- Markdown, MDX
-- PHP, Ruby, Perl, Lua
-- And 100+ more!
+### Only what you use is loaded
+
+Loading all of them costs about twenty seconds before the first page renders,
+so eziwiki scans your content for the languages it actually contains and loads
+only those, plus a handful of common defaults. This site loads sixteen grammars
+and initialises in well under a second.
+
+The practical effect: **write a fence in any supported language and it just
+works** — the next build picks it up. A fence whose language Shiki does not
+recognise renders as plain text rather than failing the build.
 
 ## Usage
 

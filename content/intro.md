@@ -1,66 +1,64 @@
 ---
 title: Welcome to eziwiki
 description: A beautiful, minimal wiki and documentation site generator
+order: 1
 ---
 
 # Welcome to eziwiki 👋
 
 ![eziwiki](/images/eziwiki.png)
 
-**eziwiki** is a beautiful, minimal wiki and documentation site generator built with Next.js 14, inspired by Notion and Obsidian.
+**eziwiki** is a wiki and documentation site generator built on Next.js 14,
+inspired by Notion and Obsidian. Write Markdown, get a fast static site.
 
-Perfect for creating documentation sites, personal wikis, knowledge bases, and more.
-
-## ✨ Key Features
-
-- **🚀 Static Site Generation** - Lightning-fast pages pre-rendered at build time
-- **📝 Markdown-First** - Write content in Markdown with full GitHub Flavored Markdown support
-- **🎨 Beautiful UI** - Clean, modern interface inspired by Notion and Obsidian
-- **📱 Fully Responsive** - Works beautifully on mobile, tablet, and desktop
-- **🌙 Dark Mode** - Built-in dark mode support
-- **🎯 Type-Safe** - Built with TypeScript for maximum reliability
-- **🔍 Syntax Highlighting** - Powered by Shiki for beautiful code blocks
-- **⚡ Zero Config** - Works out of the box, customize when you need
-- **🔗 Smart Links** - Internal links automatically converted to hash-based navigation
-- **📂 Nested Navigation** - Unlimited nesting with collapsible sections
-
-## 🎯 Perfect For
-
-- **Documentation Sites** - API docs, user guides, technical documentation
-- **Personal Wikis** - Your second brain, knowledge management
-- **Knowledge Bases** - Team wikis, internal documentation
-- **Project Documentation** - README on steroids
-- **Learning Notes** - Study materials, course notes
-
-## 🚀 Quick Start
-
-Get started in less than 5 minutes:
+## Start here
 
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/eziwiki.git
-cd eziwiki
-
-# Install dependencies
+npx create-eziwiki my-docs
+cd my-docs
 npm install
-
-# Start development server
 npm run dev
 ```
 
-Visit [http://localhost:3000](http://localhost:3000) to see your wiki!
+Open <http://localhost:3000>. See [[quick-start]] for the walkthrough.
 
-## 📖 What's Next?
+## What you get
 
-- **[Installation Guide](/getting-started/installation)** - Detailed setup instructions
-- **[Quick Start](/getting-started/quick-start)** - Get up and running fast
-- **[Configuration](/configuration/payload)** - Customize your wiki
-- **[Writing Content](/content/markdown-basics)** - Learn Markdown basics
-- **[Deployment](/deployment/static-export)** - Deploy your wiki
+**Pages from files.** Drop a `.md` file into `content/` and it is published.
+Folders become sidebar sections. There is no registration step and no navigation
+array to maintain — this very site has none. See [[navigation]].
 
-## 💡 Example
+**[[search|Search]]** across titles, headings, and body text, with a
+<kbd>⌘K</kbd> palette. Results link straight to the matching section. It runs
+entirely in the browser against a static index, so it works on any host — and
+handles Korean, Japanese, and Chinese properly.
 
-Here's how easy it is to configure your wiki:
+**[[table-of-contents|Contents rail]]** on every page, with the section you are
+reading highlighted as you scroll.
+
+**[[wiki-links|Wiki links]].** Write `[[quick-start]]` and it resolves by path,
+file name, or title. Links that go nowhere are shown as broken instead of
+pretending to work.
+
+**[[graph-and-backlinks|Backlinks and a graph view]].** Every page lists what
+points at it, and [the graph](/graph) shows how the whole site connects.
+
+**Build-time rendering.** Markdown is parsed, highlighted with Shiki, and
+link-resolved during the build, so no Markdown parser or highlighter is sent to
+the browser. Content pages load about 88 kB of JavaScript.
+
+**And the rest:** [[dark-mode]], maths via KaTeX, GitHub Flavored Markdown,
+[[url-strategies|readable or hashed URLs]], [[hidden-pages]], SEO metadata, and
+a sitemap.
+
+## Good for
+
+- **Documentation sites** — API references, user guides, technical docs
+- **Personal wikis** — a second brain you actually own
+- **Team knowledge bases** — internal docs that stay searchable
+- **Learning notes** — study material with real cross-links
+
+## Configuration, in full
 
 ```typescript
 export const payload: Payload = {
@@ -68,41 +66,21 @@ export const payload: Payload = {
     title: 'My Wiki',
     description: 'My personal knowledge base',
   },
-  navigation: [
-    {
-      name: 'Getting Started',
-      path: 'intro',
-    },
-    {
-      name: 'Guides',
-      color: '#dbeafe',
-      children: [
-        {
-          name: 'Installation',
-          path: 'guides/installation',
-        },
-      ],
-    },
-  ],
 };
 ```
 
-That's it! Add your Markdown files and you're ready to go.
+That is a complete site. Everything else — [[theme|colours]],
+[[url-strategies|URL style]], SEO, manual [[navigation]] — is optional. See
+[[payload]].
 
-## 🌟 Why eziwiki?
+## Deploying
 
-- **Simple** - No complex setup, just write Markdown
-- **Fast** - Static generation means instant page loads
-- **Beautiful** - Modern UI that your users will love
-- **Flexible** - Customize everything from colors to navigation
-- **Free** - Open source and free forever
+`npm run build` produces a fully static site in `out/`. Put it anywhere:
+[[static-export|any static host]], [[vercel|Vercel]], or
+[[github-pages|GitHub Pages]].
 
-## 🤝 Community
+## Next
 
-- **GitHub** - [Star us on GitHub](https://github.com/yourusername/eziwiki)
-- **Issues** - [Report bugs or request features](https://github.com/yourusername/eziwiki/issues)
-- **Discussions** - [Join the community](https://github.com/yourusername/eziwiki/discussions)
-
----
-
-Ready to build your wiki? Check out the [Quick Start Guide](/getting-started/quick-start)!
+- [[quick-start]] — build your first wiki
+- [[installation]] — detailed setup
+- [[markdown-basics]] — what you can write in a page

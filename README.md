@@ -13,11 +13,12 @@
 
 ## Introduction
 
-Anyone can create beautiful documentation sites. (with just a bit of coding..)
+Write Markdown, get a fast static wiki.
 
-- Write content in Markdown
-- Configure navigation with TypeScript
-- Deploy anywhere as static files
+- **A file is a page** — drop a `.md` into `content/` and it is published; folders become sections
+- **Search, contents rail, wiki links, backlinks, and a graph view** — built in, no configuration
+- **Rendered at build time** — no Markdown parser or highlighter ships to the browser
+- **Deploy anywhere** — the output is plain static files
 
 ## Requirements
 
@@ -27,13 +28,43 @@ Anyone can create beautiful documentation sites. (with just a bit of coding..)
 ## Quick Start
 
 ```bash
-git clone https://github.com/yourusername/eziwiki.git
-cd eziwiki
+npx create-eziwiki my-docs
+cd my-docs
 npm install
 npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) to see your wiki.
+
+To work from this repository instead — with the full demo content:
+
+```bash
+git clone https://github.com/i3months/eziwiki.git
+cd eziwiki
+npm install
+npm run dev
+```
+
+## Upgrading from an earlier version
+
+**Page URLs changed.** Earlier versions addressed every page by a hash
+(`/c432b372-e0e30267-e65e26a1`). The default is now the readable content path
+(`/getting-started/quick-start`), which is indexable and shareable.
+
+If your site is already published and you need the old links to keep working,
+opt back in from `payload/config.ts`:
+
+```typescript
+global: {
+  urlStrategy: 'hash',
+}
+```
+
+Otherwise no action is needed — existing Markdown links keep resolving either
+way, since they are written as content paths and resolved at build time.
+
+Navigation also became optional: pages under `content/` are now discovered
+automatically. An existing `navigation` array keeps working unchanged.
 
 ## Project Structure
 
@@ -78,7 +109,10 @@ export const payload: Payload = {
     title: 'My Wiki',
     description: 'My personal knowledge base',
     baseUrl: 'https://your-site.com',
+    urlStrategy: 'path', // 'path' (readable, SEO-friendly) | 'hash' (opaque)
+    autoNavigation: true, // Discover content/ files not listed below
   },
+  // Optional. Omit it entirely and navigation is built from content/.
   navigation: [
     {
       name: 'Introduction',
@@ -102,6 +136,30 @@ export const payload: Payload = {
 ```
 
 ### Navigation Options
+
+Navigation is optional. Every Markdown file under `content/` is published
+automatically, and any file the config does not mention is appended to the
+section matching its directory. Use `navigation` only to control naming and
+ordering; set `global.autoNavigation: false` to make it exhaustive instead.
+
+Ordering and presentation can also come from the content itself:
+
+**Frontmatter (per page):**
+
+```markdown
+---
+title: Quick Start # Sidebar label; falls back to the filename
+description: Get going in 5 minutes
+order: 1 # Sort weight within its directory
+hidden: true # Buildable and linkable, but absent from the sidebar
+---
+```
+
+**`_meta.json` (per directory):**
+
+```json
+{ "name": "📚 Getting Started", "order": 1, "color": "#dbeafe" }
+```
 
 **Basic page:**
 
@@ -157,21 +215,97 @@ Deploy the `out/` directory to Netlify, Vercel, Github pages
 
 ## Features
 
-### Hash-Based URLs
+### Search
 
-Pages use hash URLs for privacy:
+Press <kbd>⌘K</kbd> (<kbd>Ctrl K</kbd> on Windows and Linux) anywhere, or click the
+search box in the sidebar.
+
+Full-text search covers page titles, every heading, and page contents. Results
+link straight to the matching section rather than the top of the page. The index
+is generated at build time into `public/search-index.json` and searched entirely
+in the browser — no server, no third-party service, works on any static host.
+
+It is fetched the first time you search, so pages that are only read never
+download it.
+
+Korean, Japanese, and Chinese content is indexed by character bigrams, so
+searching `위키` matches `위키문서를` — which whitespace tokenisation alone would
+miss.
+
+### Table of Contents
+
+Every page gets an automatic contents rail on wide screens, built from its `h2`
+through `h4` headings, with the current section highlighted as you scroll. It is
+rendered at build time, so it is in the HTML rather than assembled by script.
+
+### Wiki Links
+
+Link to a page by name, without knowing where it lives:
+
+```markdown
+[[quick-start]] # by file name
+[[Quick Start]] # by title
+[[getting-started/quick-start]] # by full path
+[[quick-start#prerequisites|Step one]] # anchor and label
+```
+
+A shorthand matching several pages is refused rather than guessed at, and a
+target matching nothing renders as visibly broken text instead of a dead link.
+`npm run check:links` lists them all.
+
+### Backlinks and Graph
+
+Every page ends with the pages that link to it, gathered from both wiki links
+and ordinary Markdown links. The `/graph` page draws the whole site — node size
+by link count, hover to isolate a neighbourhood, click to navigate. It is plain
+SVG with a small force-directed layout, so nothing extra loads on other pages.
+
+### URL Strategies
+
+Set `global.urlStrategy` in `payload/config.ts`:
 
 ```
-intro → /c432b372-e0e30267-e65e26a1
+'path' (default)  guides/setup → /guides/setup
+'hash'            guides/setup → /c432b372-e0e30267-e65e26a1
 ```
 
-Write normal paths in Markdown - auto-converted:
+`path` gives readable, indexable, shareable URLs. `hash` conceals the content
+structure, at the cost of SEO and of URLs anyone can interpret — reach for it
+only when obscurity is the point.
+
+Either way, write ordinary paths in Markdown and they resolve automatically:
 
 ```markdown
 [Setup Guide](/guides/setup)
 ```
 
-Find all URLs: `npm run show-urls`
+List every page and its URL: `npm run show-urls`
+
+### Build-Time Rendering
+
+Markdown is compiled to HTML during the build — parsed, syntax-highlighted with
+[Shiki](https://shiki.style), and link-resolved — so no Markdown parser or
+highlighter is shipped to the browser. Content pages load **88 kB** of JS
+instead of the 314 kB a runtime renderer required.
+
+Shiki bundles grammars for over a hundred languages, and loading all of them
+costs ~20s before the first page renders. eziwiki scans your content and loads
+only the languages it actually contains, plus common defaults — initialisation
+drops to under a second. Unrecognised fences render as plain text rather than
+failing the build.
+
+### Automatic Navigation
+
+There is no navigation array to maintain — this repository's own
+`payload/config.ts` has none. Pages are discovered under `content/`, grouped by
+folder, and ordered by frontmatter `order` and per-folder `_meta.json`:
+
+```json
+{ "name": "📚 Getting Started", "order": 2, "color": "#dbeafe" }
+```
+
+Add a `navigation` array when you want manual control; it does not have to be
+exhaustive, since undeclared pages are still discovered and appended.
 
 ## Commands
 
@@ -179,7 +313,11 @@ Find all URLs: `npm run show-urls`
 npm run dev              # Development server
 npm run build            # Build for production
 npm run validate:payload # Check configuration
-npm run show-urls        # List all hash URLs
+npm run check:links      # Report links that point at no page
+npm run build:search     # Regenerate the search index
+npm run show-urls        # List every page and its URL
+npm run build:template   # Rebuild the create-eziwiki template
+npm test                 # Run the test suite
 ```
 
 ## Contributing

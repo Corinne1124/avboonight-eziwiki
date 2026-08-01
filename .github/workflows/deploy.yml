@@ -34,10 +34,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # GitHub Pages serves this project site from /eziwiki, so every emitted
+      # path needs that prefix. Set here rather than inferred from CI, so that
+      # test and lint jobs — and forks deploying elsewhere — are unaffected.
       - name: Build with Next.js
         run: npm run build
         env:
           NODE_ENV: production
+          NEXT_PUBLIC_BASE_PATH: /eziwiki
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

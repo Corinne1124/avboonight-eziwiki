@@ -175,7 +175,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </a>
         <UrlMapProvider value={site.urlMap}>
           <TabInitializer navigation={site.navigation} />
-          <PageLayout navigation={site.navigation}>{children}</PageLayout>
+          <PageLayout navigation={site.navigation} repoUrl={site.global.repoUrl}>
+            {children}
+          </PageLayout>
           <SearchDialog />
         </UrlMapProvider>
       </body>

@@ -23,6 +23,8 @@ export const payload: Payload = {
      * override it by setting `NEXT_PUBLIC_SITE_URL`.
      */
     baseUrl: 'https://eziwiki.vercel.app',
+    /** Linked from the sidebar. Omit it and the link is not rendered. */
+    repoUrl: 'https://github.com/i3months/eziwiki',
     /**
      * URL form for content pages.
      *

@@ -15,6 +15,8 @@ import { SearchTrigger } from '@/components/search/SearchTrigger';
 interface PageLayoutProps {
   /** Array of top-level navigation items */
   navigation: NavigationItem[];
+  /** Source repository, linked from the sidebar when configured */
+  repoUrl?: string;
   /** Page content to render in the main area */
   children: React.ReactNode;
 }
@@ -25,10 +27,11 @@ interface PageLayoutProps {
  *
  * @param props - Component props
  * @param props.navigation - Array of navigation items to display in sidebar/menu
+ * @param props.repoUrl - Source repository, linked from the sidebar when set
  * @param props.children - Page content to render in the main content area
  *
  */
-export function PageLayout({ navigation, children }: PageLayoutProps) {
+export function PageLayout({ navigation, repoUrl, children }: PageLayoutProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const toggleMobileMenu = () => {
@@ -63,10 +66,15 @@ export function PageLayout({ navigation, children }: PageLayoutProps) {
         </div>
       </header>
 
-      <MobileMenu navigation={navigation} isOpen={isMobileMenuOpen} onClose={closeMobileMenu} />
+      <MobileMenu
+        navigation={navigation}
+        isOpen={isMobileMenuOpen}
+        onClose={closeMobileMenu}
+        repoUrl={repoUrl}
+      />
 
       <div className="flex">
-        <Sidebar navigation={navigation} />
+        <Sidebar navigation={navigation} repoUrl={repoUrl} />
 
         <main id="main-content" tabIndex={-1} className="flex-1 min-w-0 flex flex-col">
           <div className="sticky top-0 z-20 bg-white dark:bg-gray-950">

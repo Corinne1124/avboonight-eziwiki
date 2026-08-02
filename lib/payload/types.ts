@@ -31,6 +31,13 @@ export interface GlobalConfig {
   /** Base URL for the site */
   baseUrl?: string;
   /**
+   * Source repository for this site.
+   *
+   * Shown as a link in the sidebar when set, and omitted entirely when not, so
+   * a private or unpublished wiki does not advertise one.
+   */
+  repoUrl?: string;
+  /**
    * How content paths are expressed in URLs.
    *
    * `path` produces readable, indexable URLs mirroring the content tree.

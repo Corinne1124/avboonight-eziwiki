@@ -7,6 +7,7 @@ import { NavigationItem } from '@/lib/payload/types';
 import { useTabStore } from '@/lib/store/tabStore';
 import { useUrlMap } from '@/components/providers/UrlMapProvider';
 import { filterHiddenItems } from '@/lib/navigation/builder';
+import { Github } from 'lucide-react';
 
 /**
  * Props for the MobileMenu component
@@ -18,6 +19,8 @@ interface MobileMenuProps {
   isOpen: boolean;
   /** Callback function to close the menu */
   onClose: () => void;
+  /** Source repository, linked from the drawer header when configured */
+  repoUrl?: string;
 }
 
 /**
@@ -221,7 +224,7 @@ function MobileNavigationItem({
  * @param props.onClose - Callback function to close the menu
  *
  */
-export function MobileMenu({ navigation, isOpen, onClose }: MobileMenuProps) {
+export function MobileMenu({ navigation, isOpen, onClose, repoUrl }: MobileMenuProps) {
   const pathname = usePathname();
   const { toPath } = useUrlMap();
 
@@ -267,6 +270,18 @@ export function MobileMenu({ navigation, isOpen, onClose }: MobileMenuProps) {
           <nav>
             <div className="flex items-center justify-between mb-1">
               <div className="flex-1" />
+              {repoUrl && (
+                <a
+                  href={repoUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Source repository"
+                  title="Source repository"
+                  className="rounded-md p-2 text-gray-500 transition-colors hover:text-gray-700 active:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:active:bg-gray-800"
+                >
+                  <Github className="h-5 w-5" />
+                </a>
+              )}
               <button
                 onClick={onClose}
                 className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 active:bg-gray-100 dark:active:bg-gray-800 rounded-md transition-colors touch-manipulation"

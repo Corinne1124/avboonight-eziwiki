@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ChevronRight, ChevronsLeft, ChevronsRight, Search, Share2 } from 'lucide-react';
+import { ChevronRight, ChevronsLeft, ChevronsRight, Github, Search, Share2 } from 'lucide-react';
 import { NavigationItem } from '@/lib/payload/types';
 import { useTabStore } from '@/lib/store/tabStore';
 import { ThemeToggle } from '@/components/ThemeToggle';
@@ -18,6 +18,32 @@ import { filterHiddenItems } from '@/lib/navigation/builder';
 interface SidebarProps {
   /** Array of top-level navigation items */
   navigation: NavigationItem[];
+  /** Source repository, linked from the header when configured */
+  repoUrl?: string;
+}
+
+/**
+ * Links out to the site's source repository.
+ *
+ * Rendered only when the payload names one, so a wiki with no public source
+ * does not show a dead control. A published site otherwise gives a reader no
+ * way to reach the project it came from.
+ */
+function RepoLink({ href, collapsed }: { href: string; collapsed: boolean }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Source repository"
+      title="Source repository"
+      className={`rounded-md p-2 text-gray-600 transition-colors hover:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-800 ${
+        collapsed ? '' : 'flex-shrink-0'
+      }`}
+    >
+      <Github className="h-4 w-4" />
+    </a>
+  );
 }
 
 /**
@@ -235,7 +261,7 @@ function NavigationItemComponent({
  * @param props.navigation - Array of top-level navigation items to display
  *
  */
-export function Sidebar({ navigation }: SidebarProps) {
+export function Sidebar({ navigation, repoUrl }: SidebarProps) {
   const { sidebarWidth, sidebarCollapsed, setSidebarWidth, setSidebarCollapsed } = useTabStore();
 
   const visibleNavigation = filterHiddenItems(navigation);
@@ -312,6 +338,7 @@ export function Sidebar({ navigation }: SidebarProps) {
           <>
             <SearchTrigger className="min-w-0 flex-1" />
             <ThemeToggle className="w-4 h-4" />
+            {repoUrl && <RepoLink href={repoUrl} collapsed={false} />}
             <button
               onClick={handleToggle}
               className="p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-800 rounded-md transition-colors flex-shrink-0"
@@ -331,6 +358,7 @@ export function Sidebar({ navigation }: SidebarProps) {
             >
               <Search className="h-4 w-4" />
             </button>
+            {repoUrl && <RepoLink href={repoUrl} collapsed />}
             <button
               onClick={handleToggle}
               className="rounded-md p-2 text-gray-600 transition-colors hover:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-800"

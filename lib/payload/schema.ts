@@ -14,6 +14,7 @@ export const payloadSchema = {
         description: { type: 'string', minLength: 1 },
         favicon: { type: 'string' },
         baseUrl: { type: 'string', format: 'uri' },
+        repoUrl: { type: 'string', format: 'uri' },
         urlStrategy: { type: 'string', enum: ['path', 'hash'] },
         autoNavigation: { type: 'boolean' },
         seo: {

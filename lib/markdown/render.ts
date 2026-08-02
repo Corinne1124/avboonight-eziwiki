@@ -63,6 +63,12 @@ let processor: Processor | null = null;
 /**
  * Resolves a wiki-link target to a destination in this site.
  *
+ * The trailing slash is applied here rather than downstream. Under the `path`
+ * strategy `rehypeInternalLinks` sees a content path it can resolve and adds
+ * one, but under `hash` the URL is already a digest, which does not map back
+ * to a document — so the link was left without it and every wiki link cost a
+ * redirect.
+ *
  * @param target - Raw target text from inside the brackets
  * @returns The destination, or null when the target does not resolve
  */
@@ -71,7 +77,7 @@ function resolveWikiLink(target: string): WikiLinkTarget | null {
   if (!doc) return null;
 
   const url = docPathToUrl(getUrlMap(), doc.path);
-  return url ? { url: `/${url}`, title: doc.title } : null;
+  return url ? { url: `/${url}/`, title: doc.title } : null;
 }
 
 /**

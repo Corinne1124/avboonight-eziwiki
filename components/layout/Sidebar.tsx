@@ -152,7 +152,10 @@ function NavigationItemComponent({
                   : ''
               }`}
               style={bgColor ? { color: textColor } : undefined}
-              aria-label={isExpanded ? 'Collapse' : 'Expand'}
+              // The button is a bare chevron, so it needs a name of its own —
+              // and it has to name the section, or a screen reader announces
+              // one indistinguishable "Expand" per section.
+              aria-label={`${isExpanded ? 'Collapse' : 'Expand'} ${item.name}`}
               aria-expanded={isExpanded}
             >
               <ChevronRight

@@ -130,7 +130,10 @@ function MobileNavigationItem({
                 : ''
             }`}
             style={bgColor ? { color: textColor, ...getLeftMarginStyle() } : getLeftMarginStyle()}
-            aria-label={isExpanded ? 'Collapse' : 'Expand'}
+            // No aria-label: this button already contains the section name, and
+            // labelling it "Expand" replaced that name rather than adding to it,
+            // leaving every section announced identically. `aria-expanded`
+            // carries the state on its own.
             aria-expanded={isExpanded}
           >
             <svg

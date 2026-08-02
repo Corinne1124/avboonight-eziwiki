@@ -68,7 +68,7 @@ export function PageLayout({ navigation, children }: PageLayoutProps) {
       <div className="flex">
         <Sidebar navigation={navigation} />
 
-        <main className="flex-1 min-w-0 flex flex-col">
+        <main id="main-content" tabIndex={-1} className="flex-1 min-w-0 flex flex-col">
           <div className="sticky top-0 z-20 bg-white dark:bg-gray-950">
             <TabBar />
             <NavigationButtons navigation={navigation} />

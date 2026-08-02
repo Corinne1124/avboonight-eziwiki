@@ -142,6 +142,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body>
+        {/*
+          Reaching the article by keyboard otherwise means tabbing past the
+          whole navigation tree — thirty-six stops on this site, on every page.
+          Visible only while focused, so it costs nothing to a mouse user.
+        */}
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-gray-900 focus:shadow-lg focus:outline focus:outline-2 focus:outline-blue-600 dark:focus:bg-gray-900 dark:focus:text-gray-100"
+        >
+          Skip to content
+        </a>
         <UrlMapProvider value={site.urlMap}>
           <TabInitializer navigation={site.navigation} />
           <PageLayout navigation={site.navigation}>{children}</PageLayout>

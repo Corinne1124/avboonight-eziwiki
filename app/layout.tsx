@@ -75,6 +75,23 @@ export const metadata: Metadata = {
 };
 
 /**
+ * Character ranges each font file covers.
+ *
+ * Pretendard carries the full Korean syllabary, which is most of its weight:
+ * one weight is 750 kB whole, 27 kB once the Hangul is taken out. Splitting it
+ * and declaring what each half covers lets the browser fetch only the halves a
+ * page actually uses — an English page never asks for the Korean file, and a
+ * Korean one pays for it once and keeps it, since `public/` is served
+ * immutable.
+ */
+const RANGES = {
+  latin:
+    'U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,' +
+    'U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD',
+  korean: 'U+1100-11FF,U+3000-303F,U+3130-318F,U+A960-A97F,U+AC00-D7A3,U+D7B0-D7FF,U+FF00-FFEF',
+} as const;
+
+/**
  * Web fonts, declared here rather than in `globals.css`.
  *
  * A stylesheet has no way to read the deployment base path, so a hardcoded
@@ -83,31 +100,34 @@ export const metadata: Metadata = {
  * the declarations from here puts them through `asset()` like every other file
  * in `public/`.
  *
- * `preload` marks the weights the first paint needs; the rest load on demand.
+ * Only the Latin halves are preloaded. Preloading the Korean ones would undo
+ * the split by fetching them before anything has asked for a Korean glyph.
  */
-const FONT_FACES = [
-  { family: 'SUITE', weight: 400, file: '/fonts/SUITE/SUITE-Regular.woff2' },
-  { family: 'SUITE', weight: 600, file: '/fonts/SUITE/SUITE-SemiBold.woff2' },
-  { family: 'SUITE', weight: 700, file: '/fonts/SUITE/SUITE-Bold.woff2' },
-  {
-    family: 'Pretendard',
-    weight: 400,
-    file: '/fonts/Pretandard/Pretendard-Regular.woff2',
-    preload: true,
-  },
-  {
-    family: 'Pretendard',
-    weight: 600,
-    file: '/fonts/Pretandard/Pretendard-SemiBold.woff2',
-    preload: true,
-  },
-  { family: 'Pretendard', weight: 700, file: '/fonts/Pretandard/Pretendard-Bold.woff2' },
+interface FontFace {
+  weight: number;
+  subset: keyof typeof RANGES;
+  preload?: boolean;
+}
+
+const FONT_FACES: FontFace[] = [
+  { weight: 400, subset: 'latin', preload: true },
+  { weight: 400, subset: 'korean' },
+  { weight: 600, subset: 'latin', preload: true },
+  { weight: 600, subset: 'korean' },
+  { weight: 700, subset: 'latin' },
+  { weight: 700, subset: 'korean' },
 ];
 
+/** Where a weight-and-subset pair is served from. */
+function fontFile({ weight, subset }: FontFace): string {
+  return `/fonts/Pretendard/pretendard-${weight}-${subset}.woff2`;
+}
+
 const fontFaceCss = FONT_FACES.map(
-  ({ family, weight, file }) =>
-    `@font-face{font-family:'${family}';font-weight:${weight};` +
-    `src:url('${asset(file)}') format('woff2');font-display:swap}`,
+  (font) =>
+    `@font-face{font-family:'Pretendard';font-weight:${font.weight};` +
+    `src:url('${asset(fontFile(font))}') format('woff2');font-display:swap;` +
+    `unicode-range:${RANGES[font.subset]}}`,
 ).join('');
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -119,9 +139,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         {FONT_FACES.filter((font) => font.preload).map((font) => (
           <link
-            key={font.file}
+            key={fontFile(font)}
             rel="preload"
-            href={asset(font.file)}
+            href={asset(fontFile(font))}
             as="font"
             type="font/woff2"
             crossOrigin="anonymous"

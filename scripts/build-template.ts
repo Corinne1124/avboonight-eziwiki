@@ -50,31 +50,36 @@ const ROOT_FILES: Array<[source: string, target: string]> = [
 const PUBLIC_INCLUDE = ['favicon.svg'];
 
 /**
- * Collects the font files the site actually loads.
+ * Collects the font files to ship with a scaffolded project.
  *
- * `public/fonts/` holds every weight of each family, but only a few are
- * declared. Copying the directory wholesale put eight megabytes of
- * unreferenced woff2 into the npm package — most of the download, for files no
- * scaffolded site ever requests. Deriving the list from the sources that
- * reference them keeps it correct when a weight is added or dropped.
+ * This used to grep the sources for `/fonts/…woff2` literals, because
+ * `public/fonts/` held every weight of two families and copying it wholesale
+ * put eight megabytes of unreferenced woff2 into the npm package. The
+ * directory now holds exactly the six subsets the layout declares, and their
+ * paths are assembled from a weight and a subset name rather than written out,
+ * so there is no literal left to match. Reading the directory is both simpler
+ * and correct: everything in it is referenced.
  *
- * @returns Paths relative to `public/`, e.g. 'fonts/Pretandard/Pretendard-Bold.woff2'
+ * @returns Paths relative to `public/`, e.g. 'fonts/Pretendard/pretendard-400-latin.woff2'
  */
 function findReferencedFonts(): string[] {
-  const sources = ['app/globals.css', 'styles/theme.css', 'styles/markdown.css', 'app/layout.tsx'];
-  const found = new Set<string>();
+  const root = path.join(ROOT, 'public', 'fonts');
+  if (!fs.existsSync(root)) return [];
 
-  for (const source of sources) {
-    const file = path.join(ROOT, source);
-    if (!fs.existsSync(file)) continue;
+  const found: string[] = [];
 
-    const text = fs.readFileSync(file, 'utf-8');
-    for (const match of text.matchAll(/\/(fonts\/[^"')\s]+\.woff2?)/g)) {
-      found.add(match[1]);
+  for (const family of fs.readdirSync(root)) {
+    const dir = path.join(root, family);
+    if (!fs.statSync(dir).isDirectory()) continue;
+
+    for (const file of fs.readdirSync(dir)) {
+      if (file.endsWith('.woff2') || file.endsWith('.woff')) {
+        found.push(`fonts/${family}/${file}`);
+      }
     }
   }
 
-  return [...found].sort();
+  return found.sort();
 }
 
 /**

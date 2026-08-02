@@ -34,6 +34,10 @@ const ROOT_FILES: Array<[source: string, target: string]> = [
   // fast, and pins the exact dependency tree this repository tests against.
   ['package-lock.json', 'package-lock.json'],
   ['next.config.js', 'next.config.js'],
+  // Vercel serves everything under public/ with `max-age=0, must-revalidate`,
+  // so without this a scaffolded site revalidates each font on every page view
+  // before text can render. Harmless on other hosts, which ignore the file.
+  ['vercel.json', 'vercel.json'],
   ['postcss.config.js', 'postcss.config.js'],
   ['tailwind.config.ts', 'tailwind.config.ts'],
   ['tsconfig.json', 'tsconfig.json'],
@@ -97,6 +101,7 @@ const EXCLUDE_FILES = new Set([
   'lib/search/build.test.ts',
   'lib/search/client.test.ts',
   'lib/markdown/render.test.ts',
+  'lib/markdown/render.hash.test.ts',
 ]);
 
 /** Directories never copied. */

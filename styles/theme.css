@@ -28,6 +28,11 @@
   /* Code block colors */
   --color-code-bg: #f3f4f6;
   --color-code-text: #1f2937;
+  /* Secondary text inside a code block. Darker than --color-text-muted, which
+     reaches only 4.39:1 against the code background and so falls short of the
+     4.5:1 that the small type used for the language label and the copy button
+     needs. */
+  --color-code-muted: #4b5563;
 
   /* Border colors */
   --color-border: #e5e7eb;
@@ -59,6 +64,8 @@
   /* Code block colors */
   --color-code-bg: #374151;
   --color-code-text: #f9fafb;
+  /* See the light theme: the muted grey reaches only 4.06:1 here. */
+  --color-code-muted: #d1d5db;
 
   /* Border colors */
   --color-border: #374151;

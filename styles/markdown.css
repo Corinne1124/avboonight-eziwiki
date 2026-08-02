@@ -31,14 +31,14 @@
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.03em;
-  color: var(--color-text-muted);
+  color: var(--color-code-muted);
 }
 
 .ezw-code__copy {
   font-size: 0.75rem;
   padding: 0.25rem 0.5rem;
   border-radius: 0.25rem;
-  color: var(--color-text-muted);
+  color: var(--color-code-muted);
   background: transparent;
   transition:
     color 0.15s ease,

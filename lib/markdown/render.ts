@@ -19,6 +19,7 @@ import {
 import { remarkWikiLinks, type WikiLinkTarget } from './remark-wikilink';
 import { getUsedLanguages } from './languages';
 import { cached } from '../cache';
+import { BASE_PATH } from '../basePath';
 import { getUrlMap } from '../navigation/urlMap';
 import { getDoc } from '../content/registry';
 import { resolveTarget } from '../content/resolver';
@@ -41,15 +42,6 @@ export interface RenderedMarkdown {
   /** Headings collected for the table of contents */
   headings: Heading[];
 }
-
-/**
- * Base path the site is served from, empty when served from the root.
- *
- * Set by the deploy workflow. Build scripts that render Markdown outside of
- * `next build` — the search index and link check — read the same variable, so
- * every path this pipeline emits agrees with the one Next is configured with.
- */
-const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || '';
 
 /** Syntax highlighting themes, applied as CSS variables for light and dark. */
 const SHIKI_THEMES = { light: 'github-light', dark: 'github-dark' } as const;

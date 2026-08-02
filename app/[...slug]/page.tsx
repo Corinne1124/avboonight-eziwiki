@@ -7,6 +7,7 @@ import { renderDoc } from '@/lib/markdown/render';
 import { getDoc, type ContentDoc } from '@/lib/content/registry';
 import { docPathToUrl, urlToDocPath } from '@/lib/navigation/url';
 import { getSite } from '@/lib/site';
+import { asset } from '@/lib/basePath';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 
@@ -59,7 +60,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       canonical: canonicalUrl,
     },
     icons: {
-      icon: (doc.frontmatter.favicon as string) || global.favicon || '/favicon.ico',
+      icon: asset((doc.frontmatter.favicon as string) || global.favicon || '/favicon.ico'),
     },
     // Hidden pages stay reachable by direct link but should not be indexed.
     robots: hiddenPaths.has(resolved.path) ? { index: false, follow: false } : undefined,

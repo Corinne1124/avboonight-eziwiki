@@ -50,13 +50,13 @@ const ROOT_FILES: Array<[source: string, target: string]> = [
 const PUBLIC_INCLUDE = ['favicon.svg'];
 
 /**
- * Collects the font files the stylesheet actually loads.
+ * Collects the font files the site actually loads.
  *
- * `public/fonts/` holds every weight of each family, but the stylesheet only
- * declares a few. Copying the directory wholesale put eight megabytes of
+ * `public/fonts/` holds every weight of each family, but only a few are
+ * declared. Copying the directory wholesale put eight megabytes of
  * unreferenced woff2 into the npm package — most of the download, for files no
- * scaffolded site ever requests. Deriving the list from the CSS keeps it
- * correct when a weight is added or dropped.
+ * scaffolded site ever requests. Deriving the list from the sources that
+ * reference them keeps it correct when a weight is added or dropped.
  *
  * @returns Paths relative to `public/`, e.g. 'fonts/Pretandard/Pretendard-Bold.woff2'
  */

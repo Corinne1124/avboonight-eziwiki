@@ -43,8 +43,20 @@ export interface RenderedMarkdown {
   headings: Heading[];
 }
 
-/** Syntax highlighting themes, applied as CSS variables for light and dark. */
-const SHIKI_THEMES = { light: 'github-light', dark: 'github-dark' } as const;
+/**
+ * Syntax highlighting themes, applied as CSS variables for light and dark.
+ *
+ * The high-contrast variants, because the plain ones are tuned for GitHub's
+ * near-white code background: against the slightly darker grey used here their
+ * strings, keywords and comments land between 4.15:1 and 4.37:1, under the
+ * 4.5:1 that body-sized text needs. Lightening the background would fix the
+ * ratios too, but a code block that matches the page around it stops reading
+ * as a code block.
+ */
+const SHIKI_THEMES = {
+  light: 'github-light-high-contrast',
+  dark: 'github-dark-high-contrast',
+} as const;
 
 let processor: Processor | null = null;
 

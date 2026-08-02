@@ -110,7 +110,11 @@ export function rehypeInternalLinks(urlMap: UrlMap) {
 
       const url = docPathToUrl(urlMap, docPath);
       if (url) {
-        node.properties.href = `/${url}${suffix}`;
+        // Trailing slash to match `trailingSlash` in the Next config: that is
+        // the form every page is exported under. Hosts that redirect the
+        // slashless form cost a round trip per link; hosts that do not — a
+        // plain object store, say — answer it with a 404.
+        node.properties.href = `/${url}/${suffix}`;
       }
     });
   };

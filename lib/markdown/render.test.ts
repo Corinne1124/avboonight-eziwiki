@@ -51,7 +51,7 @@ describe('renderMarkdown', () => {
   it('rewrites internal links to site URLs', async () => {
     const { html } = await renderMarkdown('[Quick Start](getting-started/quick-start)\n');
 
-    expect(html).toContain('href="/getting-started/quick-start"');
+    expect(html).toContain('href="/getting-started/quick-start/"');
   });
 
   it('resolves internal links written with a .md extension or leading slash', async () => {
@@ -59,13 +59,23 @@ describe('renderMarkdown', () => {
       '[a](/getting-started/quick-start) [b](getting-started/quick-start.md)\n',
     );
 
-    expect(html.match(/href="\/getting-started\/quick-start"/g)).toHaveLength(2);
+    expect(html.match(/href="\/getting-started\/quick-start\/"/g)).toHaveLength(2);
+  });
+
+  // `trailingSlash` is on, so this is the form the page is exported under. A
+  // slashless link is a redirect on hosts that add the slash, and a 404 on
+  // hosts that do not.
+  it('emits internal links in the trailing-slash form the export uses', async () => {
+    const { html } = await renderMarkdown('[a](getting-started/quick-start)\n');
+
+    expect(html).toContain('href="/getting-started/quick-start/"');
+    expect(html).not.toMatch(/href="\/getting-started\/quick-start"/);
   });
 
   it('preserves the anchor when resolving an internal link', async () => {
     const { html } = await renderMarkdown('[Step](getting-started/quick-start#step-two)\n');
 
-    expect(html).toContain('href="/getting-started/quick-start#step-two"');
+    expect(html).toContain('href="/getting-started/quick-start/#step-two"');
   });
 
   it('leaves in-page anchors alone', async () => {
@@ -135,7 +145,7 @@ describe('wiki links', () => {
   it('resolves a full path', async () => {
     const { html } = await renderMarkdown('[[getting-started/quick-start]]\n');
 
-    expect(html).toContain('href="/getting-started/quick-start"');
+    expect(html).toContain('href="/getting-started/quick-start/"');
     expect(html).toContain('ezw-wikilink');
     // With no label, the target's own title is used as the link text.
     expect(html).toContain('>Quick Start<');
@@ -144,13 +154,13 @@ describe('wiki links', () => {
   it('resolves a bare file name', async () => {
     const { html } = await renderMarkdown('[[quick-start]]\n');
 
-    expect(html).toContain('href="/getting-started/quick-start"');
+    expect(html).toContain('href="/getting-started/quick-start/"');
   });
 
   it('resolves a page title', async () => {
     const { html } = await renderMarkdown('[[Quick Start]]\n');
 
-    expect(html).toContain('href="/getting-started/quick-start"');
+    expect(html).toContain('href="/getting-started/quick-start/"');
   });
 
   it('uses an explicit label', async () => {
@@ -162,7 +172,7 @@ describe('wiki links', () => {
   it('appends an anchor', async () => {
     const { html } = await renderMarkdown('[[quick-start#prerequisites]]\n');
 
-    expect(html).toContain('href="/getting-started/quick-start#prerequisites"');
+    expect(html).toContain('href="/getting-started/quick-start/#prerequisites"');
   });
 
   it('links an anchor-only reference within the page', async () => {
@@ -191,8 +201,8 @@ describe('wiki links', () => {
   it('handles several links in one paragraph with text between them', async () => {
     const { html } = await renderMarkdown('See [[intro]] and then [[quick-start]] next.\n');
 
-    expect(html).toContain('href="/intro"');
-    expect(html).toContain('href="/getting-started/quick-start"');
+    expect(html).toContain('href="/intro/"');
+    expect(html).toContain('href="/getting-started/quick-start/"');
     expect(html).toContain('See ');
     expect(html).toContain(' and then ');
     expect(html).toContain(' next.');

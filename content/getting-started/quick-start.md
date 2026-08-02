@@ -6,7 +6,7 @@ order: 1
 
 # Quick Start
 
-![eziwiki](/images/eziwiki.png)
+![eziwiki](/images/eziwiki.webp)
 
 ## Prerequisites
 

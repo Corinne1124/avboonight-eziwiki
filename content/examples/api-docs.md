@@ -6,7 +6,7 @@ order: 3
 
 # API Documentation Example
 
-![eziwiki](/images/eziwiki.png)
+![eziwiki](/images/eziwiki.webp)
 
 eziwiki is perfect for creating clean, organized API documentation.
 

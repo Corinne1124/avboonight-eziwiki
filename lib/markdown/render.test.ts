@@ -116,10 +116,23 @@ describe('renderMarkdown', () => {
     expect(html).toContain('<div class="custom">hello</div>');
   });
 
-  it('marks images as lazily loaded', async () => {
+  // The opening figure is usually what the browser measures as the largest
+  // contentful paint, and deferring it keeps the request out of the preload
+  // scan, so it is fetched eagerly while the images below it still defer.
+  it('fetches the first image eagerly and defers the rest', async () => {
+    const { html } = await renderMarkdown('![one](/images/a.png)\n\n![two](/images/b.png)\n');
+
+    const [first, second] = html.match(/<img[^>]*>/g) ?? [];
+
+    expect(first).toContain('loading="eager"');
+    expect(first).toContain('fetchpriority="high"');
+    expect(second).toContain('loading="lazy"');
+    expect(second).not.toContain('fetchpriority');
+  });
+
+  it('adds the styling hook to every image', async () => {
     const { html } = await renderMarkdown('![alt](/images/x.png)\n');
 
-    expect(html).toContain('loading="lazy"');
     expect(html).toContain('ezw-img');
   });
 });

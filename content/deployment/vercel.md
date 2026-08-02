@@ -6,7 +6,7 @@ order: 2
 
 # Deploy to Vercel
 
-![eziwiki](/images/eziwiki.png)
+![eziwiki](/images/eziwiki.webp)
 
 Vercel is the easiest way to deploy your eziwiki with zero configuration.
 

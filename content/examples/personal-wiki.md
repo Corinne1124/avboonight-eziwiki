@@ -6,7 +6,7 @@ order: 1
 
 # Personal Wiki Example
 
-![eziwiki](/images/eziwiki.png)
+![eziwiki](/images/eziwiki.webp)
 
 Use eziwiki to build your personal knowledge base - your second brain.
 

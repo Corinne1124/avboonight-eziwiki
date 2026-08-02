@@ -221,15 +221,32 @@ export function rehypeBasePath(basePath: string) {
 }
 
 /**
- * Adds lazy loading and consistent styling hooks to content images.
+ * Adds loading hints and consistent styling hooks to content images.
+ *
+ * Every image was deferred, including the first one. On a page that opens with
+ * a figure that image is what the browser measures as the largest contentful
+ * paint, and `loading="lazy"` keeps it out of the preload scan — the request
+ * only starts once layout has reached it, so the headline metric waits on a
+ * round trip that need not have been late. The first image is therefore
+ * fetched eagerly and marked high priority; the rest, which are further down,
+ * keep deferring.
  */
 export function rehypeImages() {
   return (tree: Root) => {
+    let seen = 0;
+
     visit(tree, 'element', (node: Element) => {
       if (node.tagName !== 'img') return;
 
       node.properties ??= {};
-      node.properties.loading ??= 'lazy';
+      const isFirst = seen++ === 0;
+
+      if (isFirst) {
+        node.properties.loading ??= 'eager';
+        node.properties.fetchPriority ??= 'high';
+      } else {
+        node.properties.loading ??= 'lazy';
+      }
       node.properties.decoding ??= 'async';
 
       const className = node.properties.className;

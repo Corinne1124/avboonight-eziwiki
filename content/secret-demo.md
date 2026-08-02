@@ -7,7 +7,7 @@ hidden: true
 
 # 🎉 You Found the Secret Page!
 
-![eziwiki](/images/eziwiki.png)
+![eziwiki](/images/eziwiki.webp)
 
 This page is **hidden** from the sidebar navigation, but you can still access it via direct link.
 

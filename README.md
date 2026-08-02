@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="eziwiki.png" alt="EziWiki">
+  <img src="eziwiki.webp" alt="EziWiki">
   <br/><hr/>
 </div>
 

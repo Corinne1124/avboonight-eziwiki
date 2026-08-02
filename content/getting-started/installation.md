@@ -6,7 +6,7 @@ order: 2
 
 # Installation
 
-![eziwiki](/images/eziwiki.png)
+![eziwiki](/images/eziwiki.webp)
 
 This guide covers different ways to install and set up eziwiki.
 

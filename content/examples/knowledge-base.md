@@ -6,7 +6,7 @@ order: 2
 
 # Knowledge Base Example
 
-![eziwiki](/images/eziwiki.png)
+![eziwiki](/images/eziwiki.webp)
 
 Use eziwiki to create a comprehensive team knowledge base.
 

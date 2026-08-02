@@ -6,7 +6,7 @@ order: 1
 
 # Welcome to eziwiki 👋
 
-![eziwiki](/images/eziwiki.png)
+![eziwiki](/images/eziwiki.webp)
 
 **eziwiki** is a wiki and documentation site generator built on Next.js 14,
 inspired by Notion and Obsidian. Write Markdown, get a fast static site.

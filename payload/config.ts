@@ -13,7 +13,16 @@ export const payload: Payload = {
     description:
       'A beautiful, minimal wiki and documentation site generator inspired by Notion and Obsidian',
     favicon: '/favicon.svg',
-    baseUrl: 'https://eziwiki.dev',
+    /**
+     * Where this site is published.
+     *
+     * Canonical tags, the sitemap and social images are absolute URLs built
+     * from this, so it has to name a host that actually serves the site — a
+     * canonical pointing at a domain that does not resolve tells search
+     * engines the real page is somewhere unreachable. A deployment can
+     * override it by setting `NEXT_PUBLIC_SITE_URL`.
+     */
+    baseUrl: 'https://eziwiki.vercel.app',
     /**
      * URL form for content pages.
      *

@@ -8,7 +8,7 @@ import { SearchDialog } from '@/components/search/SearchDialog';
 import { payload } from '@/payload/config';
 import { validatePayload } from '@/lib/payload/validator';
 import { getSite } from '@/lib/site';
-import { asset } from '@/lib/basePath';
+import { asset, fileUrl, pageUrl } from '@/lib/basePath';
 
 // Validate payload at build time
 const validation = validatePayload(payload);
@@ -18,19 +18,48 @@ if (!validation.valid) {
   throw new Error('Invalid payload configuration. Please fix the errors above.');
 }
 
+/**
+ * Rewrites configured social images to absolute URLs.
+ *
+ * A crawler fetching `og:image` has no page to resolve a relative path
+ * against, so the value has to carry the origin and the base path. Entries
+ * already absolute are left alone, which is how an image on a CDN keeps
+ * working.
+ *
+ * @param images - `images` as written in the payload, in any form Next accepts
+ * @returns The same shape with every local path made absolute
+ */
+function absoluteImages<T>(images: T): T {
+  const toAbsolute = (image: unknown): unknown => {
+    if (typeof image === 'string') return fileUrl(image, payload.global.baseUrl);
+    if (image && typeof image === 'object' && 'url' in image) {
+      const { url } = image as { url: string };
+      return { ...image, url: fileUrl(url, payload.global.baseUrl) };
+    }
+    return image;
+  };
+
+  if (Array.isArray(images)) return images.map(toAbsolute) as T;
+  return toAbsolute(images) as T;
+}
+
 // Generate metadata from payload
 export const metadata: Metadata = {
-  metadataBase: payload.global.baseUrl ? new URL(payload.global.baseUrl) : undefined,
+  metadataBase: new URL(pageUrl('', payload.global.baseUrl)),
   title: payload.global.title,
   description: payload.global.description,
   icons: {
     icon: asset(payload.global.favicon || '/favicon.ico'),
   },
+  alternates: {
+    canonical: pageUrl('', payload.global.baseUrl),
+  },
   openGraph: payload.global.seo?.openGraph
     ? {
         title: payload.global.seo.openGraph.title || payload.global.title,
         description: payload.global.seo.openGraph.description || payload.global.description,
-        images: payload.global.seo.openGraph.images,
+        url: pageUrl('', payload.global.baseUrl),
+        images: absoluteImages(payload.global.seo.openGraph.images),
       }
     : undefined,
   twitter: payload.global.seo?.twitter
@@ -40,7 +69,7 @@ export const metadata: Metadata = {
         creator: payload.global.seo.twitter.creator,
         title: payload.global.seo.twitter.title || payload.global.title,
         description: payload.global.seo.twitter.description || payload.global.description,
-        images: payload.global.seo.twitter.images,
+        images: absoluteImages(payload.global.seo.twitter.images),
       }
     : undefined,
 };
@@ -83,7 +112,7 @@ const fontFaceCss = FONT_FACES.map(
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const site = getSite();
-  const baseUrl = site.global.baseUrl || 'https://example.com';
+  const homeUrl = pageUrl('', site.global.baseUrl);
 
   return (
     <html lang="en">
@@ -107,7 +136,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               '@type': 'WebSite',
               name: site.global.title,
               description: site.global.description,
-              url: baseUrl,
+              url: homeUrl,
             }),
           }}
         />

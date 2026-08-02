@@ -7,7 +7,7 @@ import { renderDoc } from '@/lib/markdown/render';
 import { getDoc, type ContentDoc } from '@/lib/content/registry';
 import { docPathToUrl, urlToDocPath } from '@/lib/navigation/url';
 import { getSite } from '@/lib/site';
-import { asset } from '@/lib/basePath';
+import { asset, fileUrl, pageUrl } from '@/lib/basePath';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 
@@ -49,9 +49,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   const title = doc.title;
   const description = doc.description || global.description;
-  const ogImage = doc.frontmatter.ogImage as string | undefined;
-  const baseUrl = global.baseUrl || 'https://example.com';
-  const canonicalUrl = `${baseUrl}/${resolved.url}`;
+  const rawOgImage = doc.frontmatter.ogImage as string | undefined;
+  const ogImage = rawOgImage ? fileUrl(rawOgImage, global.baseUrl) : undefined;
+  const canonicalUrl = pageUrl(resolved.url, global.baseUrl);
 
   return {
     title,

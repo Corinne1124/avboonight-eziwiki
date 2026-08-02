@@ -1,6 +1,7 @@
 import { MetadataRoute } from 'next';
 import { getSite } from '@/lib/site';
 import { docPathToUrl } from '@/lib/navigation/url';
+import { pageUrl } from '@/lib/basePath';
 
 /**
  * Generates the sitemap for every published page.
@@ -18,11 +19,10 @@ import { docPathToUrl } from '@/lib/navigation/url';
  */
 export default function sitemap(): MetadataRoute.Sitemap {
   const { global, urlMap, docPaths, hiddenPaths } = getSite();
-  const baseUrl = global.baseUrl || 'https://example.com';
   const lastModified = new Date();
 
   const homeEntry: MetadataRoute.Sitemap[0] = {
-    url: baseUrl,
+    url: pageUrl('', global.baseUrl),
     lastModified,
     changeFrequency: 'weekly',
     priority: 1,
@@ -36,7 +36,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
     return [
       {
-        url: `${baseUrl}/${url}`,
+        url: pageUrl(url, global.baseUrl),
         lastModified,
         changeFrequency: 'weekly',
         priority: 0.8,

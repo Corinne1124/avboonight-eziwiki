@@ -90,11 +90,11 @@ npm run show-urls
 ================================================================================
 📄 Quick Start
    source → content/getting-started/quick-start.md
-   url    → https://eziwiki.dev/getting-started/quick-start
+   url    → https://eziwiki.vercel.app/getting-started/quick-start
 
 🔒 [HIDDEN] Secret Demo Page
    source → content/secret-demo.md
-   url    → https://eziwiki.dev/secret-demo
+   url    → https://eziwiki.vercel.app/secret-demo
 ```
 
 This is the fastest way to find the address of a [[hidden-pages|hidden page]].

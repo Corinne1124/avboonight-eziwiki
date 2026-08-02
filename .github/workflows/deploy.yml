@@ -37,6 +37,12 @@ jobs:
       # GitHub Pages serves this project site from /eziwiki, so every emitted
       # path needs that prefix. Set here rather than inferred from CI, so that
       # test and lint jobs — and forks deploying elsewhere — are unaffected.
+      #
+      # `NEXT_PUBLIC_SITE_URL` is deliberately not set. This deployment is a
+      # mirror of the production site on Vercel, so it keeps the payload's
+      # `baseUrl` and canonicalises to Vercel rather than to itself: two copies
+      # each claiming to be the original would compete for the same searches.
+      # Only the base path differs, which is what keeps assets resolving here.
       - name: Build with Next.js
         run: npm run build
         env:

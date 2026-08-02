@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next';
 import { payload } from '@/payload/config';
+import { fileUrl } from '@/lib/basePath';
 
 /**
  * Generate robots.txt file
@@ -8,14 +9,12 @@ import { payload } from '@/payload/config';
  * @returns Robots configuration
  */
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = payload.global.baseUrl || 'https://example.com';
-
   return {
     rules: {
       userAgent: '*',
       allow: '/',
       disallow: ['/api/', '/_next/'],
     },
-    sitemap: `${baseUrl}/sitemap.xml`,
+    sitemap: fileUrl('/sitemap.xml', payload.global.baseUrl),
   };
 }

@@ -74,7 +74,7 @@ npm run show-urls
 ```
 🔒 [HIDDEN] Secret Demo Page
    source → content/secret-demo.md
-   url    → https://eziwiki.dev/secret-demo
+   url    → https://eziwiki.vercel.app/secret-demo
 ```
 
 ## Hidden is not private

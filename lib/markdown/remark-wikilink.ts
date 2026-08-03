@@ -1,5 +1,13 @@
 import { visit } from 'unist-util-visit';
-import type { Root, Text, PhrasingContent, Parent } from 'mdast';
+import type {
+  Root,
+  Text,
+  PhrasingContent,
+  Parent,
+  Paragraph,
+  RootContent,
+  BlockContent,
+} from 'mdast';
 import { WIKILINK_PATTERN, parseWikiLink, type WikiLink } from './wikilink';
 
 /**
@@ -30,13 +38,42 @@ export type WikiLinkResolver = (target: string) => WikiLinkTarget | null;
  */
 export type EmbedResolver = (target: string) => { url: string } | null;
 
+/** A document whose content is to be shown inside another. */
+export interface TranscludeTarget {
+  /** Content path, used to detect a page including itself */
+  path: string;
+  /** Href of the source document */
+  url: string;
+  /** Title of the source document */
+  title: string;
+  /** The Markdown nodes to splice in */
+  nodes: RootContent[];
+}
+
+/**
+ * Resolves an embed target to a document's content, or null when the target is
+ * not a document or the named section does not exist.
+ */
+export type TranscludeResolver = (target: string, anchor?: string) => TranscludeTarget | null;
+
 /** How a wiki link should be turned into a node. */
 export interface WikiLinkResolvers {
   /** Resolves a document target */
   link: WikiLinkResolver;
   /** Resolves an embeddable file; absent when embeds are not supported */
   embed?: EmbedResolver;
+  /** Resolves a document to include inline; absent disables transclusion */
+  transclude?: TranscludeResolver;
 }
+
+/**
+ * How deeply a transclusion may nest.
+ *
+ * A page including a page that includes a page is already hard to read; past
+ * that it is more likely a mistake than an intent, and each level multiplies
+ * the work the build does.
+ */
+const MAX_TRANSCLUSION_DEPTH = 3;
 
 /**
  * Builds the replacement node for one wiki link.
@@ -143,6 +180,110 @@ function splitText(node: Text, resolvers: WikiLinkResolvers): PhrasingContent[] 
 }
 
 /**
+ * Reads a paragraph that consists of nothing but one embed.
+ *
+ * Transclusion replaces a paragraph with whole blocks — headings, lists, code —
+ * which cannot sit inside one. So it applies only when the embed is alone in
+ * its paragraph, which is also how an author writes it. An embed with prose
+ * beside it stays inline and becomes a link.
+ *
+ * @param node - Paragraph to inspect
+ * @returns The embed, or null when the paragraph holds anything else
+ */
+function soleEmbed(node: Paragraph): WikiLink | null {
+  if (node.children.length !== 1) return null;
+
+  const [child] = node.children;
+  if (child.type !== 'text') return null;
+
+  const text = child.value.trim();
+  const match = /^(!?)\[\[([^\]\n]+)\]\]$/.exec(text);
+  if (!match || match[1] !== '!') return null;
+
+  return parseWikiLink(match[2], match[0], true);
+}
+
+/**
+ * Wraps included content so a reader can see where it came from.
+ *
+ * `blockquote` carries the block children — it is a known type that accepts
+ * them — while `hName` renders it as a plain division.
+ */
+function wrapTranscluded(target: TranscludeTarget, nodes: RootContent[]): RootContent {
+  return {
+    type: 'blockquote',
+    data: {
+      hName: 'div',
+      hProperties: { className: ['ezw-transclusion'] },
+    },
+    children: [
+      ...(nodes as BlockContent[]),
+      {
+        type: 'paragraph',
+        data: { hProperties: { className: ['ezw-transclusion__source'] } },
+        children: [
+          {
+            type: 'link',
+            url: target.url,
+            children: [{ type: 'text', value: target.title }],
+          },
+        ],
+      },
+    ],
+  };
+}
+
+/**
+ * Marks headings that arrived by transclusion.
+ *
+ * The table of contents describes the page a reader is on. Headings pulled in
+ * from elsewhere would list sections that belong to another document, so they
+ * are flagged here and skipped when the contents are collected.
+ */
+function markTranscludedHeadings(tree: Root): void {
+  visit(tree, 'heading', (heading) => {
+    heading.data ??= {};
+    const properties = (heading.data.hProperties ??= {}) as Record<string, unknown>;
+    properties['data-transcluded'] = 'true';
+  });
+}
+
+/**
+ * Replaces sole-embed paragraphs with the content they name.
+ *
+ * @param tree - Tree to transform in place
+ * @param resolvers - Target resolvers
+ * @param stack - Paths already being included, innermost last
+ */
+function transclude(tree: Root, resolvers: WikiLinkResolvers, stack: string[]): void {
+  const resolve = resolvers.transclude;
+  if (!resolve) return;
+
+  visit(tree, 'paragraph', (node: Paragraph, index, parent) => {
+    if (!parent || index === undefined) return;
+
+    const embed = soleEmbed(node);
+    if (!embed || !embed.target) return;
+
+    const target = resolve(embed.target, embed.anchor);
+    if (!target) return;
+
+    // A page including itself, directly or through a chain, would never finish.
+    // Leaving the link is the honest outcome: the reference is real, it just
+    // cannot be shown here.
+    if (stack.includes(target.path) || stack.length >= MAX_TRANSCLUSION_DEPTH) return;
+
+    const inner: Root = { type: 'root', children: target.nodes };
+    transclude(inner, resolvers, [...stack, target.path]);
+    markTranscludedHeadings(inner);
+
+    parent.children.splice(index, 1, wrapTranscluded(target, inner.children));
+
+    return index + 1;
+  });
+}
+
+/**
  * Remark plugin factory.
  *
  * @param resolvers - Resolves a target to a document, and optionally to a file
@@ -157,7 +298,12 @@ function splitText(node: Text, resolvers: WikiLinkResolvers): PhrasingContent[] 
  * ```
  */
 export function remarkWikiLinks(resolvers: WikiLinkResolvers) {
-  return (tree: Root) => {
+  return (tree: Root, file: { data: Record<string, unknown> }) => {
+    // Transclusion first: it works on whole paragraphs, and the inline pass
+    // below would otherwise have already turned the embed into a link.
+    const docPath = file?.data?.docPath;
+    transclude(tree, resolvers, typeof docPath === 'string' ? [docPath] : []);
+
     visit(tree, 'text', (node: Text, index, parent) => {
       if (!parent || index === undefined) return;
 

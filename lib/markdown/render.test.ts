@@ -271,3 +271,61 @@ describe('embeds', () => {
     expect(html).toContain('ezw-broken-link');
   });
 });
+
+describe('transclusion', () => {
+  it('includes a whole document when the embed is alone in its paragraph', async () => {
+    const { html } = await renderMarkdown('![[quick-start]]\n');
+
+    expect(html).toContain('ezw-transclusion');
+    expect(html).toContain('Prerequisites');
+  });
+
+  it('attributes the content to the page it came from', async () => {
+    const { html } = await renderMarkdown('![[quick-start]]\n');
+
+    expect(html).toContain('ezw-transclusion__source');
+    expect(html).toContain('href="/getting-started/quick-start/"');
+  });
+
+  it('includes only the named section', async () => {
+    const whole = await renderMarkdown('![[quick-start]]\n');
+    const section = await renderMarkdown('![[quick-start#prerequisites]]\n');
+
+    expect(section.html).toContain('ezw-transclusion');
+    expect(section.html).toContain('Prerequisites');
+    expect(section.html.length).toBeLessThan(whole.html.length / 2);
+    // The section stops at the next heading of the same level.
+    expect(section.html).not.toContain('Step 1');
+  });
+
+  // Blocks cannot sit inside a paragraph, and an embed among prose is being
+  // used as a reference rather than as an inclusion.
+  it('stays a link when the embed shares its paragraph with text', async () => {
+    const { html } = await renderMarkdown('see ![[quick-start]] here\n');
+
+    expect(html).not.toContain('ezw-transclusion');
+    expect(html).toContain('ezw-wikilink');
+  });
+
+  it('falls back to a link when the named section does not exist', async () => {
+    const { html } = await renderMarkdown('![[quick-start#no-such-section]]\n');
+
+    expect(html).not.toContain('ezw-transclusion');
+    expect(html).toContain('href="/getting-started/quick-start/#no-such-section"');
+  });
+
+  // Rendering a copy of the page inside itself would not terminate.
+  it('refuses a document that includes itself', async () => {
+    const { html } = await renderMarkdown('![[quick-start]]\n', 'getting-started/quick-start');
+
+    expect(html).not.toContain('ezw-transclusion');
+    expect(html).toContain('ezw-wikilink');
+  });
+
+  // The contents describe the page a reader is on, not the pages it borrows.
+  it('keeps transcluded headings out of the table of contents', async () => {
+    const { headings } = await renderMarkdown('## Mine\n\n![[quick-start]]\n');
+
+    expect(headings.map((heading) => heading.text)).toEqual(['Mine']);
+  });
+});

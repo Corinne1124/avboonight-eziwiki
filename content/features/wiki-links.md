@@ -45,8 +45,40 @@ Here is one, embedded by name:
 
 Embeds and links index differently. `[[a-page]]` is an edge in the
 [[graph-and-backlinks|graph]]; `![[a-file.png]]` is not, because a file is not
-a page. An embed naming something that is not a file falls back to a link, so
-`![[quick-start]]` still takes you to the page.
+a page.
+
+## Including another page
+
+The same `!` on a page rather than a file pulls that page's text in, so a
+passage lives in one document and appears wherever it is needed:
+
+```markdown
+![[quick-start]] → the whole page
+![[quick-start#prerequisites]] → just that section
+```
+
+A section runs from its heading to the next one at the same level or above.
+Included text is boxed and carries a link back to the page it is maintained on,
+so a reader can tell borrowed text from this page's own.
+
+Here is the Prerequisites section of [[quick-start]], included rather than
+copied:
+
+![[quick-start#prerequisites]]
+
+Four rules keep this predictable:
+
+- **The embed must be alone in its paragraph.** Headings and lists cannot sit
+  inside a sentence, so an embed with prose beside it stays a link.
+- **A page cannot include itself,** directly or through a chain. The reference
+  stays as a link.
+- **Nesting stops after three levels.** Deeper is more often a mistake than an
+  intent.
+- **Included headings stay out of the table of contents.** It describes the page
+  you are on, not the pages it borrows from.
+
+An embed naming neither a file nor a page falls back to a link, so nothing you
+write disappears.
 
 ## How a target is resolved
 

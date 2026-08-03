@@ -1,4 +1,6 @@
 import { unified, type Processor } from 'unified';
+import { VFile } from 'vfile';
+import type { Root, RootContent } from 'mdast';
 import remarkParse from 'remark-parse';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
@@ -16,7 +18,7 @@ import {
   rehypeInternalLinks,
   type Heading,
 } from './rehype-plugins';
-import { remarkWikiLinks, type WikiLinkTarget } from './remark-wikilink';
+import { remarkWikiLinks, type WikiLinkTarget, type TranscludeTarget } from './remark-wikilink';
 import { getUsedLanguages } from './languages';
 import { cached } from '../cache';
 import { BASE_PATH } from '../basePath';
@@ -24,6 +26,8 @@ import { getUrlMap } from '../navigation/urlMap';
 import { getDoc } from '../content/registry';
 import { resolveTarget } from '../content/resolver';
 import { resolveAsset } from '../content/assets';
+import GithubSlugger from 'github-slugger';
+import { toString as mdastToString } from 'mdast-util-to-string';
 import { docPathToUrl } from '../navigation/url';
 
 /**
@@ -92,6 +96,70 @@ function resolveWikiEmbed(target: string): { url: string } | null {
   return asset ? { url: asset.url } : null;
 }
 
+/** Parser for included documents; no rendering plugins, so it stays cheap. */
+const transclusionParser = unified().use(remarkParse).use(remarkGfm).use(remarkMath);
+
+/**
+ * Narrows a document's nodes to the section a heading names.
+ *
+ * The section runs from the matching heading to the next one at the same level
+ * or above, which is what a reader means by "that part of the page". The
+ * heading itself is kept: dropping it would leave the included text with no
+ * indication of what it is.
+ *
+ * @param nodes - The whole document's nodes
+ * @param anchor - Heading slug from after the `#`
+ * @returns The section's nodes, or null when no heading matches
+ */
+function sliceSection(nodes: RootContent[], anchor: string): RootContent[] | null {
+  const slugger = new GithubSlugger();
+  const wanted = anchor.toLowerCase();
+
+  let start = -1;
+  let depth = 0;
+
+  for (let i = 0; i < nodes.length; i++) {
+    const node = nodes[i];
+    if (node.type !== 'heading') continue;
+
+    // Slugs are assigned in document order, and repeats are numbered, so every
+    // heading has to pass through the slugger even before the match is found.
+    const slug = slugger.slug(mdastToString(node));
+
+    if (start === -1) {
+      if (slug !== wanted) continue;
+      start = i;
+      depth = node.depth;
+      continue;
+    }
+
+    if (node.depth <= depth) return nodes.slice(start, i);
+  }
+
+  return start === -1 ? null : nodes.slice(start);
+}
+
+/**
+ * Resolves an embed target to the document content it names.
+ *
+ * @param target - Raw target text from inside the brackets
+ * @param anchor - Heading slug, when the embed named a section
+ * @returns The document's nodes and identity, or null when it does not resolve
+ */
+function resolveWikiTransclusion(target: string, anchor?: string): TranscludeTarget | null {
+  const { doc } = resolveTarget(target);
+  if (!doc) return null;
+
+  const url = docPathToUrl(getUrlMap(), doc.path);
+  if (!url) return null;
+
+  const tree = transclusionParser.parse(doc.content) as Root;
+  const nodes = anchor ? sliceSection(tree.children, anchor) : tree.children;
+  if (!nodes || nodes.length === 0) return null;
+
+  return { path: doc.path, url: `/${url}/`, title: doc.title, nodes };
+}
+
 /**
  * Builds the shared unified processor.
  *
@@ -111,7 +179,11 @@ function createProcessor(): Processor {
     .use(remarkParse)
     .use(remarkGfm)
     .use(remarkMath)
-    .use(remarkWikiLinks, { link: resolveWikiLink, embed: resolveWikiEmbed })
+    .use(remarkWikiLinks, {
+      link: resolveWikiLink,
+      embed: resolveWikiEmbed,
+      transclude: resolveWikiTransclusion,
+    })
     .use(remarkRehype, { allowDangerousHtml: true })
     .use(rehypeRaw)
     .use(rehypeSlug)
@@ -162,6 +234,9 @@ function getProcessor(): Processor {
  * Compiles a Markdown string to HTML and extracts its headings.
  *
  * @param markdown - Markdown source, with frontmatter already stripped
+ * @param docPath - Path of the document being rendered, when it has one; a
+ *   transclusion naming it is refused rather than nesting a copy of the page
+ *   inside itself
  * @returns The rendered HTML and the headings found in it
  *
  * @example
@@ -170,12 +245,20 @@ function getProcessor(): Processor {
  * headings; // [{ id: 'setup', text: 'Setup', depth: 2 }]
  * ```
  */
-export async function renderMarkdown(markdown: string): Promise<RenderedMarkdown> {
-  const file = await getProcessor().process(markdown);
+export async function renderMarkdown(
+  markdown: string,
+  docPath?: string,
+): Promise<RenderedMarkdown> {
+  const file = new VFile(markdown);
+  // Seeds the transclusion stack, so a document that includes itself is caught
+  // at the first step rather than after rendering one copy of itself.
+  if (docPath) file.data.docPath = docPath;
+
+  const processed = await getProcessor().process(file);
 
   return {
-    html: String(file),
-    headings: (file.data.headings as Heading[] | undefined) ?? [],
+    html: String(processed),
+    headings: (processed.data.headings as Heading[] | undefined) ?? [],
   };
 }
 
@@ -198,7 +281,7 @@ export async function renderDoc(docPath: string): Promise<RenderedMarkdown | nul
   const doc = getDoc(docPath);
   if (!doc) return null;
 
-  const rendered = await renderMarkdown(doc.content);
+  const rendered = await renderMarkdown(doc.content, doc.path);
   cache.set(docPath, rendered);
 
   return rendered;

@@ -49,6 +49,11 @@ export function rehypeCollectHeadings() {
     visit(tree, 'element', (node: Element) => {
       if (!TOC_LEVELS.has(node.tagName)) return;
 
+      // A transcluded heading belongs to the document it came from. Listing it
+      // would offer a reader sections that are not this page's own, and two
+      // entries with the same name whenever a page includes part of another.
+      if (node.properties?.dataTranscluded) return;
+
       const id = node.properties?.id;
       if (typeof id !== 'string' || !id) return;
 

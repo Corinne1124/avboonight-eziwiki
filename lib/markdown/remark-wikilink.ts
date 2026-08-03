@@ -26,13 +26,43 @@ export interface WikiLinkTarget {
 export type WikiLinkResolver = (target: string) => WikiLinkTarget | null;
 
 /**
+ * Resolves an embed target to a static file, or null when there is none.
+ */
+export type EmbedResolver = (target: string) => { url: string } | null;
+
+/** How a wiki link should be turned into a node. */
+export interface WikiLinkResolvers {
+  /** Resolves a document target */
+  link: WikiLinkResolver;
+  /** Resolves an embeddable file; absent when embeds are not supported */
+  embed?: EmbedResolver;
+}
+
+/**
  * Builds the replacement node for one wiki link.
  *
  * An unresolved link renders as marked-up text rather than an anchor: a link
  * that goes nowhere is worse than visibly broken text, because it looks
  * clickable and silently is not.
  */
-function toNode(link: WikiLink, resolve: WikiLinkResolver): PhrasingContent {
+function toNode(link: WikiLink, resolvers: WikiLinkResolvers): PhrasingContent {
+  const resolve = resolvers.link;
+
+  // `![[file.png]]` shows the file rather than linking to it. Only static
+  // assets are embedded for now; `![[some-note]]` falls through to a link, so
+  // an author who writes it gets a working reference instead of nothing.
+  if (link.embed && resolvers.embed) {
+    const asset = resolvers.embed(link.target);
+
+    if (asset) {
+      return {
+        type: 'image',
+        url: asset.url,
+        alt: link.label ?? link.target,
+      };
+    }
+  }
+
   // An anchor-only link points within the current page, so there is nothing to
   // resolve.
   if (!link.target && link.anchor) {
@@ -75,10 +105,10 @@ function toNode(link: WikiLink, resolve: WikiLinkResolver): PhrasingContent {
  * Splits a text node into text and link nodes.
  *
  * @param node - The text node to split
- * @param resolve - Target resolver
+ * @param resolvers - Target resolvers for links and embeds
  * @returns Replacement nodes, or null when the text contains no wiki links
  */
-function splitText(node: Text, resolve: WikiLinkResolver): PhrasingContent[] | null {
+function splitText(node: Text, resolvers: WikiLinkResolvers): PhrasingContent[] | null {
   const { value } = node;
   if (!value.includes('[[')) return null;
 
@@ -89,7 +119,7 @@ function splitText(node: Text, resolve: WikiLinkResolver): PhrasingContent[] | n
   // matchAll on a global pattern is safe here because the regex literal is
   // re-evaluated per call; lastIndex never leaks between documents.
   for (const match of value.matchAll(WIKILINK_PATTERN)) {
-    const parsed = parseWikiLink(match[1], match[0]);
+    const parsed = parseWikiLink(match[2], match[0], match[1] === '!');
     if (!parsed) continue;
 
     const start = match.index ?? 0;
@@ -98,7 +128,7 @@ function splitText(node: Text, resolve: WikiLinkResolver): PhrasingContent[] | n
       replacement.push({ type: 'text', value: value.slice(cursor, start) });
     }
 
-    replacement.push(toNode(parsed, resolve));
+    replacement.push(toNode(parsed, resolvers));
     cursor = start + match[0].length;
     matched = true;
   }
@@ -115,21 +145,23 @@ function splitText(node: Text, resolve: WikiLinkResolver): PhrasingContent[] | n
 /**
  * Remark plugin factory.
  *
- * @param resolve - Resolves a target to its destination
+ * @param resolvers - Resolves a target to a document, and optionally to a file
  *
  * @example
  * ```typescript
- * unified().use(remarkParse).use(remarkWikiLinks, (target) =>
- *   target === 'intro' ? { url: '/intro', title: 'Introduction' } : null,
- * );
+ * unified().use(remarkParse).use(remarkWikiLinks, {
+ *   link: (target) =>
+ *     target === 'intro' ? { url: '/intro/', title: 'Introduction' } : null,
+ *   embed: (target) => (target === 'logo.svg' ? { url: '/images/logo.svg' } : null),
+ * });
  * ```
  */
-export function remarkWikiLinks(resolve: WikiLinkResolver) {
+export function remarkWikiLinks(resolvers: WikiLinkResolvers) {
   return (tree: Root) => {
     visit(tree, 'text', (node: Text, index, parent) => {
       if (!parent || index === undefined) return;
 
-      const replacement = splitText(node, resolve);
+      const replacement = splitText(node, resolvers);
       if (!replacement) return;
 
       (parent as Parent).children.splice(index, 1, ...replacement);

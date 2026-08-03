@@ -89,3 +89,33 @@ describe('findWikiLinks', () => {
     expect(findWikiLinks('x [[a|B]] y')[0].raw).toBe('[[a|B]]');
   });
 });
+
+describe('embeds', () => {
+  it('marks a leading ! as an embed', () => {
+    const [link] = findWikiLinks('![[diagram.png]]');
+
+    expect(link.embed).toBe(true);
+    expect(link.target).toBe('diagram.png');
+    expect(link.raw).toBe('![[diagram.png]]');
+  });
+
+  it('leaves a plain link unmarked', () => {
+    const [link] = findWikiLinks('[[diagram.png]]');
+
+    expect(link.embed).toBe(false);
+  });
+
+  // The `!` has to be part of the match. Matching only the brackets would
+  // leave it behind as literal text in front of the rendered node.
+  it('consumes the ! rather than leaving it in the text', () => {
+    const [link] = findWikiLinks('before ![[a]] after');
+
+    expect(link.raw.startsWith('!')).toBe(true);
+  });
+
+  it('accepts a label on an embed', () => {
+    const [link] = findWikiLinks('![[diagram.png|Architecture]]');
+
+    expect(link).toMatchObject({ target: 'diagram.png', label: 'Architecture', embed: true });
+  });
+});

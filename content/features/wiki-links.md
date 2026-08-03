@@ -24,6 +24,30 @@ An anchor with no target points within the current page:
 [[#the-four-forms]]
 ```
 
+## Embedding an image
+
+A leading `!` shows the target instead of linking to it, the way a vault does:
+
+```markdown
+![[sample.jpg]] → embeds public/images/docs/sample.jpg
+![[sample.jpg|Architecture]] → the label becomes the alt text
+![[images/docs/sample.jpg]] → the full path, when the name is not unique
+```
+
+The file is looked up under `public/`, by bare filename or by the path
+relative to `public/`. A bare name is enough as long as only one file carries
+it; when several do, the embed resolves to nothing rather than picking one, and
+you write the path instead. The same rule the [[#ambiguity-is-refused-not-guessed|link resolver]] uses.
+
+Here is one, embedded by name:
+
+![[sample.jpg|A sample image embedded with a wiki link]]
+
+Embeds and links index differently. `[[a-page]]` is an edge in the
+[[graph-and-backlinks|graph]]; `![[a-file.png]]` is not, because a file is not
+a page. An embed naming something that is not a file falls back to a link, so
+`![[quick-start]]` still takes you to the page.
+
 ## How a target is resolved
 
 Three lookups, in order. The first that matches wins:

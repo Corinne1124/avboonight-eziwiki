@@ -23,6 +23,7 @@ import { BASE_PATH } from '../basePath';
 import { getUrlMap } from '../navigation/urlMap';
 import { getDoc } from '../content/registry';
 import { resolveTarget } from '../content/resolver';
+import { resolveAsset } from '../content/assets';
 import { docPathToUrl } from '../navigation/url';
 
 /**
@@ -81,6 +82,17 @@ function resolveWikiLink(target: string): WikiLinkTarget | null {
 }
 
 /**
+ * Resolves an embed target to a file under `public/`.
+ *
+ * @param target - Raw target text from inside the brackets
+ * @returns The file's URL, or null when nothing matches
+ */
+function resolveWikiEmbed(target: string): { url: string } | null {
+  const asset = resolveAsset(target);
+  return asset ? { url: asset.url } : null;
+}
+
+/**
  * Builds the shared unified processor.
  *
  * Plugin order is load-bearing:
@@ -99,7 +111,7 @@ function createProcessor(): Processor {
     .use(remarkParse)
     .use(remarkGfm)
     .use(remarkMath)
-    .use(remarkWikiLinks, resolveWikiLink)
+    .use(remarkWikiLinks, { link: resolveWikiLink, embed: resolveWikiEmbed })
     .use(remarkRehype, { allowDangerousHtml: true })
     .use(rehypeRaw)
     .use(rehypeSlug)

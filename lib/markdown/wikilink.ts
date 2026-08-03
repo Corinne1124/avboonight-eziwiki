@@ -8,10 +8,13 @@
 /**
  * Matches a wiki link and captures its contents.
  *
+ * The leading `!` is part of the match so that `![[diagram.png]]` is recognised
+ * as an embed rather than leaving a stray `!` in the text ahead of a link.
+ *
  * Deliberately refuses `]` and newlines inside the brackets: an unterminated
  * `[[` should stay literal text rather than swallowing the rest of a paragraph.
  */
-export const WIKILINK_PATTERN = /\[\[([^\]\n]+)\]\]/g;
+export const WIKILINK_PATTERN = /(!?)\[\[([^\]\n]+)\]\]/g;
 
 /** The parts of a wiki link. */
 export interface WikiLink {
@@ -21,6 +24,8 @@ export interface WikiLink {
   anchor?: string;
   /** Display text, when the author supplied one after '|' */
   label?: string;
+  /** Written as `![[…]]`, asking for the target to be shown rather than linked */
+  embed: boolean;
   /** The full matched source, e.g. '[[guide#setup|Setup]]' */
   raw: string;
 }
@@ -33,21 +38,23 @@ export interface WikiLink {
  * - `[[target|label]]`
  * - `[[target#anchor]]`
  * - `[[target#anchor|label]]`
+ * - any of the above prefixed with `!`, to embed rather than link
  *
  * The label is split off first, so a `|` inside it is preserved and a `#` in
  * the label is not mistaken for an anchor.
  *
  * @param inner - Text between the brackets
  * @param raw - The full matched source, stored on the result
+ * @param embed - Whether the source carried a leading `!`
  * @returns The parsed link, or null when the target is empty
  *
  * @example
  * ```typescript
  * parseWikiLink('guides/setup#step-1|Step one', '[[guides/setup#step-1|Step one]]');
- * // { target: 'guides/setup', anchor: 'step-1', label: 'Step one', raw: '...' }
+ * // { target: 'guides/setup', anchor: 'step-1', label: 'Step one', embed: false, raw: '...' }
  * ```
  */
-export function parseWikiLink(inner: string, raw: string): WikiLink | null {
+export function parseWikiLink(inner: string, raw: string, embed = false): WikiLink | null {
   const pipe = inner.indexOf('|');
   const label = pipe === -1 ? undefined : inner.slice(pipe + 1).trim();
   const locator = (pipe === -1 ? inner : inner.slice(0, pipe)).trim();
@@ -63,6 +70,7 @@ export function parseWikiLink(inner: string, raw: string): WikiLink | null {
     target,
     anchor,
     label: label || undefined,
+    embed,
     raw,
   };
 }
@@ -77,7 +85,7 @@ export function findWikiLinks(text: string): WikiLink[] {
   const links: WikiLink[] = [];
 
   for (const match of text.matchAll(WIKILINK_PATTERN)) {
-    const parsed = parseWikiLink(match[1], match[0]);
+    const parsed = parseWikiLink(match[2], match[0], match[1] === '!');
     if (parsed) links.push(parsed);
   }
 

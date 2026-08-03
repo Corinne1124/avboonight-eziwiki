@@ -6,6 +6,7 @@ import type { Root, Link, Text } from 'mdast';
 import { getContentRegistry, type ContentDoc } from '../content/registry';
 import { resolveTarget } from '../content/resolver';
 import { findWikiLinks } from '../markdown/wikilink';
+import { resolveAsset } from '../content/assets';
 import { getSite } from '../site';
 import { cached } from '../cache';
 
@@ -116,6 +117,12 @@ function scanDoc(doc: ContentDoc): { targets: Set<string>; broken: BrokenLink[] 
     for (const link of findWikiLinks((node as Text).value)) {
       // An anchor-only link stays within the page and is not an edge.
       if (!link.target) continue;
+
+      // `![[diagram.png]]` embeds a file. It is neither an edge between pages
+      // nor a broken reference, so it leaves the graph here. An embed that
+      // names no such file falls through, matching the renderer, which treats
+      // it as a link to a document.
+      if (link.embed && resolveAsset(link.target)) continue;
 
       const resolution = resolveTarget(link.target);
 

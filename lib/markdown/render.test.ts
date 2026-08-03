@@ -228,3 +228,46 @@ describe('wiki links', () => {
     expect(html).not.toContain('ezw-broken-link');
   });
 });
+
+describe('embeds', () => {
+  it('renders an embedded image from a bare filename', async () => {
+    const { html } = await renderMarkdown('![[sample.jpg]]\n');
+
+    expect(html).toContain('<img');
+    expect(html).toContain('src="/images/docs/sample.jpg"');
+    expect(html).toContain('ezw-img');
+  });
+
+  it('accepts the full path under public/', async () => {
+    const { html } = await renderMarkdown('![[images/docs/sample.jpg]]\n');
+
+    expect(html).toContain('src="/images/docs/sample.jpg"');
+  });
+
+  it('uses the label as alt text', async () => {
+    const { html } = await renderMarkdown('![[sample.jpg|A sample]]\n');
+
+    expect(html).toContain('alt="A sample"');
+  });
+
+  // Without the embed the `!` would survive as literal text ahead of a link,
+  // which is how this read before embeds were understood.
+  it('leaves no stray exclamation mark', async () => {
+    const { html } = await renderMarkdown('![[sample.jpg]]\n');
+
+    expect(html).not.toContain('>!<');
+    expect(html).not.toMatch(/!\s*<img/);
+  });
+
+  it('still links when the embed names a page rather than a file', async () => {
+    const { html } = await renderMarkdown('![[quick-start]]\n');
+
+    expect(html).toContain('href="/getting-started/quick-start/"');
+  });
+
+  it('marks an embed that matches nothing as broken', async () => {
+    const { html } = await renderMarkdown('![[no-such-file.png]]\n');
+
+    expect(html).toContain('ezw-broken-link');
+  });
+});

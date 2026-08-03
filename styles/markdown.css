@@ -372,3 +372,27 @@ details.ezw-callout:not([open]) > summary.ezw-callout__title {
     opacity: 0.5;
   }
 }
+
+/* Diagrams from ```mermaid fences, drawn during the build.
+   The SVG refers to --bg and --fg but no longer fixes them inline, so the
+   colours come from here and follow the theme — the same arrangement the
+   syntax highlighter uses for code. */
+.ezw-mermaid {
+  --bg: transparent;
+  --fg: var(--color-text);
+  --line: var(--color-text-muted);
+  --accent: var(--color-primary, #2563eb);
+  --muted: var(--color-text-muted);
+  --surface: var(--color-code-bg);
+  --border: var(--color-border);
+  margin: 1.5rem 0;
+  /* A wide diagram scrolls inside its own box rather than widening the page. */
+  overflow-x: auto;
+}
+
+.ezw-mermaid svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin-inline: auto;
+}

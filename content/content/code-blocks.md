@@ -8,6 +8,40 @@ order: 3
 
 eziwiki uses Shiki for beautiful syntax highlighting with support for 100+ languages.
 
+## Diagrams
+
+A fence tagged `mermaid` is drawn during the build and arrives as an SVG:
+
+````markdown
+```mermaid
+flowchart TD
+  A[Markdown] --> B{Diagram?}
+  B -->|yes| C[Rendered at build]
+  B -->|no| D[Plain page]
+```
+````
+
+```mermaid
+flowchart TD
+  A[Markdown] --> B{Diagram?}
+  B -->|yes| C[Rendered at build]
+  B -->|no| D[Plain page]
+```
+
+Nothing is drawn in the browser. The usual approach ships Mermaid to the reader
+and lets it draw after load, which would be the largest thing this site
+downloads, would move the page as the diagram appeared, and would leave a
+crawler — or anyone without JavaScript — looking at nothing. Drawn once at
+build time, the diagram is simply markup.
+
+Colours come from the stylesheet rather than the diagram, so it follows dark
+mode like everything else, and no web font is fetched from anywhere.
+
+`flowchart`, `sequenceDiagram`, `stateDiagram-v2`, `classDiagram` and
+`erDiagram` are drawn. A kind that cannot be — `pie` and `gantt` among them —
+stays a code block, showing its source, which is what it looked like before
+diagrams were supported. A diagram never stops the build.
+
 ## Basic Code Block
 
 Use triple backticks with a language identifier:

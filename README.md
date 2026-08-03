@@ -284,6 +284,16 @@ sit inside a sentence — and a page cannot include itself, directly or through 
 chain. Nesting stops after three levels. Included headings stay out of the
 contents rail, which describes the page you are on.
 
+### Diagrams
+
+A ```mermaid fence is drawn during the build and arrives as an SVG — no
+renderer ships to the browser, nothing shifts as the page loads, and a crawler
+sees the diagram. Colours come from the stylesheet, so it follows dark mode.
+
+`flowchart`, `sequenceDiagram`, `stateDiagram-v2`, `classDiagram` and
+`erDiagram` are supported; anything else stays a code block rather than
+stopping the build.
+
 ### Callouts
 
 A blockquote opening with `[!KIND]` becomes a callout, using the syntax GitHub

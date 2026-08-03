@@ -21,6 +21,7 @@ import {
 } from './rehype-plugins';
 import { remarkWikiLinks, type WikiLinkTarget, type TranscludeTarget } from './remark-wikilink';
 import { remarkCallouts } from './remark-callout';
+import { rehypeMermaid } from './rehype-mermaid';
 import { getUsedLanguages } from './languages';
 import { cached } from '../cache';
 import { BASE_PATH } from '../basePath';
@@ -184,6 +185,8 @@ function resolveWikiTransclusion(target: string, anchor?: string): TranscludeTar
  *   both of which read the ids it adds.
  * - `rehypeHeadingAnchors` must follow heading collection, or the anchor's own
  *   text would be gathered into the contents rail.
+ * - `rehypeMermaid` must precede both, so a diagram fence never becomes a code
+ *   block, and one it cannot draw still does.
  * - `rehypeCodeShell` must precede the highlighter, since it reads the
  *   `language-*` class that highlighting replaces.
  * - `rehypeBasePath` runs last among the link plugins, so it prefixes the
@@ -208,6 +211,7 @@ function createProcessor(): Processor {
     .use(rehypeKatex)
     .use(rehypeInternalLinks, getUrlMap())
     .use(rehypeImages)
+    .use(rehypeMermaid)
     .use(rehypeCodeShell)
     .use(rehypeShiki, {
       themes: SHIKI_THEMES,

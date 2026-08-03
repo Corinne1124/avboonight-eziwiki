@@ -74,6 +74,22 @@ content/getting-started/ order: 2   → second
 content/configuration/   order: 3   → third
 ```
 
+## Reading order
+
+The sidebar order is also the reading order. Every page ends with links to the
+one before and the one after it, so a guide can be read straight through
+without going back to the sidebar to find your place.
+
+There is nothing to configure: the sequence is the sidebar flattened, so
+changing `order` or a `_meta.json` moves both at once and they cannot disagree.
+
+[[hidden-pages|Hidden pages]] are left out — stepping through a guide should
+not land on something deliberately unlisted — and the first and last pages
+simply show one link instead of two.
+
+The links carry `rel="prev"` and `rel="next"`, which is how a sequence of pages
+is declared to a crawler.
+
 ## Hiding a page
 
 ```markdown

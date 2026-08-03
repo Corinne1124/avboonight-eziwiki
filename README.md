@@ -278,6 +278,13 @@ sit inside a sentence — and a page cannot include itself, directly or through 
 chain. Nesting stops after three levels. Included headings stay out of the
 contents rail, which describes the page you are on.
 
+### Reading Order
+
+Every page ends with links to the previous and next page. The sequence is the
+sidebar flattened, so it follows `order` and `_meta.json` without separate
+configuration, and hidden pages are skipped. The links carry `rel="prev"` and
+`rel="next"`.
+
 ### Backlinks and Graph
 
 Every page ends with the pages that link to it, gathered from both wiki links

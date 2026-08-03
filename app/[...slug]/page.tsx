@@ -4,8 +4,10 @@ import { TableOfContents } from '@/components/layout/TableOfContents';
 import { Backlinks } from '@/components/layout/Backlinks';
 import { LocalGraph } from '@/components/layout/LocalGraph';
 import { PageNavigation } from '@/components/layout/PageNavigation';
+import { MovedPage } from '@/components/layout/MovedPage';
 import { getBacklinks, getLocalGraph } from '@/lib/graph/build';
 import { getAdjacentPages } from '@/lib/navigation/sequence';
+import { getAliasMap, aliasUrl, resolveAliasUrl } from '@/lib/content/aliases';
 import { renderDoc } from '@/lib/markdown/render';
 import { getDoc, type ContentDoc } from '@/lib/content/registry';
 import { docPathToUrl, urlToDocPath } from '@/lib/navigation/url';
@@ -39,6 +41,25 @@ function resolveSlug(slug: string[]): { path: string; url: string } | null {
 }
 
 /**
+ * Resolves a slug that names a page's former address.
+ *
+ * Checked only after the live map misses, so a real page always wins over an
+ * alias — an alias shadowing a page is refused when the index is built, but
+ * order here makes the intent explicit.
+ *
+ * @param slug - Route segments captured by the catch-all route
+ * @returns The document that superseded the address, and its URL, or null
+ */
+function resolveMoved(slug: string[]): { path: string; url: string } | null {
+  const { urlMap } = getSite();
+  const path = resolveAliasUrl(slug.join('/'), urlMap.strategy);
+  if (!path) return null;
+
+  const url = docPathToUrl(urlMap, path);
+  return url ? { path, url } : null;
+}
+
+/**
  * Generates per-page metadata from the document's frontmatter.
  */
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -47,6 +68,21 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const doc = resolved ? getDoc(resolved.path) : undefined;
 
   if (!resolved || !doc) {
+    const moved = resolveMoved(params.slug);
+    const target = moved ? getDoc(moved.path) : undefined;
+
+    // A former address should not compete with the page it forwards to: it is
+    // kept out of the index, and points its canonical at the destination so any
+    // ranking the old URL earned transfers rather than being split.
+    if (moved && target) {
+      return {
+        title: target.title,
+        description: target.description || global.description,
+        alternates: { canonical: pageUrl(moved.url, global.baseUrl) },
+        robots: { index: false, follow: true },
+      };
+    }
+
     return { title: global.title, description: global.description };
   }
 
@@ -92,10 +128,18 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export async function generateStaticParams() {
   const { urlMap, docPaths } = getSite();
 
-  return docPaths.flatMap((path) => {
+  const pages = docPaths.flatMap((path) => {
     const url = docPathToUrl(urlMap, path);
     return url ? [{ slug: url.split('/') }] : [];
   });
+
+  // Former addresses are built too, each as a page that forwards. Without this
+  // there is nothing at the old URL for a static host to serve.
+  const moved = [...getAliasMap().keys()].map((alias) => ({
+    slug: aliasUrl(alias, urlMap.strategy).split('/'),
+  }));
+
+  return [...pages, ...moved];
 }
 
 /**
@@ -138,7 +182,14 @@ function ArticleSchema({ doc, url }: { doc: ContentDoc; url: string }) {
 export default async function ContentPage({ params }: PageProps) {
   const resolved = resolveSlug(params.slug);
 
-  if (!resolved) notFound();
+  if (!resolved) {
+    const moved = resolveMoved(params.slug);
+    const target = moved ? getDoc(moved.path) : undefined;
+
+    if (moved && target) return <MovedPage url={`/${moved.url}/`} title={target.title} />;
+
+    notFound();
+  }
 
   const doc = getDoc(resolved.path);
   const rendered = await renderDoc(resolved.path);

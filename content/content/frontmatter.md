@@ -54,6 +54,41 @@ description: Learn how to set up and use eziwiki in 5 minutes
 ---
 ```
 
+### aliases
+
+Addresses this page used to answer on. A URL is built from a file's path, so
+moving `guides/setup.md` to `getting-started/setup.md` changes the published
+URL and every bookmark, external link and search result pointing at the old one
+stops working. Wiki links survive the move — they resolve by name — but nothing
+arriving from outside does.
+
+```markdown
+---
+title: Setup
+aliases:
+  - guides/setup
+  - old/install-guide
+---
+```
+
+Each alias is built as a page that forwards to this one, kept out of the
+sitemap and marked `noindex`, with its canonical pointing here so any ranking
+the old address earned transfers rather than being split.
+
+A single alias can be written without the list:
+
+```markdown
+aliases: guides/setup
+```
+
+Two mistakes stop the build rather than being resolved quietly: an alias naming
+a path a real page occupies, which would make that page unreachable, and the
+same alias claimed by two documents, which has no correct answer. Both are
+cheaper to find at build time than as a wrong page in production.
+
+Under the [[url-strategies|`hash` strategy]] the alias produces the digest of
+the old path — which is exactly what the old URL was.
+
 ## Complete Example
 
 ```markdown

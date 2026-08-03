@@ -278,6 +278,23 @@ sit inside a sentence — and a page cannot include itself, directly or through 
 chain. Nesting stops after three levels. Included headings stay out of the
 contents rail, which describes the page you are on.
 
+### Aliases
+
+Pages move. Since a URL comes from a file's path, moving one breaks every link
+to the old address — declare it and the old URL keeps answering:
+
+```markdown
+---
+title: Setup
+aliases:
+  - guides/setup
+---
+```
+
+Each alias is built as a page that forwards, `noindex`, with its canonical
+pointing at the destination. An alias that shadows a real page, or that two
+pages claim, stops the build.
+
 ### Reading Order
 
 Every page ends with links to the previous and next page. The sequence is the

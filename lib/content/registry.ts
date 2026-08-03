@@ -25,6 +25,13 @@ export interface ContentDoc {
   order: number;
   /** Excluded from navigation, but still reachable by direct URL */
   hidden: boolean;
+  /**
+   * Paths this document used to live at.
+   *
+   * A wiki moves pages; without these, every published link to the old
+   * location breaks silently the moment a file is renamed.
+   */
+  aliases: string[];
   /** Full parsed frontmatter, for consumers that need custom fields */
   frontmatter: Record<string, unknown>;
   /** Markdown body with frontmatter stripped */
@@ -105,6 +112,29 @@ function readBoolean(value: unknown): boolean {
   if (typeof value === 'boolean') return value;
   if (typeof value === 'string') return value.toLowerCase() === 'true';
   return false;
+}
+
+/**
+ * Reads the `aliases` frontmatter into a list of content paths.
+ *
+ * Accepts a single string or a list, since an author moving one page writes
+ * one path and should not have to remember which form is required. Leading and
+ * trailing slashes and a `.md` suffix are tolerated: the value looks like a
+ * path, and being strict about its punctuation would only produce silent
+ * misses.
+ *
+ * @param value - The raw frontmatter value
+ * @returns Normalised content paths, without duplicates
+ */
+function readAliases(value: unknown): string[] {
+  const raw = typeof value === 'string' ? [value] : Array.isArray(value) ? value : [];
+
+  const paths = raw
+    .filter((entry): entry is string => typeof entry === 'string')
+    .map((entry) => entry.trim().replace(/^\/+/, '').replace(/\.md$/i, '').replace(/\/+$/, ''))
+    .filter(Boolean);
+
+  return [...new Set(paths)];
 }
 
 /**
@@ -198,6 +228,7 @@ function readDoc(filePath: string): ContentDoc | null {
     description: typeof frontmatter.description === 'string' ? frontmatter.description : undefined,
     order: readOrder(frontmatter.order),
     hidden: readBoolean(frontmatter.hidden) || frontmatter.nav === false,
+    aliases: readAliases(frontmatter.aliases),
     frontmatter,
     content,
     filePath,

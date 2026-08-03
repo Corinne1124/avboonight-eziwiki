@@ -329,3 +329,19 @@ describe('transclusion', () => {
     expect(headings.map((heading) => heading.text)).toEqual(['Mine']);
   });
 });
+
+describe('link previews', () => {
+  // The card's contents ride on the anchor so hovering costs no request.
+  it('carries the target title and summary on the link', async () => {
+    const { html } = await renderMarkdown('[[quick-start]]\n');
+
+    expect(html).toContain('data-preview-title="Quick Start"');
+    expect(html).toMatch(/data-preview="[^"]+"/);
+  });
+
+  it('leaves a broken link without preview data', async () => {
+    const { html } = await renderMarkdown('[[no-such-page]]\n');
+
+    expect(html).not.toContain('data-preview');
+  });
+});

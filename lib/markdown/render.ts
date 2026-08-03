@@ -26,6 +26,7 @@ import { getUrlMap } from '../navigation/urlMap';
 import { getDoc } from '../content/registry';
 import { resolveTarget } from '../content/resolver';
 import { resolveAsset } from '../content/assets';
+import { getExcerpt } from '../content/excerpt';
 import GithubSlugger from 'github-slugger';
 import { toString as mdastToString } from 'mdast-util-to-string';
 import { docPathToUrl } from '../navigation/url';
@@ -82,7 +83,13 @@ function resolveWikiLink(target: string): WikiLinkTarget | null {
   if (!doc) return null;
 
   const url = docPathToUrl(getUrlMap(), doc.path);
-  return url ? { url: `/${url}/`, title: doc.title } : null;
+  if (!url) return null;
+
+  return {
+    url: `/${url}/`,
+    title: doc.title,
+    excerpt: getExcerpt(doc.path),
+  };
 }
 
 /**

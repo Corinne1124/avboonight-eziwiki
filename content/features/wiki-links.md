@@ -80,6 +80,17 @@ Four rules keep this predictable:
 An embed naming neither a file nor a page falls back to a link, so nothing you
 write disappears.
 
+## Seeing where a link goes
+
+Rest on any wiki link above and a card shows the target's title and opening
+lines. Keyboard users get the same card on focus, and `Esc` dismisses it.
+
+The card costs no network request. Both the title and the summary are written
+onto the link during the build, so there is nothing to fetch and nothing to
+wait for — the same reason [[search|search]] runs off a prebuilt index. The
+summary is the page's `description` when its frontmatter has one, and its
+opening prose otherwise, with headings, code and images skipped.
+
 ## How a target is resolved
 
 Three lookups, in order. The first that matches wins:

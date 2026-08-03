@@ -26,6 +26,8 @@ export interface WikiLinkTarget {
   url: string;
   /** Default display text when the author gave no label */
   title: string;
+  /** One-line summary, carried on the link so a hover card needs no request */
+  excerpt?: string;
 }
 
 /**
@@ -132,7 +134,14 @@ function toNode(link: WikiLink, resolvers: WikiLinkResolvers): PhrasingContent {
     type: 'link',
     url: link.anchor ? `${resolved.url}#${link.anchor}` : resolved.url,
     data: {
-      hProperties: { className: ['ezw-wikilink'] },
+      hProperties: {
+        className: ['ezw-wikilink'],
+        // The card's contents travel with the link rather than being fetched.
+        // The build already knows them, and a reader who hovers should not wait
+        // on a request to find out where a link goes.
+        'data-preview-title': resolved.title,
+        ...(resolved.excerpt ? { 'data-preview': resolved.excerpt } : {}),
+      },
     },
     children: [{ type: 'text', value: link.label ?? resolved.title }],
   };

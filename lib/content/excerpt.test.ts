@@ -51,8 +51,15 @@ describe('buildExcerpt', () => {
 });
 
 describe('getExcerpt', () => {
+  // `intro` is the one document both this repository and a freshly scaffolded
+  // project have, so this test travels with the engine rather than having to be
+  // held back from it.
   it('summarises a document from the registry', () => {
-    expect(getExcerpt('getting-started/quick-start').length).toBeGreaterThan(0);
+    expect(getExcerpt('intro').length).toBeGreaterThan(0);
+  });
+
+  it('returns the same summary on a repeat call', () => {
+    expect(getExcerpt('intro')).toBe(getExcerpt('intro'));
   });
 
   it('returns an empty summary for an unknown path', () => {

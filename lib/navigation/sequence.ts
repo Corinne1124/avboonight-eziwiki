@@ -39,8 +39,13 @@ let memo: string[] | null = null;
  * stepping through a guide should not land on something deliberately unlisted.
  *
  * @returns Content paths, in the order the sidebar shows them
+ *
+ * @example
+ * ```typescript
+ * getReadingOrder()[0]; // the page a reader starts at
+ * ```
  */
-function getSequence(): string[] {
+export function getReadingOrder(): string[] {
   const hit = cached(memo);
   if (hit) return hit;
 
@@ -65,7 +70,7 @@ function getSequence(): string[] {
  * ```
  */
 export function getAdjacentPages(path: string): Adjacent {
-  const sequence = getSequence();
+  const sequence = getReadingOrder();
   const index = sequence.indexOf(path);
 
   // A hidden page, or one reached by a URL that navigation does not cover, has

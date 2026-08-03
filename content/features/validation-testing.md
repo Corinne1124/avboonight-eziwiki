@@ -9,6 +9,41 @@ order: 9
 Three checks run as part of `npm run build`, so problems surface at build time
 rather than in front of a reader.
 
+## Wiki health
+
+The same command reports two things a link check cannot, because both are
+about links that are _absent_:
+
+```
+🔗 Links OK — 102 links across 25 pages
+
+⚠️  3 orphaned pages — nothing links here, so a reader can only arrive from the sidebar
+     content/examples/personal-wiki.md
+     content/examples/knowledge-base.md
+     content/examples/api-docs.md
+
+⚠️  1 dead end — no links out, so a reader arrives with nowhere to go
+     content/deployment/vercel.md
+```
+
+An **orphan** is a page nothing points at. It is in the sidebar, so it is not
+lost, but no one reading the wiki will ever stumble into it. A **dead end** is
+a page with no links out: a reader arrives and the only way on is the back
+button.
+
+Neither is an error, and neither ever fails the build — a correct wiki can
+have both, and a reference page with nothing to say next is legitimate. They
+are reported because neither is visible from inside a single document. You
+notice a broken link the moment you click it; you never notice the page nobody
+links to.
+
+The page a reader starts at is never called an orphan. Nothing needs to point
+at the entrance.
+
+This falls out of treating documents as a [[graph-and-backlinks|graph]] rather
+than a tree. In a tree, being in the sidebar is the whole of belonging, and
+"orphan" has no meaning.
+
 ## Config validation
 
 ```bash

@@ -284,6 +284,14 @@ sit inside a sentence — and a page cannot include itself, directly or through 
 chain. Nesting stops after three levels. Included headings stay out of the
 contents rail, which describes the page you are on.
 
+### Wiki Health
+
+`npm run check:links` reports unresolved links, and also the two problems a
+link check cannot see because they are about links that are missing: **orphans**
+(nothing links here) and **dead ends** (no links out). Neither fails the build —
+a correct wiki can have both — but neither is visible from inside a single page
+either.
+
 ### Diagrams
 
 A ```mermaid fence is drawn during the build and arrives as an SVG — no

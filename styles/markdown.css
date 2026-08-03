@@ -366,10 +366,13 @@ details.ezw-callout:not([open]) > summary.ezw-callout__title {
 }
 
 /* A pointer is not always available. On touch the anchor is simply shown,
-   since there is no hover to reveal it with. */
+   since there is no hover to reveal it with, and padded out to a target a
+   finger can hit — the glyph stays the same size, the area around it grows. */
 @media (hover: none) {
   .ezw-heading__anchor {
     opacity: 0.5;
+    padding: 0 0.3em;
+    margin-left: 0.1em;
   }
 }
 

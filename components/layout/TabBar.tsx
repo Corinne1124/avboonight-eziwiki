@@ -210,7 +210,7 @@ export function TabBar() {
               <button
                 onClick={(e) => handleTabClose(e, tab.id)}
                 className={`
-                  flex-shrink-0 w-5 h-5 min-w-[20px] min-h-[20px] flex items-center justify-center rounded hover:bg-gray-200 dark:hover:bg-gray-600
+                  flex-shrink-0 w-5 h-5 min-w-[20px] min-h-[20px] max-md:w-6 max-md:h-6 max-md:min-w-[24px] max-md:min-h-[24px] flex items-center justify-center rounded hover:bg-gray-200 dark:hover:bg-gray-600
                   transition-opacity
                   ${isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}
                 `}

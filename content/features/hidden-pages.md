@@ -1,4 +1,6 @@
 ---
+tags:
+  - urls
 title: Hidden Pages
 description: Pages that build and resolve but stay unlisted
 order: 6

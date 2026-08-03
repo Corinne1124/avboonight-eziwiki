@@ -4,10 +4,12 @@ import { TableOfContents } from '@/components/layout/TableOfContents';
 import { Backlinks } from '@/components/layout/Backlinks';
 import { LocalGraph } from '@/components/layout/LocalGraph';
 import { PageNavigation } from '@/components/layout/PageNavigation';
+import { PageTags } from '@/components/layout/PageTags';
 import { MovedPage } from '@/components/layout/MovedPage';
 import { getBacklinks, getLocalGraph } from '@/lib/graph/build';
 import { getAdjacentPages } from '@/lib/navigation/sequence';
 import { getAliasMap, aliasUrl, resolveAliasUrl } from '@/lib/content/aliases';
+import { getTagsFor } from '@/lib/content/tags';
 import { renderDoc } from '@/lib/markdown/render';
 import { getDoc, type ContentDoc } from '@/lib/content/registry';
 import { docPathToUrl, urlToDocPath } from '@/lib/navigation/url';
@@ -201,6 +203,7 @@ export default async function ContentPage({ params }: PageProps) {
       <div className="flex gap-8">
         <article className="prose prose-slate min-w-0 max-w-none flex-1 dark:prose-invert">
           <ArticleSchema doc={doc} url={resolved.url} />
+          <PageTags tags={getTagsFor(resolved.path)} />
           <MarkdownContent html={rendered.html} />
           <PageNavigation adjacent={getAdjacentPages(resolved.path)} />
           <Backlinks links={getBacklinks(resolved.path)} />

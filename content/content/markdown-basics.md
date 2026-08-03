@@ -1,4 +1,6 @@
 ---
+tags:
+  - markdown
 title: Markdown Basics
 description: Learn Markdown syntax for writing wiki content
 order: 1

@@ -284,6 +284,21 @@ sit inside a sentence — and a page cannot include itself, directly or through 
 chain. Nesting stops after three levels. Included headings stay out of the
 contents rail, which describes the page you are on.
 
+### Tags
+
+A file sits in one folder, so the sidebar shows one arrangement. `tags` in
+frontmatter give the other:
+
+```markdown
+---
+title: Deploying to Vercel
+tags: [deployment, hosting]
+---
+```
+
+Each subject gets a page at `/tags/<name>`, `/tags` lists them all, and every
+tagged page shows what it belongs to. Hidden pages stay out.
+
 ### Wiki Health
 
 `npm run check:links` reports unresolved links, and also the two problems a

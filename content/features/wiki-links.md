@@ -1,4 +1,7 @@
 ---
+tags:
+  - linking
+  - markdown
 title: Wiki Links
 description: Link to any page by name with [[double bracket]] syntax
 order: 4

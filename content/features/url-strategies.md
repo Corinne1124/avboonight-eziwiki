@@ -1,4 +1,7 @@
 ---
+tags:
+  - urls
+  - seo
 title: URL Strategies
 description: Choose between readable paths and opaque hashes for your page URLs
 order: 1

@@ -54,6 +54,37 @@ description: Learn how to set up and use eziwiki in 5 minutes
 ---
 ```
 
+### tags
+
+Subjects this page belongs to. A file sits in exactly one directory, so the
+sidebar can only ever show one arrangement; tags are the other one. A page
+belongs to one section and to as many subjects as it touches.
+
+```markdown
+---
+title: Deploying to Vercel
+tags:
+  - deployment
+  - hosting
+---
+```
+
+A single tag can be written without the list, and a comma-separated string
+works too:
+
+```markdown
+tags: deployment
+tags: deployment, hosting
+```
+
+Every subject gets a page at `/tags/<name>`, and `/tags` lists them all. Tags
+are matched case-insensitively — `Setup` and `setup` are one subject, not two —
+and the first spelling used is the one shown.
+
+[[hidden-pages|Hidden pages]] are left out. A page kept off the sidebar on
+purpose should not reappear in a tag listing, which would turn the tag index
+into a way of enumerating exactly what was meant to stay unlisted.
+
 ### aliases
 
 Addresses this page used to answer on. A URL is built from a file's path, so

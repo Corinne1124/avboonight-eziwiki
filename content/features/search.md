@@ -1,4 +1,6 @@
 ---
+tags:
+  - search
 title: Search
 description: Full-text search across titles, headings, and page contents
 order: 2

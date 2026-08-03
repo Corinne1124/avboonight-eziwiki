@@ -1,4 +1,6 @@
 ---
+tags:
+  - deployment
 title: Deploy to Vercel
 description: Deploy your eziwiki to Vercel in minutes
 order: 2

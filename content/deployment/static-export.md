@@ -1,4 +1,6 @@
 ---
+tags:
+  - deployment
 title: Static Export
 description: Export your wiki as static HTML files
 order: 1

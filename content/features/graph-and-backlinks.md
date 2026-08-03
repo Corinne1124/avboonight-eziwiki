@@ -1,4 +1,7 @@
 ---
+tags:
+  - linking
+  - graph
 title: Graph & Backlinks
 description: See how your pages connect, in both directions
 order: 5

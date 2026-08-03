@@ -26,6 +26,14 @@ export interface ContentDoc {
   /** Excluded from navigation, but still reachable by direct URL */
   hidden: boolean;
   /**
+   * Labels grouping this document with others across the folder tree.
+   *
+   * A file sits in exactly one directory, so the sidebar can only express one
+   * way of organising a wiki. Tags are the second axis: a page belongs to one
+   * section and to as many subjects as it touches.
+   */
+  tags: string[];
+  /**
    * Paths this document used to live at.
    *
    * A wiki moves pages; without these, every published link to the old
@@ -112,6 +120,40 @@ function readBoolean(value: unknown): boolean {
   if (typeof value === 'boolean') return value;
   if (typeof value === 'string') return value.toLowerCase() === 'true';
   return false;
+}
+
+/**
+ * Reads the `tags` frontmatter.
+ *
+ * Accepts a single tag or a list, and a comma-separated string, because all
+ * three are how people write this and none of them is wrong. Tags are compared
+ * case-insensitively — `Setup` and `setup` are one subject, and treating them
+ * as two would split a wiki quietly — but the first spelling seen is the one
+ * displayed.
+ *
+ * @param value - The raw frontmatter value
+ * @returns Tags in the order written, without duplicates
+ */
+function readTags(value: unknown): string[] {
+  const raw = typeof value === 'string' ? value.split(',') : Array.isArray(value) ? value : [];
+
+  const seen = new Set<string>();
+  const tags: string[] = [];
+
+  for (const entry of raw) {
+    if (typeof entry !== 'string') continue;
+
+    const tag = entry.trim();
+    if (!tag) continue;
+
+    const key = tag.toLowerCase();
+    if (seen.has(key)) continue;
+
+    seen.add(key);
+    tags.push(tag);
+  }
+
+  return tags;
 }
 
 /**
@@ -228,6 +270,7 @@ function readDoc(filePath: string): ContentDoc | null {
     description: typeof frontmatter.description === 'string' ? frontmatter.description : undefined,
     order: readOrder(frontmatter.order),
     hidden: readBoolean(frontmatter.hidden) || frontmatter.nav === false,
+    tags: readTags(frontmatter.tags),
     aliases: readAliases(frontmatter.aliases),
     frontmatter,
     content,

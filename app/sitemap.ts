@@ -2,6 +2,7 @@ import { MetadataRoute } from 'next';
 import { getSite } from '@/lib/site';
 import { docPathToUrl } from '@/lib/navigation/url';
 import { pageUrl } from '@/lib/basePath';
+import { getTags } from '@/lib/content/tags';
 
 /**
  * Generates the sitemap for every published page.
@@ -44,5 +45,24 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ];
   });
 
-  return [homeEntry, ...contentEntries];
+  // Tag pages are indexable and canonical, so leaving them out of the sitemap
+  // said one thing to a crawler following links and another to one reading
+  // this. The index is listed even when empty; a tag page only exists when
+  // something carries it.
+  const tagEntries: MetadataRoute.Sitemap = [
+    {
+      url: pageUrl('tags', global.baseUrl),
+      lastModified,
+      changeFrequency: 'weekly',
+      priority: 0.4,
+    },
+    ...getTags().map((tag) => ({
+      url: pageUrl(`tags/${tag.slug}`, global.baseUrl),
+      lastModified,
+      changeFrequency: 'weekly' as const,
+      priority: 0.4,
+    })),
+  ];
+
+  return [homeEntry, ...contentEntries, ...tagEntries];
 }

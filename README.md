@@ -108,6 +108,7 @@ export const payload: Payload = {
   global: {
     title: 'My Wiki',
     description: 'My personal knowledge base',
+    lang: 'en', // BCP 47 tag; set it if the wiki is not in English
     baseUrl: 'https://your-site.com',
     repoUrl: 'https://github.com/you/your-wiki', // Optional; linked from the sidebar
     urlStrategy: 'path', // 'path' (readable, SEO-friendly) | 'hash' (opaque)

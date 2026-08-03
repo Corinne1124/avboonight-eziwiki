@@ -28,6 +28,14 @@ export interface GlobalConfig {
   description: string;
   /** Path to favicon */
   favicon?: string;
+  /**
+   * BCP 47 language tag for the content, e.g. `ko`, `ja`, `en-GB`.
+   *
+   * Announced on the root element. Screen readers pick pronunciation from it
+   * and translation tools decide what to offer, so a Korean wiki left at the
+   * `en` default is read aloud as English. Defaults to `en`.
+   */
+  lang?: string;
   /** Base URL for the site */
   baseUrl?: string;
   /**

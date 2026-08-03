@@ -13,6 +13,7 @@ export const payloadSchema = {
         title: { type: 'string', minLength: 1 },
         description: { type: 'string', minLength: 1 },
         favicon: { type: 'string' },
+        lang: { type: 'string', minLength: 2 },
         baseUrl: { type: 'string', format: 'uri' },
         repoUrl: { type: 'string', format: 'uri' },
         urlStrategy: { type: 'string', enum: ['path', 'hash'] },

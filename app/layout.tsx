@@ -130,12 +130,15 @@ const fontFaceCss = FONT_FACES.map(
     `unicode-range:${RANGES[font.subset]}}`,
 ).join('');
 
+/** Language announced when the payload names none. */
+const DEFAULT_LANG = 'en';
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const site = getSite();
   const homeUrl = pageUrl('', site.global.baseUrl);
 
   return (
-    <html lang="en">
+    <html lang={site.global.lang ?? DEFAULT_LANG}>
       <head>
         {FONT_FACES.filter((font) => font.preload).map((font) => (
           <link

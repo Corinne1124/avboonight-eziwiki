@@ -70,6 +70,10 @@ global: {
 ```
 
 - **`favicon`** — path to a file in `public/`
+- **`lang`** — BCP 47 language tag for the content, such as `ko` or `ja`.
+  Announced on the root element, where screen readers take pronunciation from
+  it and translation tools decide what to offer. Defaults to `en`, so a wiki
+  written in another language should set it.
 - **`baseUrl`** — used for canonical URLs, the sitemap, and Open Graph tags. Set
   it before you publish; social previews and `robots.txt` depend on it.
 - **`repoUrl`** — source repository, linked from the sidebar. Omit it and no

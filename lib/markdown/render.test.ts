@@ -345,3 +345,46 @@ describe('link previews', () => {
     expect(html).not.toContain('data-preview');
   });
 });
+
+describe('heading anchors', () => {
+  it('gives each heading a link to itself', async () => {
+    const { html } = await renderMarkdown('## Setup steps\n');
+
+    expect(html).toContain('class="ezw-heading__anchor"');
+    expect(html).toContain('href="#setup-steps"');
+  });
+
+  // The page URL already addresses the page; a link to its own title would
+  // point at where the reader is.
+  it('leaves the title heading alone', async () => {
+    const { html } = await renderMarkdown('# Title\n\n## Section\n');
+    const title = html.match(/<h1[\s\S]*?<\/h1>/)?.[0] ?? '';
+
+    expect(title).not.toContain('ezw-heading__anchor');
+    expect(html.match(/<h2[\s\S]*?<\/h2>/)?.[0]).toContain('ezw-heading__anchor');
+  });
+
+  // Without a name of its own a screen reader hears every heading trailed by
+  // a stray "#".
+  it('names the anchor after the section it links to', async () => {
+    const { html } = await renderMarkdown('## Setup steps\n');
+
+    expect(html).toContain('aria-label="Link to this section: Setup steps"');
+  });
+
+  // Collection runs first, so the anchor's own text never reaches the rail.
+  it('keeps the anchor out of the contents', async () => {
+    const { headings } = await renderMarkdown('## Setup\n\n### Deep\n');
+
+    expect(headings.map((heading) => heading.text)).toEqual(['Setup', 'Deep']);
+  });
+
+  // A transcluded heading's id belongs to the page it came from; linking it
+  // here would send a reader to a copy.
+  it('leaves transcluded headings unanchored', async () => {
+    const { html } = await renderMarkdown('![[intro]]\n');
+    const transcluded = html.match(/<div class="ezw-transclusion">[\s\S]*?<\/div>/)?.[0] ?? '';
+
+    expect(transcluded).not.toContain('ezw-heading__anchor');
+  });
+});

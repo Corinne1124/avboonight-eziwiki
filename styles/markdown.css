@@ -338,3 +338,37 @@ details.ezw-callout:not([open]) > summary.ezw-callout__title {
 .dark .ezw-callout--caution {
   --ezw-callout-accent: #fca5a5;
 }
+
+/* A link on each heading pointing at itself, so a section can be shared
+   without reading the id out of the address bar. */
+.ezw-heading {
+  position: relative;
+}
+
+.ezw-heading__anchor {
+  margin-left: 0.4em;
+  font-weight: 400;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  /* Hidden until wanted, but only visually: it stays in the accessible tree
+     and in the tab order, so a keyboard or screen reader user can reach it. */
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+
+.ezw-heading:hover .ezw-heading__anchor,
+.ezw-heading__anchor:focus-visible {
+  opacity: 1;
+}
+
+.ezw-heading__anchor:hover {
+  color: var(--color-text);
+}
+
+/* A pointer is not always available. On touch the anchor is simply shown,
+   since there is no hover to reveal it with. */
+@media (hover: none) {
+  .ezw-heading__anchor {
+    opacity: 0.5;
+  }
+}

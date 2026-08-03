@@ -14,6 +14,7 @@ import {
   rehypeBasePath,
   rehypeCodeShell,
   rehypeCollectHeadings,
+  rehypeHeadingAnchors,
   rehypeImages,
   rehypeInternalLinks,
   type Heading,
@@ -179,7 +180,10 @@ function resolveWikiTransclusion(target: string, anchor?: string): TranscludeTar
  *   it produces are processed like any other link downstream.
  * - `rehype-raw` must follow `remark-rehype` with `allowDangerousHtml`, so that
  *   inline HTML in Markdown is parsed rather than escaped.
- * - `rehype-slug` must precede heading collection, which reads the ids it adds.
+ * - `rehype-slug` must precede heading collection and the heading anchors,
+ *   both of which read the ids it adds.
+ * - `rehypeHeadingAnchors` must follow heading collection, or the anchor's own
+ *   text would be gathered into the contents rail.
  * - `rehypeCodeShell` must precede the highlighter, since it reads the
  *   `language-*` class that highlighting replaces.
  * - `rehypeBasePath` runs last among the link plugins, so it prefixes the
@@ -200,6 +204,7 @@ function createProcessor(): Processor {
     .use(rehypeRaw)
     .use(rehypeSlug)
     .use(rehypeCollectHeadings)
+    .use(rehypeHeadingAnchors)
     .use(rehypeKatex)
     .use(rehypeInternalLinks, getUrlMap())
     .use(rehypeImages)

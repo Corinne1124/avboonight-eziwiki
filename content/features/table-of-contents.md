@@ -9,6 +9,20 @@ order: 3
 Every page gets a contents rail on the right, built from its headings. You are
 looking at one now — on a wide enough screen.
 
+## Linking to a section
+
+Rest on any heading and a `#` appears beside it, linking to that heading. It is
+a real link — copy it, or follow it to put the anchor in the address bar — so a
+section can be shared without reading an id out of the URL.
+
+Keyboard users reach it by tabbing, where it becomes visible on focus rather
+than staying hidden under an invisible focus ring. On touch, where there is no
+hover to reveal anything, it is simply shown.
+
+The page title is left alone: the page URL already addresses it. Headings that
+arrived by [[wiki-links|transclusion]] are skipped too — their ids belong to the
+document they came from, and linking one here would send a reader to a copy.
+
 ## What appears
 
 Headings from `h2` to `h4`:

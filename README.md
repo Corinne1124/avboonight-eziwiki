@@ -239,6 +239,12 @@ Every page gets an automatic contents rail on wide screens, built from its `h2`
 through `h4` headings, with the current section highlighted as you scroll. It is
 rendered at build time, so it is in the HTML rather than assembled by script.
 
+### Heading Anchors
+
+Every heading below the title carries a link to itself, shown on hover or
+keyboard focus, so a section can be shared without reading an id out of the
+address bar.
+
 ### Wiki Links
 
 Link to a page by name, without knowing where it lives:

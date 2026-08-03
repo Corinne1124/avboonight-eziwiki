@@ -68,6 +68,51 @@ export function rehypeCollectHeadings() {
   };
 }
 
+/** Heading levels that get a link to themselves. */
+const ANCHORED_LEVELS = new Set(['h2', 'h3', 'h4', 'h5', 'h6']);
+
+/**
+ * Appends a link to each heading pointing at itself.
+ *
+ * A reader who wants to send someone to one section of a long page otherwise
+ * has to read the id out of the address bar, or link the whole page and say
+ * "scroll down". Every documentation site solves this the same way, and the
+ * anchor is a real link — focusable, copyable, and working without script.
+ *
+ * `h1` is skipped: it names the page, which the page URL already addresses.
+ * Transcluded headings are skipped too, since their `id` belongs to the
+ * document they came from and linking here would send a reader to a copy.
+ */
+export function rehypeHeadingAnchors() {
+  return (tree: Root) => {
+    visit(tree, 'element', (node: Element) => {
+      if (!ANCHORED_LEVELS.has(node.tagName)) return;
+      if (node.properties?.dataTranscluded) return;
+
+      const id = node.properties?.id;
+      if (typeof id !== 'string' || !id) return;
+
+      node.properties.className = [
+        ...(Array.isArray(node.properties.className) ? node.properties.className.map(String) : []),
+        'ezw-heading',
+      ];
+
+      node.children.push({
+        type: 'element',
+        tagName: 'a',
+        properties: {
+          href: `#${id}`,
+          className: ['ezw-heading__anchor'],
+          // The heading's own text already names the destination; without this
+          // a screen reader hears every heading followed by a stray "#".
+          'aria-label': `Link to this section: ${toString(node)}`,
+        },
+        children: [{ type: 'text', value: '#' }],
+      });
+    });
+  };
+}
+
 /**
  * Determines whether an href points outside the site.
  */

@@ -2,7 +2,8 @@ import { MarkdownContent } from '@/components/markdown/MarkdownContent';
 import { PageTransition } from '@/components/markdown/PageTransition';
 import { TableOfContents } from '@/components/layout/TableOfContents';
 import { Backlinks } from '@/components/layout/Backlinks';
-import { getBacklinks } from '@/lib/graph/build';
+import { LocalGraph } from '@/components/layout/LocalGraph';
+import { getBacklinks, getLocalGraph } from '@/lib/graph/build';
 import { renderDoc } from '@/lib/markdown/render';
 import { getDoc, type ContentDoc } from '@/lib/content/registry';
 import { docPathToUrl, urlToDocPath } from '@/lib/navigation/url';
@@ -149,6 +150,7 @@ export default async function ContentPage({ params }: PageProps) {
           <ArticleSchema doc={doc} url={resolved.url} />
           <MarkdownContent html={rendered.html} />
           <Backlinks links={getBacklinks(resolved.path)} />
+          <LocalGraph graph={getLocalGraph(resolved.path)} path={resolved.path} />
         </article>
 
         <aside className="hidden w-56 flex-shrink-0 xl:block">

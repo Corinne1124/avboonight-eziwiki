@@ -204,6 +204,54 @@ export function getLinkGraph(): LinkGraph {
   return memo;
 }
 
+/** A page and everything one link away from it. */
+export interface LocalGraph {
+  /** The page itself, plus its immediate neighbours */
+  nodes: GraphNode[];
+  /** Links among those nodes, including ones not touching the page */
+  edges: GraphEdge[];
+}
+
+/**
+ * Returns the neighbourhood around a page.
+ *
+ * The whole-site graph answers "how is this wiki shaped"; past a few dozen
+ * pages it stops answering "what is near this one", which is the question a
+ * reader has while reading. This is that view: the page, everything it links
+ * to, everything linking to it, and the links among them — the last so the
+ * neighbours read as a cluster rather than a fan of unconnected dots.
+ *
+ * Direction is deliberately not distinguished. A reader looking for related
+ * pages cares that two are connected, not which one did the linking; the
+ * backlinks list already says that for the pages that point here.
+ *
+ * @param path - Content path of the page at the centre
+ * @returns The neighbourhood, or empty when the page has no links either way
+ *
+ * @example
+ * ```typescript
+ * const { nodes, edges } = getLocalGraph('features/wiki-links');
+ * nodes.length; // the page plus its neighbours
+ * ```
+ */
+export function getLocalGraph(path: string): LocalGraph {
+  const graph = getLinkGraph();
+
+  const neighbours = new Set<string>([
+    ...(graph.outbound.get(path) ?? []),
+    ...(graph.backlinks.get(path) ?? []),
+  ]);
+
+  if (neighbours.size === 0) return { nodes: [], edges: [] };
+
+  const included = new Set<string>([path, ...neighbours]);
+
+  return {
+    nodes: graph.nodes.filter((node) => included.has(node.path)),
+    edges: graph.edges.filter((edge) => included.has(edge.from) && included.has(edge.to)),
+  };
+}
+
 /**
  * Returns the documents that link to a given page.
  *

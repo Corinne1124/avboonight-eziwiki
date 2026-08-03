@@ -24,6 +24,10 @@ export interface GraphViewNode {
 interface GraphViewProps {
   nodes: GraphViewNode[];
   edges: LayoutEdge[];
+  /** Page to mark as the one being read, when the graph is centred on one */
+  activePath?: string;
+  /** Height utility class; the default suits a full page of its own */
+  heightClass?: string;
 }
 
 /** Nominal layout area; the SVG viewBox scales the result to fit. */
@@ -33,7 +37,7 @@ const AREA = { width: 900, height: 640 };
 const MIN_RADIUS = 5;
 const MAX_RADIUS = 14;
 
-export function GraphView({ nodes, edges }: GraphViewProps) {
+export function GraphView({ nodes, edges, activePath, heightClass = 'h-[70vh]' }: GraphViewProps) {
   const router = useRouter();
   const [hovered, setHovered] = useState<string | null>(null);
 
@@ -75,7 +79,7 @@ export function GraphView({ nodes, edges }: GraphViewProps) {
     <div className="overflow-hidden rounded-lg border border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-900">
       <svg
         viewBox={`${box.x} ${box.y} ${box.width} ${box.height}`}
-        className="h-[70vh] w-full"
+        className={`${heightClass} w-full`}
         role="img"
         aria-label={`Link graph of ${nodes.length} pages and ${edges.length} links`}
       >
@@ -110,6 +114,7 @@ export function GraphView({ nodes, edges }: GraphViewProps) {
             const radius =
               MIN_RADIUS + (MAX_RADIUS - MIN_RADIUS) * Math.sqrt(node.degree / maxDegree);
             const active = !connected || connected.has(node.path);
+            const isCurrent = node.path === activePath;
 
             return (
               <g
@@ -131,18 +136,26 @@ export function GraphView({ nodes, edges }: GraphViewProps) {
                 aria-label={node.title}
               >
                 <circle
-                  r={radius}
+                  r={isCurrent ? radius + 2 : radius}
                   className={
-                    hovered === node.path
-                      ? 'fill-blue-500 stroke-white dark:stroke-gray-900'
-                      : 'fill-blue-400/80 stroke-white dark:fill-blue-500/70 dark:stroke-gray-900'
+                    isCurrent
+                      ? // The page being read is filled solid rather than tinted,
+                        // so it is findable in its own neighbourhood at a glance.
+                        'fill-blue-600 stroke-white dark:fill-blue-400 dark:stroke-gray-900'
+                      : hovered === node.path
+                        ? 'fill-blue-500 stroke-white dark:stroke-gray-900'
+                        : 'fill-blue-400/80 stroke-white dark:fill-blue-500/70 dark:stroke-gray-900'
                   }
                   strokeWidth={1.5}
                 />
                 <text
                   y={radius + 12}
                   textAnchor="middle"
-                  className="pointer-events-none fill-gray-700 text-[11px] dark:fill-gray-300"
+                  className={`pointer-events-none text-[11px] ${
+                    isCurrent
+                      ? 'fill-gray-900 font-semibold dark:fill-gray-100'
+                      : 'fill-gray-700 dark:fill-gray-300'
+                  }`}
                 >
                   {node.title}
                 </text>

@@ -36,6 +36,28 @@ build any familiarity with.
 It is drawn as plain SVG with a small force-directed layout — no charting
 library, so nothing extra is downloaded on any other page.
 
+## The neighbourhood of a page
+
+Scroll to the bottom of this page and there is a second, smaller graph: the
+pages one link away from this one, in either direction, and the links among
+them. The page you are reading is the filled node at its centre.
+
+The site graph answers what the wiki looks like. Past a few dozen pages it
+stops answering what is _near here_, which is the question you have while
+reading — so that one is drawn per page instead.
+
+The neighbours' own links are kept, not only the ones touching this page.
+Without them the view would be a fan of unconnected dots, which says no more
+than the backlinks list above it. With them you can see which of the related
+pages are related to each other.
+
+Direction is not distinguished here. Looking for what to read next, it matters
+that two pages are connected, not which one did the linking — and the backlinks
+list already names the ones pointing this way.
+
+A page with nothing linking to or from it gets no graph rather than an empty
+box.
+
 ## Unresolved links
 
 The graph page lists every link that resolves to no page, with the file it was

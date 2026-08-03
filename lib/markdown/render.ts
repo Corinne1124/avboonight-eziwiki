@@ -19,6 +19,7 @@ import {
   type Heading,
 } from './rehype-plugins';
 import { remarkWikiLinks, type WikiLinkTarget, type TranscludeTarget } from './remark-wikilink';
+import { remarkCallouts } from './remark-callout';
 import { getUsedLanguages } from './languages';
 import { cached } from '../cache';
 import { BASE_PATH } from '../basePath';
@@ -171,6 +172,9 @@ function resolveWikiTransclusion(target: string, anchor?: string): TranscludeTar
  * Builds the shared unified processor.
  *
  * Plugin order is load-bearing:
+ * - `remarkCallouts` must run before the wiki-link pass, so that a link written
+ *   inside a callout is resolved like any other rather than being left in the
+ *   text the marker was read from.
  * - `remarkWikiLinks` must run while the tree is still Markdown, so the links
  *   it produces are processed like any other link downstream.
  * - `rehype-raw` must follow `remark-rehype` with `allowDangerousHtml`, so that
@@ -186,6 +190,7 @@ function createProcessor(): Processor {
     .use(remarkParse)
     .use(remarkGfm)
     .use(remarkMath)
+    .use(remarkCallouts)
     .use(remarkWikiLinks, {
       link: resolveWikiLink,
       embed: resolveWikiEmbed,

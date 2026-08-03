@@ -261,6 +261,43 @@ Or use Unicode emoji directly:
 
 😊 ❤️ 🚀 🎉
 
+## Callouts
+
+A blockquote opening with `[!KIND]` becomes a callout. The syntax is GitHub's
+and Obsidian's alike, so a document written for either renders here, and one
+written here still reads as an ordinary quote anywhere that does not know the
+convention.
+
+```markdown
+> [!NOTE]
+> Useful information.
+
+> [!WARNING] Mind the gap
+> A title on the marker line replaces the default.
+
+> [!TIP]- Optional detail
+> A trailing `-` folds it away; `+` starts it open.
+```
+
+> [!NOTE]
+> Useful information a reader should not miss.
+
+> [!WARNING] Mind the gap
+> A title on the marker line replaces the default one.
+
+> [!TIP]- Optional detail
+> Folded with a trailing `-`. This is a `<details>` element, so it opens and
+> closes without any script.
+
+Five kinds carry their own colour — `note`, `tip`, `important`, `warning` and
+`caution`. Obsidian's longer list is accepted too and maps onto the nearest of
+them, so a vault keeps its formatting: `danger` reads as `caution`, `success`
+as `tip`, `question` as `important`.
+
+An unrecognised kind stays an ordinary blockquote rather than being rendered as
+something it is not. Everything inside a callout behaves as it does outside —
+links, [[wiki-links|wiki links]], and code all work normally.
+
 ## Best Practices
 
 ### Use Descriptive Link Text

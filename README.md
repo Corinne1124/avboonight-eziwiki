@@ -278,6 +278,23 @@ sit inside a sentence — and a page cannot include itself, directly or through 
 chain. Nesting stops after three levels. Included headings stay out of the
 contents rail, which describes the page you are on.
 
+### Callouts
+
+A blockquote opening with `[!KIND]` becomes a callout, using the syntax GitHub
+and Obsidian share:
+
+```markdown
+> [!WARNING] Mind the gap
+> A title on the marker line replaces the default.
+
+> [!TIP]- Folded away
+> A trailing `-` makes it a `<details>`, which needs no script.
+```
+
+`note`, `tip`, `important`, `warning` and `caution` each carry a colour, and
+Obsidian's longer list maps onto the nearest of them. An unrecognised kind
+stays an ordinary quote.
+
 ### Aliases
 
 Pages move. Since a URL comes from a file's path, moving one breaks every link

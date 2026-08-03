@@ -239,3 +239,102 @@ html.dark .ezw-broken-link {
     }
   }
 }
+
+/* Callouts from `> [!NOTE]`, GitHub's and Obsidian's shared syntax.
+   Distinguished by a coloured edge and a heading rather than an icon: no glyph
+   to load, and the meaning survives when colour alone is not perceived. */
+.ezw-callout {
+  --ezw-callout-accent: var(--color-text-muted);
+  margin: 1.5rem 0;
+  padding: 0.875rem 1.125rem;
+  border: 1px solid var(--color-border);
+  border-left: 3px solid var(--ezw-callout-accent);
+  border-radius: 0.375rem;
+  background: var(--color-sidebar-bg);
+}
+
+.ezw-callout__title {
+  margin: 0 0 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--ezw-callout-accent);
+}
+
+/* The body's first block sits against the title, and the last against the
+   floor, so a one-paragraph callout is not padded twice over. */
+.ezw-callout > :nth-child(2) {
+  margin-top: 0;
+}
+
+.ezw-callout > :last-child {
+  margin-bottom: 0;
+}
+
+/* A foldable callout is a <details>; the marker is dropped in favour of the
+   title carrying the affordance, and the cursor says it is interactive. */
+summary.ezw-callout__title {
+  cursor: pointer;
+  list-style: none;
+}
+
+summary.ezw-callout__title::-webkit-details-marker {
+  display: none;
+}
+
+summary.ezw-callout__title::before {
+  content: '▸';
+  display: inline-block;
+  /* A trailing space in `content` collapses, leaving the marker against the
+     title, so the gap is a margin. */
+  margin-right: 0.4em;
+  transition: transform 120ms ease;
+}
+
+details[open] > summary.ezw-callout__title::before {
+  transform: rotate(90deg);
+}
+
+details.ezw-callout:not([open]) > summary.ezw-callout__title {
+  margin-bottom: 0;
+}
+
+.ezw-callout--note {
+  --ezw-callout-accent: #1d4ed8;
+}
+
+.ezw-callout--tip {
+  --ezw-callout-accent: #047857;
+}
+
+.ezw-callout--important {
+  --ezw-callout-accent: #6d28d9;
+}
+
+.ezw-callout--warning {
+  --ezw-callout-accent: #b45309;
+}
+
+.ezw-callout--caution {
+  --ezw-callout-accent: #b91c1c;
+}
+
+.dark .ezw-callout--note {
+  --ezw-callout-accent: #93c5fd;
+}
+
+.dark .ezw-callout--tip {
+  --ezw-callout-accent: #6ee7b7;
+}
+
+.dark .ezw-callout--important {
+  --ezw-callout-accent: #c4b5fd;
+}
+
+.dark .ezw-callout--warning {
+  --ezw-callout-accent: #fcd34d;
+}
+
+.dark .ezw-callout--caution {
+  --ezw-callout-accent: #fca5a5;
+}

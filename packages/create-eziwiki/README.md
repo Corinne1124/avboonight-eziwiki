@@ -16,8 +16,9 @@ A complete, static-exportable wiki:
 - **Pages from files** — every Markdown file under `content/` is published, no registration step
 - **Search** — full-text over titles, headings, and body, with a ⌘K palette; runs entirely in the browser
 - **Contents rail** with scroll tracking, generated at build time
-- **Wiki links** — `[[page]]` resolves by path, file name, or title
-- **Backlinks** on every page, and a **graph view** of how pages connect
+- **Wiki links** — `[[page]]` resolves by path, file name, or title, and hovering one previews where it goes
+- **Embeds** — `![[image.png]]` places a file, `![[page]]` includes another page's text, `![[page#section]]` just one section
+- **Backlinks** on every page, plus a graph of its **neighbourhood** — and a `/graph` view of the whole site
 - **Build-time rendering** — Markdown is compiled and syntax-highlighted during the build, so no parser ships to the browser
 - Dark mode, maths, GFM, SEO metadata, sitemap
 

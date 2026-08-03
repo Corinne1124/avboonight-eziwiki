@@ -16,7 +16,7 @@
 Write Markdown, get a fast static wiki.
 
 - **A file is a page** — drop a `.md` into `content/` and it is published; folders become sections
-- **Search, contents rail, wiki links, backlinks, and a graph view** — built in, no configuration
+- **Search, contents rail, wiki links, embeds, backlinks, and graph views** — built in, no configuration
 - **Rendered at build time** — no Markdown parser or highlighter ships to the browser
 - **Deploy anywhere** — the output is plain static files
 
@@ -109,6 +109,7 @@ export const payload: Payload = {
     title: 'My Wiki',
     description: 'My personal knowledge base',
     baseUrl: 'https://your-site.com',
+    repoUrl: 'https://github.com/you/your-wiki', // Optional; linked from the sidebar
     urlStrategy: 'path', // 'path' (readable, SEO-friendly) | 'hash' (opaque)
     autoNavigation: true, // Discover content/ files not listed below
   },
@@ -253,12 +254,40 @@ A shorthand matching several pages is refused rather than guessed at, and a
 target matching nothing renders as visibly broken text instead of a dead link.
 `npm run check:links` lists them all.
 
+Rest on any wiki link and a card shows the target's title and opening lines.
+Both are written onto the link during the build, so the card costs no request —
+and keyboard users get it on focus, dismissed with <kbd>Esc</kbd>.
+
+### Embeds and Transclusion
+
+A leading `!` shows the target instead of linking to it, the way a vault does:
+
+```markdown
+![[diagram.png]] # an image from public/, by name or by path
+![[diagram.png|Architecture]] # the label becomes alt text
+![[quick-start]] # another page's text, inline
+![[quick-start#prerequisites]] # just that section
+```
+
+An included page is boxed and carries a link back to where it is maintained, so
+a passage can live in one document and appear wherever it is needed rather than
+being copied.
+
+Transclusion applies when the embed is alone in its paragraph — blocks cannot
+sit inside a sentence — and a page cannot include itself, directly or through a
+chain. Nesting stops after three levels. Included headings stay out of the
+contents rail, which describes the page you are on.
+
 ### Backlinks and Graph
 
 Every page ends with the pages that link to it, gathered from both wiki links
-and ordinary Markdown links. The `/graph` page draws the whole site — node size
-by link count, hover to isolate a neighbourhood, click to navigate. It is plain
-SVG with a small force-directed layout, so nothing extra loads on other pages.
+and ordinary Markdown links, and with a small graph of its own neighbourhood:
+the page, everything one link away in either direction, and the links among
+those neighbours.
+
+The `/graph` page draws the whole site — node size by link count, hover to
+isolate a neighbourhood, click to navigate. It is plain SVG with a small
+force-directed layout, so no charting library is downloaded anywhere.
 
 ### URL Strategies
 

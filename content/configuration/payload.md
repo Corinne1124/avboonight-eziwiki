@@ -72,6 +72,8 @@ global: {
 - **`favicon`** — path to a file in `public/`
 - **`baseUrl`** — used for canonical URLs, the sitemap, and Open Graph tags. Set
   it before you publish; social previews and `robots.txt` depend on it.
+- **`repoUrl`** — source repository, linked from the sidebar. Omit it and no
+  link is rendered, so a wiki with no public source shows no dead control.
 
 Individual pages override the title, description, and OG image through their
 [[frontmatter]].

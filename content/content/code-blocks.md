@@ -62,6 +62,96 @@ function greet(name) {
 }
 ```
 
+## Naming the file
+
+An example usually comes from somewhere. `title=` puts that somewhere in the
+bar, in place of the language — which a filename already implies:
+
+````markdown
+```typescript title="lib/greet.ts"
+export function greet(name: string) {
+  return `Hello, ${name}!`;
+}
+```
+````
+
+```typescript title="lib/greet.ts"
+export function greet(name: string) {
+  return `Hello, ${name}!`;
+}
+```
+
+`file=` does the same, so a document written for another generator keeps its
+labels.
+
+## Marking lines
+
+An example is usually longer than the part of it being discussed. Naming the
+lines in braces saves the reader counting:
+
+````markdown
+```typescript {3-4}
+export function greet(name: string) {
+  const trimmed = name.trim();
+  if (!trimmed) return 'Hello, stranger!';
+  return `Hello, ${trimmed}!`;
+}
+```
+````
+
+```typescript {3-4}
+export function greet(name: string) {
+  const trimmed = name.trim();
+  if (!trimmed) return 'Hello, stranger!';
+  return `Hello, ${trimmed}!`;
+}
+```
+
+Single lines and ranges both work, in any combination: `{1}`, `{2,5}`,
+`{1,4-6}`. Marked lines keep their own colours and take a background, so the
+emphasis reads as emphasis rather than as some other kind of code.
+
+## Numbering lines
+
+`showLineNumbers` runs a gutter down the left:
+
+````markdown
+```bash showLineNumbers
+npm install
+npm run dev
+npm run build
+```
+````
+
+```bash showLineNumbers
+npm install
+npm run dev
+npm run build
+```
+
+The numbers come from a CSS counter rather than from the markup, so they are
+not part of the code: copying the block, or selecting it by hand, gives the
+commands without the numbers in front of them.
+
+All three annotations can share one fence, in any order:
+
+````markdown
+```typescript title="lib/greet.ts" {2} showLineNumbers
+export function greet(name: string) {
+  return `Hello, ${name}!`;
+}
+```
+````
+
+```typescript title="lib/greet.ts" {2} showLineNumbers
+export function greet(name: string) {
+  return `Hello, ${name}!`;
+}
+```
+
+An annotation meant for some other tool is ignored rather than rejected, so a
+document written elsewhere still renders as the code it is.
+
 ## Supported Languages
 
 ### JavaScript / TypeScript

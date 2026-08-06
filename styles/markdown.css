@@ -34,6 +34,18 @@
   color: var(--color-code-muted);
 }
 
+/* A `title=` on the fence replaces the language in the bar. It reads as the
+   file it names rather than as a label, so it keeps the code font but drops
+   the uppercasing the language label uses. */
+.ezw-code__title {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.75rem;
+  color: var(--color-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .ezw-code__copy {
   font-size: 0.75rem;
   padding: 0.25rem 0.5rem;
@@ -86,6 +98,52 @@
   border-radius: 0.25rem;
   font-weight: 400;
   font-size: 0.9em;
+}
+
+/* ------------------------------------------------- marked and numbered ---- */
+
+/* Lines the fence named with `{2,4-6}`. The tokens keep their own colours and
+   the line takes a background, so the emphasis reads as emphasis rather than
+   as a different kind of code. The bar on the left survives a horizontal
+   scroll, which a background alone does not — the highlight would slide out of
+   view exactly when a long line made it worth having. */
+.ezw-code .line.ezw-line--marked {
+  display: inline-block;
+  /* The `<pre>` pads by 1rem on each side, and the negative margins pull the
+     line out over both. `min-width` rather than `width` so a line longer than
+     the box keeps its background all the way along, instead of losing it at
+     the fold — which is exactly where a long line needs it. */
+  min-width: calc(100% + 2rem);
+  margin: 0 -1rem;
+  padding: 0 1rem 0 calc(1rem - 2px);
+  border-left: 2px solid var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+}
+
+/* Numbering from a CSS counter rather than from markup: the numbers are not
+   part of the code, so they cannot be selected with it, and rendering them
+   costs the page nothing beyond this rule. */
+.ezw-code--numbered pre code {
+  counter-reset: ezw-line;
+}
+
+.ezw-code--numbered .line::before {
+  counter-increment: ezw-line;
+  content: counter(ezw-line);
+  display: inline-block;
+  width: 2ch;
+  margin-right: 1.25rem;
+  text-align: right;
+  color: var(--color-code-muted);
+  /* Excluded from selection and from a screen reader's reading of the code;
+     both want the code, not the gutter. */
+  user-select: none;
+}
+
+/* Shiki ends its output with an empty trailing line; numbering it would claim
+   the snippet has one more line than it does. */
+.ezw-code--numbered .line:last-child:empty::before {
+  content: none;
 }
 
 /* --------------------------------------------------------- shiki themes ---- */

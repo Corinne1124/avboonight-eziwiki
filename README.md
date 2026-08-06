@@ -318,6 +318,26 @@ sees the diagram. Colours come from the stylesheet, so it follows dark mode.
 `erDiagram` are supported; anything else stays a code block rather than
 stopping the build.
 
+### Code Blocks
+
+A fence can say more than its language:
+
+````markdown
+```typescript title="lib/greet.ts" {2,4-6} showLineNumbers
+
+```
+````
+
+`title=` (or `file=`) replaces the language in the bar, since a filename says
+more than "TypeScript" does. `{2,4-6}` marks the lines being discussed, so
+prose does not have to ask the reader to count. `showLineNumbers` runs a gutter
+down the left, drawn by a CSS counter rather than written into the markup —
+which is what keeps the numbers out of what gets copied.
+
+All of it is resolved during the build. An annotation meant for some other tool
+is ignored rather than rejected, so a document written elsewhere still renders
+as the code it is.
+
 ### Maths
 
 `$…$` and `$$…$$` are typeset with [KaTeX](https://katex.org) during the build,

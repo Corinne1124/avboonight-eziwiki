@@ -2,6 +2,8 @@ import { visit } from 'unist-util-visit';
 import { toString } from 'hast-util-to-string';
 import type { Element, Root } from 'hast';
 import { docPathToUrl, type UrlMap } from '../navigation/url';
+import { getStrings } from '../site';
+import { parseCodeMeta } from './codeMeta';
 
 /**
  * Custom rehype plugins used by the build-time Markdown pipeline.
@@ -171,13 +173,45 @@ export function rehypeInternalLinks(urlMap: UrlMap) {
 }
 
 /**
- * Wraps fenced code blocks in a container with a language label and copy button.
+ * Preserves a fence's information line across `rehypeRaw`.
+ *
+ * Markdown puts everything after the language into `code.meta`, and
+ * `remark-rehype` carries it to the HTML tree as `node.data.meta` — a field
+ * with no representation in HTML. `rehypeRaw` serialises the tree and parses
+ * it back to interpret embedded HTML, and anything that is not an attribute
+ * does not survive the round trip.
+ *
+ * Copying it into `metastring` makes it an attribute, which does. Both the
+ * shell below and `@shikijs/rehype` read it from there. The highlighter
+ * replaces the whole `<pre>` with its own output, so the attribute never
+ * reaches the page.
+ */
+export function rehypeCodeMetastring() {
+  return (tree: Root) => {
+    visit(tree, 'element', (node: Element) => {
+      if (node.tagName !== 'code') return;
+
+      const meta = node.data?.meta;
+      if (typeof meta !== 'string' || !meta) return;
+
+      node.properties = { ...node.properties, metastring: meta };
+    });
+  };
+}
+
+/**
+ * Wraps fenced code blocks in a container with a label and copy button.
  *
  * Runs *before* the syntax highlighter so that the language recorded in the
  * Markdown fence is still available; the highlighter then rewrites the inner
  * `<pre>` in place. The copy button carries no inline handler — a single
  * delegated listener on the client picks it up — which keeps the entire
  * highlighting stack out of the browser bundle.
+ *
+ * The fence's information line is read here too. A `title=` replaces the
+ * language in the bar, because a reader who can see the file a snippet belongs
+ * to rarely also needs to be told it is TypeScript; `showLineNumbers` sets a
+ * class the stylesheet counts from, so numbering costs no markup at all.
  */
 export function rehypeCodeShell() {
   return (tree: Root) => {
@@ -201,11 +235,15 @@ export function rehypeCodeShell() {
       const languageClass = classes.find((cls) => cls.startsWith('language-'));
       const language = languageClass ? languageClass.slice('language-'.length) : 'text';
 
+      // `metastring` rather than `data.meta`: see rehypeCodeMetastring above.
+      const metastring = code?.properties?.metastring;
+      const meta = parseCodeMeta(typeof metastring === 'string' ? metastring : undefined);
+
       const wrapper: Element = {
         type: 'element',
         tagName: 'div',
         properties: {
-          className: ['ezw-code'],
+          className: meta.lineNumbers ? ['ezw-code', 'ezw-code--numbered'] : ['ezw-code'],
           'data-ezw-code': '',
           'data-language': language,
         },
@@ -218,19 +256,23 @@ export function rehypeCodeShell() {
               {
                 type: 'element',
                 tagName: 'span',
-                properties: { className: ['ezw-code__lang'] },
-                children: [{ type: 'text', value: language }],
+                properties: {
+                  className: meta.title ? ['ezw-code__title'] : ['ezw-code__lang'],
+                },
+                children: [{ type: 'text', value: meta.title ?? language }],
               },
               {
                 type: 'element',
                 tagName: 'button',
+                // No `aria-label`: it read "Copy code" while the button
+                // visibly says "Copy", so the spoken name did not contain the
+                // written one — which is exactly what a voice user speaks.
                 properties: {
                   type: 'button',
                   className: ['ezw-code__copy'],
                   'data-ezw-copy': '',
-                  'aria-label': 'Copy code',
                 },
-                children: [{ type: 'text', value: 'Copy' }],
+                children: [{ type: 'text', value: getStrings().copy }],
               },
             ],
           },

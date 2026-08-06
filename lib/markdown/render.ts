@@ -12,6 +12,7 @@ import rehypeShiki from '@shikijs/rehype';
 import rehypeStringify from 'rehype-stringify';
 import {
   rehypeBasePath,
+  rehypeCodeMetastring,
   rehypeCodeShell,
   rehypeCollectHeadings,
   rehypeHeadingAnchors,
@@ -22,6 +23,7 @@ import {
 import { remarkWikiLinks, type WikiLinkTarget, type TranscludeTarget } from './remark-wikilink';
 import { remarkCallouts } from './remark-callout';
 import { rehypeMermaid } from './rehype-mermaid';
+import { transformerLineMarks } from './shiki-transformers';
 import { getUsedLanguages } from './languages';
 import { cached } from '../cache';
 import { BASE_PATH } from '../basePath';
@@ -204,6 +206,7 @@ function createProcessor(): Processor {
       transclude: resolveWikiTransclusion,
     })
     .use(remarkRehype, { allowDangerousHtml: true })
+    .use(rehypeCodeMetastring)
     .use(rehypeRaw)
     .use(rehypeSlug)
     .use(rehypeCollectHeadings)
@@ -221,6 +224,7 @@ function createProcessor(): Processor {
       // Without this Shiki loads every bundled grammar, which costs tens of
       // seconds before the first page renders.
       langs: getUsedLanguages(),
+      transformers: [transformerLineMarks()],
     })
     .use(rehypeBasePath, BASE_PATH)
     .use(rehypeStringify, { allowDangerousHtml: true }) as unknown as Processor;

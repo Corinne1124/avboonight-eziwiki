@@ -33,6 +33,48 @@ describe('renderMarkdown', () => {
     expect(html).toContain('data-language="text"');
   });
 
+  it('shows a fence’s title in place of its language', async () => {
+    const { html } = await renderMarkdown('```ts title="src/index.ts"\nconst x = 1;\n```\n');
+
+    expect(html).toContain('class="ezw-code__title">src/index.ts<');
+    // The language is still recorded, just not spelled out beside a filename
+    // that already says more than it does.
+    expect(html).toContain('data-language="ts"');
+    expect(html).not.toContain('ezw-code__lang');
+  });
+
+  it('marks the lines a fence named', async () => {
+    const { html } = await renderMarkdown('```ts {2}\nconst a = 1;\nconst b = 2;\n```\n');
+
+    const lines = html.split('class="line');
+
+    expect(lines[1]).not.toContain('ezw-line--marked');
+    expect(lines[2]).toContain('ezw-line--marked');
+  });
+
+  it('asks the stylesheet for line numbers rather than emitting them', async () => {
+    const { html } = await renderMarkdown('```ts showLineNumbers\nconst a = 1;\n```\n');
+
+    expect(html).toContain('ezw-code--numbered');
+    // Numbers in the markup would be copied along with the code.
+    expect(html).not.toContain('>1<');
+  });
+
+  it('keeps a fence’s meta out of the page', async () => {
+    // It exists only to survive `rehypeRaw` on the way to the highlighter.
+    const { html } = await renderMarkdown('```ts title="a.ts" {1}\nconst a = 1;\n```\n');
+
+    expect(html).not.toContain('metastring');
+  });
+
+  it('leaves a plain fence exactly as it was', async () => {
+    const { html } = await renderMarkdown('```ts\nconst a = 1;\n```\n');
+
+    expect(html).toContain('class="ezw-code"');
+    expect(html).not.toContain('ezw-code--numbered');
+    expect(html).not.toContain('ezw-line--marked');
+  });
+
   it('highlights code with both themes as CSS variables', async () => {
     const { html } = await renderMarkdown('```js\nconst x = 1;\n```\n');
 

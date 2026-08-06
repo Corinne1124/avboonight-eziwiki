@@ -247,21 +247,50 @@ Here's a sentence with a footnote[^1].
 [^1]: This is the footnote content.
 ```
 
+Here's a sentence with a footnote[^1].
+
+[^1]:
+    Footnotes collect at the foot of the page, and each one links back to
+    where it was cited.
+
+## Maths
+
+Wrap an expression in `$` to set it inside a sentence, or in `$$` to give it a
+line of its own:
+
+```markdown
+The mass–energy relation is $E = mc^2$.
+
+$$
+\int_0^1 x^2 \, dx = \frac{1}{3}
+$$
+```
+
+The mass–energy relation is $E = mc^2$.
+
+$$
+\int_0^1 x^2 \, dx = \frac{1}{3}
+$$
+
+Typesetting happens during the build, so the page arrives with the formula
+already drawn — no maths library is downloaded, and nothing shifts into place
+after the text has settled.
+
+Escape a literal dollar sign as `\$`. Two unescaped ones on the same line are
+read as a formula, so `$5 and $7` becomes maths rather than two prices.
+
 ## Emoji
 
-Use emoji shortcodes:
-
-```markdown
-:smile: :heart: :rocket: :tada:
-```
-
-Or use Unicode emoji directly:
+Write the character itself:
 
 ```markdown
 😊 ❤️ 🚀 🎉
 ```
 
 😊 ❤️ 🚀 🎉
+
+Shortcodes like `:smile:` are left alone rather than expanded. The character is
+what ends up in the HTML either way, and it reads the same in the source file.
 
 ## Callouts
 

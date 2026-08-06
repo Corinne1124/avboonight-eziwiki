@@ -47,7 +47,8 @@ points at it, and [the graph](/graph) shows how the whole site connects.
 link-resolved during the build, so no Markdown parser or highlighter is sent to
 the browser. Content pages load about 88 kB of JavaScript.
 
-**And the rest:** [[dark-mode]], maths via KaTeX, GitHub Flavored Markdown,
+**And the rest:** [[dark-mode]], [[markdown-basics#maths|maths via KaTeX]],
+GitHub Flavored Markdown,
 [[url-strategies|readable or hashed URLs]], [[hidden-pages]], SEO metadata, and
 a sitemap.
 

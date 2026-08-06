@@ -318,6 +318,46 @@ sees the diagram. Colours come from the stylesheet, so it follows dark mode.
 `erDiagram` are supported; anything else stays a code block rather than
 stopping the build.
 
+### Maths
+
+`$…$` and `$$…$$` are typeset with [KaTeX](https://katex.org) during the build,
+so the browser receives finished markup — no formula parser is downloaded and
+nothing reflows once the page settles.
+
+```markdown
+The mass–energy relation is $E = mc^2$.
+
+$$
+\int_0^1 x^2 \, dx = \frac{1}{3}
+$$
+```
+
+Inline maths sits inside a sentence; a `$$` block stands alone and is centred.
+The only standing cost is KaTeX's stylesheet, 3.6 kB gzipped and shared by
+every page; its fonts are fetched only by the pages that actually draw a
+formula.
+
+### GitHub Flavored Markdown
+
+Tables, task lists, footnotes, strikethrough and bare URLs behave as they do on
+GitHub:
+
+```markdown
+| Option | Default |
+| ------ | ------: |
+| `lang` |    `en` |
+
+- [x] Written
+- [ ] Reviewed
+
+A claim worth sourcing[^1]. ~~Struck out.~~ <https://example.com>
+
+[^1]: Footnotes collect at the foot of the page, each linking back.
+```
+
+Emoji shortcodes such as `:smile:` are not expanded — write the character
+itself, 😊, which needs no build step and reads the same in the source file.
+
 ### Callouts
 
 A blockquote opening with `[!KIND]` becomes a callout, using the syntax GitHub

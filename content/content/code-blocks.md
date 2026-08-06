@@ -152,6 +152,17 @@ export function greet(name: string) {
 An annotation meant for some other tool is ignored rather than rejected, so a
 document written elsewhere still renders as the code it is.
 
+## Lines too long for the page
+
+Code is not prose and does not wrap: a line wider than the block scrolls
+sideways instead, so indentation survives and a line stays a line.
+
+On a narrow screen that would leave the code simply stopping at the edge, since
+a phone draws a scrollbar only while you are already scrolling. Instead the edge
+is shaded, on whichever side has more code beyond it, and the shading goes as
+you reach that end. A block that fits shows none of it. The whole effect is four
+background gradients — no script, and nothing added to the markup.
+
 ## Supported Languages
 
 ### JavaScript / TypeScript

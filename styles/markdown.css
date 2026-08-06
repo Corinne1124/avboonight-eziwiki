@@ -77,6 +77,52 @@
   line-height: 1.6;
 }
 
+/* A line too long for the box scrolls rather than wrapping, which keeps the
+   code readable — but on a phone, where scrollbars are drawn only while
+   scrolling, it leaves the code simply stopping at the edge with nothing to
+   say it continues. This says it.
+
+   Four background layers do it without a script or a wrapper element. The two
+   shadows are attached to the box, so they stay at its edges; the two covers
+   are attached to the content, so they scroll with it and hide the shadow on
+   whichever edge has been reached. A block that fits shows neither, because
+   both covers are over both shadows. */
+.ezw-code pre {
+  /* The covers have to match whatever actually paints the box, and the two
+     themes do not agree about what that is: `prose pre` in the Tailwind config
+     sets `--color-code-bg` and outranks `.shiki` below, but `html.dark .shiki`
+     outranks `prose pre` in turn. So light blocks are painted by the theme and
+     dark ones by Shiki. That is an inconsistency worth resolving on its own
+     terms; naming it here follows it rather than adding to it. */
+  --ezw-code-surface: var(--color-code-bg);
+  --ezw-code-edge: rgb(0 0 0 / 14%);
+
+  background-image:
+    linear-gradient(to right, var(--ezw-code-surface) 60%, transparent),
+    linear-gradient(to left, var(--ezw-code-surface) 60%, transparent),
+    linear-gradient(to right, var(--ezw-code-edge), transparent),
+    linear-gradient(to left, var(--ezw-code-edge), transparent);
+  background-position:
+    left center,
+    right center,
+    left center,
+    right center;
+  background-size:
+    2.5rem 100%,
+    2.5rem 100%,
+    1rem 100%,
+    1rem 100%;
+  background-repeat: no-repeat;
+  background-attachment: local, local, scroll, scroll;
+}
+
+html.dark .ezw-code pre {
+  --ezw-code-surface: var(--shiki-dark-bg);
+  /* Light, not darker: the dark theme's surface is very nearly black, and a
+     shadow on it is a shadow nobody can see. */
+  --ezw-code-edge: rgb(255 255 255 / 16%);
+}
+
 .ezw-code pre code {
   background: transparent;
   padding: 0;

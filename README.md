@@ -300,13 +300,46 @@ tags: [deployment, hosting]
 Each subject gets a page at `/tags/<name>`, `/tags` lists them all, and every
 tagged page shows what it belongs to. Hidden pages stay out.
 
+### Wanted Pages
+
+A link to a page that does not exist yet is how a wiki grows: someone writes
+`[[deploying to fly]]` while writing about something else, because that is when
+they know the page is needed. `npm run check:links` collects those from the
+other end — by the page being asked for rather than by the page asking — so the
+report is a list of things to write, most-wanted first:
+
+```
+Wanted — 1 page linked to but not written, most-wanted first:
+
+  [[Deploying to Fly]] — wanted by 2 pages
+    content/deployment/static-export.md
+    content/deployment/vercel.md
+    npm run new deploying-to-fly
+```
+
+That last line is the whole of it. `npm run new` creates the file with its
+frontmatter, at the path the link implies:
+
+```bash
+npm run new guides/deploying
+npm run new "Deploying to Fly"                    # → deploying-to-fly.md
+npm run new guides/setup -- --title "Set it up"   # npm needs the `--`
+```
+
+A target written as a title keeps its capitalisation, which is what makes the
+link that asked for it resolve. Nothing else is needed — the page is published
+on the next build. An existing file is never overwritten.
+
+`/graph` lists the same wanted pages, so the gap is visible from the site as
+well as from the terminal.
+
 ### Wiki Health
 
-`npm run check:links` reports unresolved links, and also the two problems a
-link check cannot see because they are about links that are missing: **orphans**
-(nothing links here) and **dead ends** (no links out). Neither fails the build —
-a correct wiki can have both — but neither is visible from inside a single page
-either.
+`npm run check:links` also reports the two problems a link check cannot see,
+because they are about links that are missing rather than links that are wrong:
+**orphans** (nothing links here) and **dead ends** (no links out). Neither fails
+the build — a correct wiki can have both — but neither is visible from inside a
+single page either.
 
 ### Diagrams
 
@@ -559,7 +592,8 @@ exhaustive, since undeclared pages are still discovered and appended.
 npm run dev              # Development server
 npm run build            # Build for production
 npm run validate:payload # Check configuration
-npm run check:links      # Report links that point at no page
+npm run check:links      # Report unresolved links and pages worth writing
+npm run new <path>       # Create a page, frontmatter and all
 npm run build:search     # Regenerate the search index
 npm run show-urls        # List every page and its URL
 npm run build:template   # Rebuild the create-eziwiki template

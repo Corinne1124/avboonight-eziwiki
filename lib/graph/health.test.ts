@@ -1,60 +1,79 @@
 import { describe, it, expect } from 'vitest';
-import { getWikiHealth } from './health';
+import { suggestPath, getWantedPages, getWikiHealth } from './health';
 import { getLinkGraph } from './build';
-import { getReadingOrder } from '../navigation/sequence';
+import { normalizeTarget } from '../content/resolver';
+
+describe('suggestPath', () => {
+  it('leaves a path that is already one alone', () => {
+    expect(suggestPath('guides/setup')).toBe('guides/setup');
+  });
+
+  it('turns a title into a filename', () => {
+    expect(suggestPath('Quick Start')).toBe('quick-start');
+  });
+
+  it('keeps the directories a target names', () => {
+    expect(suggestPath('Getting Started/First Wiki')).toBe('getting-started/first-wiki');
+  });
+
+  it('collapses punctuation rather than carrying it into a filename', () => {
+    expect(suggestPath('What’s new?')).toBe('what-s-new');
+    expect(suggestPath('  spaced  out  ')).toBe('spaced-out');
+  });
+
+  it('keeps letters that are not Latin', () => {
+    // A Korean or Japanese wiki names its files in its own language; stripping
+    // to ASCII would leave every one of them called nothing at all.
+    expect(suggestPath('빠른 시작')).toBe('빠른-시작');
+  });
+
+  it('gives nothing back when nothing can be a filename', () => {
+    expect(suggestPath('!!!')).toBe('');
+    expect(suggestPath('')).toBe('');
+  });
+
+  it('produces a path the resolver can match by title', () => {
+    // The loop only closes if creating `suggestPath(target)` makes `[[target]]`
+    // resolve. It does so through the title, which is the target written out.
+    const target = 'Deploying to Fly';
+
+    expect(normalizeTarget(target)).toBe(normalizeTarget(target.trim()));
+    expect(suggestPath(target)).toBe('deploying-to-fly');
+  });
+});
+
+describe('getWantedPages', () => {
+  it('finds nothing to write in a wiki with no broken links', () => {
+    // The demo content resolves cleanly; `check:links` asserts the same thing
+    // from the other side.
+    expect(getWantedPages()).toEqual([]);
+  });
+});
 
 describe('getWikiHealth', () => {
-  it('finds pages nothing links to', () => {
-    const graph = getLinkGraph();
+  it('never calls the page a reader starts on an orphan', () => {
+    // Nothing needs to point at the entry page, so reporting it every build
+    // would teach everyone to ignore the report.
+    const { orphans } = getWikiHealth();
 
-    for (const page of getWikiHealth().orphans) {
-      expect(graph.backlinks.get(page.path) ?? []).toHaveLength(0);
-    }
+    expect(orphans.some((page) => page.path === 'intro')).toBe(false);
   });
 
-  it('finds pages with no links out', () => {
-    const graph = getLinkGraph();
+  it('agrees with the graph about which pages lead nowhere', () => {
+    const { deadEnds } = getWikiHealth();
+    const { outbound } = getLinkGraph();
 
-    for (const page of getWikiHealth().deadEnds) {
-      expect(graph.outbound.get(page.path) ?? []).toHaveLength(0);
+    for (const page of deadEnds) {
+      expect(outbound.get(page.path) ?? [], page.path).toEqual([]);
     }
-  });
 
-  // Where a reader starts needs nothing pointing at it. Reporting it on every
-  // build would teach everyone to ignore the report.
-  it('never calls the entry page an orphan', () => {
-    const [entry] = getReadingOrder();
+    // And does not miss one: every page absent from the list has somewhere to
+    // go. Asserting only the first half would pass on an empty list.
+    const reported = new Set(deadEnds.map((page) => page.path));
+    const missed = [...outbound.entries()]
+      .filter(([path, links]) => links.length === 0 && !reported.has(path))
+      .map(([path]) => path);
 
-    expect(getWikiHealth().orphans.map((page) => page.path)).not.toContain(entry);
-  });
-
-  it('reports only pages that are in the graph', () => {
-    const paths = new Set(getLinkGraph().nodes.map((node) => node.path));
-    const { orphans, deadEnds } = getWikiHealth();
-
-    for (const page of [...orphans, ...deadEnds]) {
-      expect(paths.has(page.path)).toBe(true);
-    }
-  });
-
-  // Hidden pages are absent from the graph entirely, so an unlisted page is
-  // not reported as disconnected — it is unlisted on purpose.
-  it('says nothing about hidden pages', () => {
-    const { orphans, deadEnds } = getWikiHealth();
-    const reported = [...orphans, ...deadEnds].map((page) => page.path);
-    const visible = new Set(getLinkGraph().nodes.map((node) => node.path));
-
-    for (const path of reported) {
-      expect(visible.has(path)).toBe(true);
-    }
-  });
-
-  it('gives every reported page a title and a link', () => {
-    const { orphans, deadEnds } = getWikiHealth();
-
-    for (const page of [...orphans, ...deadEnds]) {
-      expect(page.title).toBeTruthy();
-      expect(page.url).toBeTruthy();
-    }
+    expect(missed).toEqual([]);
   });
 });

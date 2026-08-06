@@ -16,7 +16,7 @@
  */
 
 import { getLinkGraph } from '../lib/graph/build';
-import { getWikiHealth } from '../lib/graph/health';
+import { getWantedPages, getWikiHealth } from '../lib/graph/health';
 import type { GraphNode } from '../lib/graph/build';
 
 const strict = process.argv.includes('--strict');
@@ -43,21 +43,41 @@ function report(
   console.log();
 }
 
+const ambiguous = broken.filter((link) => link.reason === 'ambiguous');
+
 if (broken.length > 0) {
-  console.log(`\n🔗 ${broken.length} unresolved link${broken.length === 1 ? '' : 's'}:\n`);
+  console.log(`\n🔗 ${broken.length} unresolved link${broken.length === 1 ? '' : 's'}\n`);
 
-  for (const link of broken) {
-    console.log(`  content/${link.from}.md`);
+  // Ambiguous links are a fault in the link and are listed where they are
+  // written, since that is where the fix goes.
+  if (ambiguous.length > 0) {
+    console.log('  Ambiguous — use the full path to say which page is meant:\n');
 
-    if (link.reason === 'ambiguous') {
-      console.log(`    [[${link.target}]] is ambiguous — matches ${link.candidates?.join(', ')}`);
-      console.log('    Use the full path to disambiguate.');
-    } else {
-      console.log(`    [[${link.target}]] matches no page`);
+    for (const link of ambiguous) {
+      console.log(`    content/${link.from}.md`);
+      console.log(`      [[${link.target}]] matches ${link.candidates?.join(', ')}`);
     }
+
+    console.log();
   }
 
-  console.log();
+  // A link to a page that does not exist is listed the other way round: by the
+  // page being asked for, so that the report is a list of things to write
+  // rather than a list of things that are wrong.
+  const wanted = getWantedPages();
+
+  if (wanted.length > 0) {
+    const count = `${wanted.length} page${wanted.length === 1 ? '' : 's'}`;
+    console.log(`  Wanted — ${count} linked to but not written, most-wanted first:\n`);
+
+    for (const page of wanted) {
+      const askers = page.wantedBy.length;
+      console.log(`    [[${page.target}]] — wanted by ${askers} page${askers === 1 ? '' : 's'}`);
+      for (const asker of page.wantedBy) console.log(`      content/${asker}.md`);
+      console.log(`      npm run new ${page.suggestedPath}`);
+      console.log();
+    }
+  }
 } else {
   console.log(`\n🔗 Links OK — ${edges.length} links across ${nodes.length} pages\n`);
 }

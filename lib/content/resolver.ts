@@ -33,8 +33,15 @@ let memo: ResolverIndex | null = null;
 
 /**
  * Normalises a target for comparison: trimmed, lower-cased, extension removed.
+ *
+ * Exported because this is what decides whether two link targets are asking
+ * for the same page. Anything grouping unresolved links has to agree with the
+ * resolver about that, or it will report one missing page as two.
+ *
+ * @param target - Raw target text from inside the brackets
+ * @returns The comparison key
  */
-function normalize(target: string): string {
+export function normalizeTarget(target: string): string {
   return target.trim().replace(/^\/+/, '').replace(/\/+$/, '').replace(/\.md$/i, '').toLowerCase();
 }
 
@@ -56,9 +63,9 @@ function getIndex(): ResolverIndex {
   };
 
   for (const doc of getContentRegistry().docs) {
-    byPath.set(normalize(doc.path), doc);
-    push(byBasename, normalize(doc.segments[doc.segments.length - 1]), doc);
-    push(byTitle, normalize(doc.title), doc);
+    byPath.set(normalizeTarget(doc.path), doc);
+    push(byBasename, normalizeTarget(doc.segments[doc.segments.length - 1]), doc);
+    push(byTitle, normalizeTarget(doc.title), doc);
   }
 
   memo = { byPath, byBasename, byTitle };
@@ -85,7 +92,7 @@ function getIndex(): ResolverIndex {
  * ```
  */
 export function resolveTarget(target: string): Resolution {
-  const key = normalize(target);
+  const key = normalizeTarget(target);
   if (!key) return { kind: 'missing' };
 
   const { byPath, byBasename, byTitle } = getIndex();

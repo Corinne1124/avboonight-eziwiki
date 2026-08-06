@@ -1,4 +1,5 @@
 import { getLinkGraph, type GraphNode } from './build';
+import { normalizeTarget } from '../content/resolver';
 import { getReadingOrder } from '../navigation/sequence';
 import { cached } from '../cache';
 
@@ -23,7 +24,18 @@ export interface WikiHealth {
   deadEnds: GraphNode[];
 }
 
+/** A page the wiki refers to but does not have. */
+export interface WantedPage {
+  /** The target as written in the links asking for it */
+  target: string;
+  /** Content paths of the pages asking, in the order they were scanned */
+  wantedBy: string[];
+  /** Suggested content path for the page, derived from the target */
+  suggestedPath: string;
+}
+
 let memo: WikiHealth | null = null;
+let wantedMemo: WantedPage[] | null = null;
 
 /**
  * Finds pages that are disconnected from the rest of the wiki.
@@ -55,4 +67,85 @@ export function getWikiHealth(): WikiHealth {
 
   memo = { orphans, deadEnds };
   return memo;
+}
+
+/**
+ * Turns a link target into a path a file could be created at.
+ *
+ * A target may be a path already (`guides/setup`), or a title someone wrote
+ * expecting the wiki to know what they meant (`Quick Start`). The second has to
+ * become a filename, and the conventions are the ones the rest of the wiki
+ * already uses: lower case, hyphens for spaces.
+ *
+ * @param target - The unresolved target, as written
+ * @returns A content-relative path without extension
+ */
+export function suggestPath(target: string): string {
+  return target
+    .split('/')
+    .map((segment) =>
+      segment
+        .trim()
+        .toLowerCase()
+        .replace(/[^\p{L}\p{N}]+/gu, '-')
+        .replace(/^-+|-+$/g, ''),
+    )
+    .filter(Boolean)
+    .join('/');
+}
+
+/**
+ * Lists the pages the wiki refers to but does not have.
+ *
+ * A broken link is usually reported as a fault in the page containing it. Seen
+ * from the other end it is something else: a page several documents already
+ * expect to exist is the clearest statement a wiki can make about what to write
+ * next, and it costs nothing to collect because the links were written by
+ * whoever needed the page.
+ *
+ * Targets are grouped the way the resolver compares them, so `[[Deploying]]`
+ * and `[[deploying]]` are one page wanted twice rather than two pages wanted
+ * once — writing the file answers both.
+ *
+ * Ambiguous targets are left out. They name pages that do exist — the wiki has
+ * too many of them, not too few — and creating another would not help.
+ *
+ * @returns Wanted pages, most-wanted first
+ *
+ * @example
+ * ```typescript
+ * getWantedPages();
+ * // [{ target: 'Deploying', wantedBy: ['intro', 'vercel'], suggestedPath: 'deploying' }]
+ * ```
+ */
+export function getWantedPages(): WantedPage[] {
+  const hit = cached(wantedMemo);
+  if (hit) return hit;
+
+  const wanted = new Map<string, WantedPage>();
+
+  for (const link of getLinkGraph().broken) {
+    if (link.reason !== 'missing') continue;
+
+    const key = normalizeTarget(link.target);
+    const existing = wanted.get(key);
+
+    if (existing) {
+      // One page may ask twice; that is one page wanting it, not two.
+      if (!existing.wantedBy.includes(link.from)) existing.wantedBy.push(link.from);
+      continue;
+    }
+
+    wanted.set(key, {
+      target: link.target,
+      wantedBy: [link.from],
+      suggestedPath: suggestPath(link.target),
+    });
+  }
+
+  wantedMemo = [...wanted.values()].sort(
+    (a, b) => b.wantedBy.length - a.wantedBy.length || a.target.localeCompare(b.target),
+  );
+
+  return wantedMemo;
 }

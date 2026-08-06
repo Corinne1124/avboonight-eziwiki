@@ -111,7 +111,8 @@ npm run build            # Static production build
 npm run start            # Preview the production build
 
 npm run show-urls        # List every page and its URL
-npm run check:links      # Report links that point at no page
+npm run check:links      # Report unresolved links and pages worth writing
+npm run new <path>       # Create a page, frontmatter and all
 npm run validate:payload # Check the config
 
 npm run lint             # ESLint

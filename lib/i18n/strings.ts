@@ -127,6 +127,10 @@ export interface Strings {
   unresolvedLink: string;
   /** Why an unresolved link is ambiguous. `{candidates}` */
   unresolvedAmbiguous: string;
+  /** Heading above the pages the wiki refers to but does not have. `{count}` */
+  wantedPages: string;
+  /** How many pages are asking for a wanted page. `{count}` */
+  wantedBy: string;
 }
 
 /**
@@ -199,6 +203,8 @@ const EN: Strings = {
   unresolvedLinks: 'Unresolved links ({count})',
   unresolvedLink: '{target} in {page}',
   unresolvedAmbiguous: 'matches {candidates}',
+  wantedPages: 'Wanted pages ({count})',
+  wantedBy: 'wanted by {count}',
 };
 
 const KO: Strings = {
@@ -264,6 +270,8 @@ const KO: Strings = {
   unresolvedLinks: '연결되지 않은 링크 ({count})',
   unresolvedLink: '{page}의 {target}',
   unresolvedAmbiguous: '{candidates}에 모두 해당',
+  wantedPages: '아직 없는 문서 ({count})',
+  wantedBy: '{count}개 문서가 참조',
 };
 
 /**

@@ -15,6 +15,7 @@
     "test:watch": "vitest",
     "validate:payload": "tsx scripts/validate-payload.ts",
     "show-urls": "tsx scripts/show-urls.ts",
+    "new": "tsx scripts/new-page.ts",
     "build:search": "tsx scripts/build-search-index.ts",
     "check:links": "tsx scripts/check-links.ts",
     "build:template": "tsx scripts/build-template.ts",

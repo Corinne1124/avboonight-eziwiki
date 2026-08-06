@@ -20,6 +20,7 @@ A complete, static-exportable wiki:
 - **Embeds** — `![[image.png]]` places a file, `![[page]]` includes another page's text, `![[page#section]]` just one section
 - **Backlinks** on every page, plus a graph of its **neighbourhood** — and a `/graph` view of the whole site
 - **Build-time rendering** — Markdown is compiled and syntax-highlighted during the build, so no parser ships to the browser
+- **Last updated** on every page, taken from the commit that last touched it, alongside a link to edit the page where it lives
 - Dark mode, maths, GFM, SEO metadata, sitemap
 
 ## Layout

@@ -20,6 +20,8 @@ export const payloadSchema = {
         strings: { type: 'object', additionalProperties: { type: 'string' } },
         baseUrl: { type: 'string', format: 'uri' },
         repoUrl: { type: 'string', format: 'uri' },
+        editBranch: { type: 'string', minLength: 1 },
+        editUrl: { type: 'string', format: 'uri', pattern: '\\{path\\}' },
         urlStrategy: { type: 'string', enum: ['path', 'hash'] },
         autoNavigation: { type: 'boolean' },
         seo: {

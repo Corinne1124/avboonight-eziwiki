@@ -28,6 +28,11 @@ npm run build
 The result is a fully static site in `out/`, deployable to GitHub Pages,
 Netlify, Vercel, S3, or any static host.
 
+Each page is dated from the commit that last touched it, so build from a
+repository with its history present — a shallow clone leaves pages undated. On
+GitHub Actions that means checking out with `fetch-depth: 0`. Set `repoUrl` in
+`payload/config.ts` and each page also links to its own source for editing.
+
 ## Commands
 
 ```bash

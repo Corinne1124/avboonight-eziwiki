@@ -5,11 +5,14 @@ import { Backlinks } from '@/components/layout/Backlinks';
 import { LocalGraph } from '@/components/layout/LocalGraph';
 import { PageNavigation } from '@/components/layout/PageNavigation';
 import { PageTags } from '@/components/layout/PageTags';
+import { PageMeta } from '@/components/layout/PageMeta';
 import { MovedPage } from '@/components/layout/MovedPage';
 import { getBacklinks, getLocalGraph } from '@/lib/graph/build';
 import { getAdjacentPages } from '@/lib/navigation/sequence';
 import { getAliasMap, aliasUrl, resolveAliasUrl } from '@/lib/content/aliases';
 import { getTagsFor } from '@/lib/content/tags';
+import { getLastModified, getPublished } from '@/lib/content/lastModified';
+import { getEditUrl } from '@/lib/content/editUrl';
 import { renderDoc } from '@/lib/markdown/render';
 import { getDoc, type ContentDoc } from '@/lib/content/registry';
 import { docPathToUrl, urlToDocPath } from '@/lib/navigation/url';
@@ -150,8 +153,10 @@ export async function generateStaticParams() {
 function ArticleSchema({ doc, url }: { doc: ContentDoc; url: string }) {
   const { global } = getSite();
   const baseUrl = global.baseUrl || 'https://example.com';
-  const published = doc.frontmatter.date ?? null;
-  const modified = doc.frontmatter.updated ?? published;
+  const published = getPublished(doc.path);
+  // The same resolution the footer shows, so a crawler and a reader are never
+  // told different things about when the page last changed.
+  const modified = getLastModified(doc.path)?.iso ?? published;
 
   return (
     <script
@@ -205,6 +210,10 @@ export default async function ContentPage({ params }: PageProps) {
           <ArticleSchema doc={doc} url={resolved.url} />
           <PageTags tags={getTagsFor(resolved.path)} />
           <MarkdownContent html={rendered.html} />
+          <PageMeta
+            lastModified={getLastModified(resolved.path)}
+            editUrl={getEditUrl(resolved.path)}
+          />
           <PageNavigation adjacent={getAdjacentPages(resolved.path)} />
           <Backlinks links={getBacklinks(resolved.path)} />
           <LocalGraph graph={getLocalGraph(resolved.path)} path={resolved.path} />

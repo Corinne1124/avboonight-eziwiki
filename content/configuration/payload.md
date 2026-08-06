@@ -89,6 +89,13 @@ global: {
   it before you publish; social previews and `robots.txt` depend on it.
 - **`repoUrl`** — source repository, linked from the sidebar. Omit it and no
   link is rendered, so a wiki with no public source shows no dead control.
+- **`editBranch`** — branch the edit links point at. Defaults to `main`; set it
+  if the repository's default branch is called something else, or every edit
+  link leads to a branch that does not exist.
+- **`editUrl`** — the shape of an edit link, with `{path}` where the file goes:
+  `https://git.example.com/wiki/-/edit/main/content/{path}`. Only needed for a
+  forge that cannot be identified from `repoUrl` — github.com and gitlab.com
+  produce a link without it.
 
 Individual pages override the title, description, and OG image through their
 [[frontmatter]].

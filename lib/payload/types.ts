@@ -64,6 +64,22 @@ export interface GlobalConfig {
    */
   repoUrl?: string;
   /**
+   * Branch that {@link repoUrl}'s derived edit links point at. Defaults to
+   * `main`; set it when the repository's default branch is called something
+   * else, or edit links will lead to a branch that does not exist.
+   */
+  editBranch?: string;
+  /**
+   * Template for the "edit this page" link, containing `{path}` where the
+   * content-relative file path belongs, e.g.
+   * `https://git.example.com/wiki/-/edit/main/content/{path}`.
+   *
+   * Needed only for a forge that cannot be recognised from {@link repoUrl}
+   * alone; github.com and gitlab.com repositories get a link without it. Set it
+   * to nothing at all and no page offers one.
+   */
+  editUrl?: string;
+  /**
    * How content paths are expressed in URLs.
    *
    * `path` produces readable, indexable URLs mirroring the content tree.

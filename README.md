@@ -110,7 +110,7 @@ export const payload: Payload = {
     description: 'My personal knowledge base',
     lang: 'en', // BCP 47 tag; set it if the wiki is not in English
     baseUrl: 'https://your-site.com',
-    repoUrl: 'https://github.com/you/your-wiki', // Optional; linked from the sidebar
+    repoUrl: 'https://github.com/you/your-wiki', // Optional; sidebar link and edit links
     urlStrategy: 'path', // 'path' (readable, SEO-friendly) | 'hash' (opaque)
     autoNavigation: true, // Discover content/ files not listed below
   },
@@ -427,6 +427,53 @@ too, so a Korean wiki reads `2026년 8월 3일` rather than `August 3, 2026`.
 Resolved during the build and passed to the page as plain data: a reader
 downloads the one language the wiki is in, not every language it has been
 translated into.
+
+### Last Updated
+
+Every page says when it last changed. Nothing has to be maintained for that to
+be true: the date comes from the last commit that touched the file, which is
+the one record of a page's age that cannot fall out of step with the page.
+
+Override it from the frontmatter when the commit is not the story — a typo
+fixed today does not make a page from March any newer:
+
+```markdown
+---
+updated: 2026-03-14
+---
+```
+
+A page not yet committed carries no date rather than the build time, which
+would claim every page was revised the moment the site was published. Since the
+history is what supplies the dates, a shallow clone leaves most pages undated —
+on GitHub Actions, check out with `fetch-depth: 0`.
+
+The same date reaches structured data as `dateModified`, so a reader and a
+crawler are never told different things.
+
+### Edit This Page
+
+A wiki is worth more when whoever spots the mistake can fix it, and most of
+what decides whether they do is the distance between the two. Set `repoUrl` and
+every page carries a link straight to its own source:
+
+```typescript
+global: {
+  repoUrl: 'https://github.com/you/your-wiki',
+  editBranch: 'main', // optional; 'main' unless said otherwise
+}
+```
+
+github.com and gitlab.com are recognised from the URL alone. For anything else
+— a self-hosted forge, a different content directory — give the shape directly,
+with `{path}` where the file goes:
+
+```typescript
+editUrl: 'https://git.example.com/wiki/-/edit/main/content/{path}';
+```
+
+Configure neither and no page offers a link, which is what a private or
+unpublished wiki wants.
 
 ### Backlinks and Graph
 

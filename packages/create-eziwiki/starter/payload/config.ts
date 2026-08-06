@@ -15,6 +15,12 @@ export const payload: Payload = {
     baseUrl: 'https://example.com',
 
     /**
+     * Your repository. Linked from the sidebar, and — on GitHub or GitLab —
+     * it also gives every page an "edit this page" link.
+     */
+    // repoUrl: 'https://github.com/you/your-wiki',
+
+    /**
      * 'path' gives readable, indexable URLs (/guides/writing).
      * 'hash' gives opaque ones (/a3f2e9d1-...), hiding the structure at the
      * cost of SEO and shareable links.

@@ -19,8 +19,14 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
+      # Full history, not the single commit a checkout fetches by default: a
+      # page with no `updated` in its frontmatter is dated from the last commit
+      # that touched it, and a shallow clone has no such commit for anything
+      # older than the tip. Those pages would simply carry no date.
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4

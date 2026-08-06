@@ -43,6 +43,10 @@ pretending to work.
 **[[graph-and-backlinks|Backlinks and a graph view]].** Every page lists what
 points at it, and [the graph](/graph) shows how the whole site connects.
 
+**Dated from its own history.** Every page says when it last changed, taken
+from the commit that touched it, so nothing has to be maintained for it to stay
+true — and links to its source, so whoever spots a mistake can fix it.
+
 **Build-time rendering.** Markdown is parsed, highlighted with Shiki, and
 link-resolved during the build, so no Markdown parser or highlighter is sent to
 the browser. Content pages load about 88 kB of JavaScript.

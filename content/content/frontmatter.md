@@ -120,6 +120,46 @@ cheaper to find at build time than as a wrong page in production.
 Under the [[url-strategies|`hash` strategy]] the alias produces the digest of
 the old path — which is exactly what the old URL was.
 
+### updated
+
+When this page last changed. It is optional, and usually wrong to write: with
+no `updated`, the date shown at the foot of the page comes from the last commit
+that touched the file, which nobody has to remember to maintain.
+
+```markdown
+---
+updated: 2026-03-14
+---
+```
+
+Declare it when the commit is not the story. A typo fixed today does not make a
+page from March any newer, and an imported document may have been written long
+before it reached the repository. A declared date wins over the commit.
+
+An unquoted `2026-03-14` is what YAML calls a date; a quoted `'2026-03-14'` is
+a string. Both are understood, as is a full timestamp. A value naming no real
+instant is ignored rather than displayed.
+
+A page with neither a declared date nor a commit — one written a minute ago —
+shows no date at all. The build time would be an easy thing to fall back on and
+a false one: it would say every page was revised the moment the site was last
+published.
+
+### date
+
+When this page was first published. Nothing displays it; it becomes
+`datePublished` in the structured data a crawler reads.
+
+```markdown
+---
+date: 2026-01-02
+---
+```
+
+Only the frontmatter can answer this one. The first commit touching a file is
+when it entered the repository, which for an imported vault or a restructured
+wiki is not when the page was written.
+
 ## Complete Example
 
 ```markdown

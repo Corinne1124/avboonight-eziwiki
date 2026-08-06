@@ -102,6 +102,9 @@ const EXCLUDE_FILES = new Set([
   'lib/search/client.test.ts',
   'lib/markdown/render.test.ts',
   'lib/markdown/render.hash.test.ts',
+  // Asserts that this repository's pages are dated from its commits. A
+  // scaffolded project has no history yet, and often no repository at all.
+  'lib/content/lastModified.test.ts',
 ]);
 
 /** Directories never copied. */

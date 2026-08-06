@@ -8,6 +8,7 @@ import { TabBar } from './TabBar';
 import { NavigationButtons } from './NavigationButtons';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { SearchTrigger } from '@/components/search/SearchTrigger';
+import { useStrings } from '@/components/providers/StringsProvider';
 
 /**
  * Props for the PageLayout component
@@ -32,6 +33,7 @@ interface PageLayoutProps {
  *
  */
 export function PageLayout({ navigation, repoUrl, children }: PageLayoutProps) {
+  const t = useStrings();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const toggleMobileMenu = () => {
@@ -49,7 +51,7 @@ export function PageLayout({ navigation, repoUrl, children }: PageLayoutProps) {
           <button
             onClick={toggleMobileMenu}
             className="p-2 -ml-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md transition-colors active:bg-gray-200 dark:active:bg-gray-700 touch-manipulation"
-            aria-label="Toggle menu"
+            aria-label={t.toggleMenu}
             aria-expanded={isMobileMenuOpen}
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -1,9 +1,12 @@
 import Link from 'next/link';
+import { getStrings } from '@/lib/site';
 
 /**
  * 404 Not Found page
  */
 export default function NotFound() {
+  const t = getStrings();
+
   return (
     <div className="min-h-[60vh] flex items-center justify-center px-4">
       <div className="max-w-md w-full text-center">
@@ -25,22 +28,18 @@ export default function NotFound() {
 
         <h1 className="text-6xl font-bold text-gray-900 dark:text-gray-100 mb-2">404</h1>
         <h2 className="text-2xl font-semibold text-gray-700 dark:text-gray-300 mb-4">
-          Page not found
+          {t.notFound}
         </h2>
 
-        <p className="text-gray-600 dark:text-gray-400 mb-2">
-          The page you&apos;re looking for doesn&apos;t exist or has been moved.
-        </p>
+        <p className="text-gray-600 dark:text-gray-400 mb-2">{t.notFoundBody}</p>
 
-        <p className="text-sm text-gray-500 dark:text-gray-500 mb-8">
-          Try using the navigation sidebar to find what you&apos;re looking for.
-        </p>
+        <p className="text-sm text-gray-500 dark:text-gray-500 mb-8">{t.notFoundHint}</p>
 
         <Link
           href="/"
           className="inline-block px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors shadow-sm"
         >
-          Go back home
+          {t.goHome}
         </Link>
       </div>
     </div>

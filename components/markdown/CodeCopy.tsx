@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { useStrings } from '@/components/providers/StringsProvider';
 
 /**
  * Wires up copy-to-clipboard for build-time rendered code blocks.
@@ -18,6 +19,8 @@ import { useEffect } from 'react';
  * ```
  */
 export function CodeCopy() {
+  const t = useStrings();
+
   useEffect(() => {
     /** Milliseconds the confirmation label stays visible. */
     const CONFIRM_MS = 2000;
@@ -39,14 +42,14 @@ export function CodeCopy() {
         return;
       }
 
-      button.textContent = '✓ Copied';
+      button.textContent = `✓ ${t.copied}`;
       button.setAttribute('data-copied', '');
 
       clearTimeout(timers.get(button));
       timers.set(
         button,
         setTimeout(() => {
-          button.textContent = 'Copy';
+          button.textContent = t.copy;
           button.removeAttribute('data-copied');
           timers.delete(button);
         }, CONFIRM_MS),
@@ -59,7 +62,7 @@ export function CodeCopy() {
       document.removeEventListener('click', handleClick);
       timers.forEach(clearTimeout);
     };
-  }, []);
+  }, [t]);
 
   return null;
 }

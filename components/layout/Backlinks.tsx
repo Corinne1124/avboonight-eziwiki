@@ -1,5 +1,7 @@
 import Link from 'next/link';
 import { CornerUpLeft } from 'lucide-react';
+import { format } from '@/lib/i18n/strings';
+import { getStrings } from '@/lib/site';
 import type { GraphNode } from '@/lib/graph/build';
 
 /**
@@ -12,6 +14,8 @@ import type { GraphNode } from '@/lib/graph/build';
 export function Backlinks({ links }: { links: GraphNode[] }) {
   if (links.length === 0) return null;
 
+  const t = getStrings();
+
   return (
     <section
       aria-labelledby="backlinks-heading"
@@ -22,7 +26,9 @@ export function Backlinks({ links }: { links: GraphNode[] }) {
         className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"
       >
         <CornerUpLeft className="h-3.5 w-3.5" />
-        Linked from {links.length} {links.length === 1 ? 'page' : 'pages'}
+        {format(links.length === 1 ? t.linkedFromOne : t.linkedFromMany, {
+          count: links.length,
+        })}
       </h2>
 
       <ul className="flex flex-wrap gap-2">

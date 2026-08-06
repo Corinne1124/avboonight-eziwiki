@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import type { Heading } from '@/lib/markdown/rehype-plugins';
+import { useStrings } from '@/components/providers/StringsProvider';
 
 /**
  * On-page table of contents with scroll tracking.
@@ -98,6 +99,7 @@ function useActiveHeading(headings: Heading[]): string | null {
  * @param props.headings - Headings for the current document
  */
 export function TableOfContents({ headings }: TableOfContentsProps) {
+  const t = useStrings();
   const active = useActiveHeading(headings);
 
   if (headings.length < 2) return null;
@@ -106,9 +108,9 @@ export function TableOfContents({ headings }: TableOfContentsProps) {
   const minDepth = Math.min(...headings.map((heading) => heading.depth));
 
   return (
-    <nav aria-label="On this page" className="text-sm">
+    <nav aria-label={t.onThisPage} className="text-sm">
       <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-        On this page
+        {t.onThisPage}
       </p>
 
       <ul className="space-y-1 border-l border-gray-200 dark:border-gray-800">

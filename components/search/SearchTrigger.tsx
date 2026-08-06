@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Search } from 'lucide-react';
 import { useSearchStore } from '@/lib/store/searchStore';
+import { useStrings } from '@/components/providers/StringsProvider';
 
 /**
  * Opens the search dialog.
@@ -11,6 +12,7 @@ import { useSearchStore } from '@/lib/store/searchStore';
  * what readers expect to click to search; the real input lives in the dialog.
  */
 export function SearchTrigger({ className = '' }: { className?: string }) {
+  const t = useStrings();
   const open = useSearchStore((state) => state.open);
   const [shortcut, setShortcut] = useState<string | null>(null);
 
@@ -34,7 +36,7 @@ export function SearchTrigger({ className = '' }: { className?: string }) {
       className={`flex items-center gap-2 rounded-md border border-gray-300 bg-white px-2 py-1 text-sm text-gray-500 transition-colors hover:border-gray-400 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:border-gray-600 ${className}`}
     >
       <Search className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
-      <span className="min-w-0 flex-1 truncate text-left">Search…</span>
+      <span className="min-w-0 flex-1 truncate text-left">{t.search}</span>
       {shortcut && (
         <kbd
           aria-hidden="true"

@@ -20,6 +20,21 @@ This project follows strict TypeScript and React conventions. Key points:
 - **Components**: Named exports, PascalCase files, JSDoc comments
 - **Styling**: Tailwind CSS utilities, mobile-first
 - **Imports**: Use `@/` alias for internal imports
+- **Interface text**: No literal strings in components. Add a key to `Strings`
+  in `lib/i18n/strings.ts`, translate it in every table there, and read it from
+  `getStrings()` on the server or `useStrings()` on the client. A test fails on
+  a table that misses a key or drops a `{placeholder}`.
+
+## Translations
+
+To add a language, copy the `EN` table in `lib/i18n/strings.ts`, translate the
+values, and register it in `TABLES` under its primary subtag. Keep every
+`{placeholder}` — where it falls in the sentence is yours to decide, but a
+dropped one leaves a hole where a number or a date belongs.
+
+Import `format` from `lib/i18n/format`, not from `strings` — the latter carries
+every translation, and a client component importing it would send them all to
+the browser.
 
 ## Commit Messages
 

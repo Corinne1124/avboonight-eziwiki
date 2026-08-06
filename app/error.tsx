@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect } from 'react';
+import { payload } from '@/payload/config';
+import { resolveStrings } from '@/lib/i18n/strings';
 
 interface ErrorProps {
   error: Error & { digest?: string };
@@ -11,6 +13,11 @@ interface ErrorProps {
  * Error boundary component for runtime error handling
  */
 export default function Error({ error, reset }: ErrorProps) {
+  // Resolved here rather than read from the provider: an error boundary should
+  // not depend on the tree it is standing in for. It is its own chunk, so the
+  // translations it carries are downloaded only if a page ever fails.
+  const t = resolveStrings(payload.global.lang, payload.global.strings);
+
   useEffect(() => {
     console.error('Application error:', error);
   }, [error]);
@@ -34,13 +41,9 @@ export default function Error({ error, reset }: ErrorProps) {
           </svg>
         </div>
 
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-          Oops! Something went wrong
-        </h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">{t.error}</h1>
 
-        <p className="text-gray-600 dark:text-gray-400 mb-6">
-          We encountered an unexpected error while loading this page.
-        </p>
+        <p className="text-gray-600 dark:text-gray-400 mb-6">{t.errorBody}</p>
 
         {error.message && (
           <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-6">
@@ -55,14 +58,14 @@ export default function Error({ error, reset }: ErrorProps) {
             onClick={reset}
             className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
           >
-            Try again
+            {t.tryAgain}
           </button>
 
           <a
             href="/"
             className="px-6 py-3 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100 font-medium rounded-lg transition-colors"
           >
-            Go home
+            {t.goHome}
           </a>
         </div>
 

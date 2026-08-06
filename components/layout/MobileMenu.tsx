@@ -8,6 +8,7 @@ import { useTabStore } from '@/lib/store/tabStore';
 import { useUrlMap } from '@/components/providers/UrlMapProvider';
 import { filterHiddenItems } from '@/lib/navigation/builder';
 import { Github } from 'lucide-react';
+import { useStrings } from '@/components/providers/StringsProvider';
 
 /**
  * Props for the MobileMenu component
@@ -225,6 +226,7 @@ function MobileNavigationItem({
  *
  */
 export function MobileMenu({ navigation, isOpen, onClose, repoUrl }: MobileMenuProps) {
+  const t = useStrings();
   const pathname = usePathname();
   const { toPath } = useUrlMap();
 
@@ -275,8 +277,8 @@ export function MobileMenu({ navigation, isOpen, onClose, repoUrl }: MobileMenuP
                   href={repoUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label="Source repository"
-                  title="Source repository"
+                  aria-label={t.sourceRepository}
+                  title={t.sourceRepository}
                   className="rounded-md p-2 text-gray-500 transition-colors hover:text-gray-700 active:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:active:bg-gray-800"
                 >
                   <Github className="h-5 w-5" />
@@ -285,7 +287,7 @@ export function MobileMenu({ navigation, isOpen, onClose, repoUrl }: MobileMenuP
               <button
                 onClick={onClose}
                 className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 active:bg-gray-100 dark:active:bg-gray-800 rounded-md transition-colors touch-manipulation"
-                aria-label="Close menu"
+                aria-label={t.closeMenu}
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useStrings } from '@/components/providers/StringsProvider';
 
 interface ThemeToggleProps {
   className?: string;
@@ -8,6 +9,7 @@ interface ThemeToggleProps {
 
 export function ThemeToggle({ className = 'w-5 h-5' }: ThemeToggleProps) {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const t = useStrings();
 
   useEffect(() => {
     // Get initial theme from localStorage or system preference
@@ -34,8 +36,8 @@ export function ThemeToggle({ className = 'w-5 h-5' }: ThemeToggleProps) {
     <button
       onClick={toggleTheme}
       className="p-2 rounded-md text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors"
-      aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
-      title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+      aria-label={theme === 'dark' ? t.switchToLight : t.switchToDark}
+      title={theme === 'dark' ? t.switchToLight : t.switchToDark}
     >
       {theme === 'dark' ? (
         <svg

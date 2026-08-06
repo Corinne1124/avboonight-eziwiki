@@ -399,6 +399,35 @@ sidebar flattened, so it follows `order` and `_meta.json` without separate
 configuration, and hidden pages are skipped. The links carry `rel="prev"` and
 `rel="next"`.
 
+### Interface Language
+
+The pages are in whatever language they were written in, and so is the wiki
+around them. Set `global.lang` and the search box, the contents rail, the
+previous/next links and the rest follow:
+
+```typescript
+global: {
+  lang: 'ko',
+}
+```
+
+English and Korean are translated. Any other language writes its own words,
+one key at a time, and keeps the English for whatever it leaves out:
+
+```typescript
+global: {
+  lang: 'de',
+  strings: { search: 'Suchen…', onThisPage: 'Auf dieser Seite' },
+}
+```
+
+The keys are those of `Strings` in `lib/i18n/strings.ts`. Dates follow `lang`
+too, so a Korean wiki reads `2026년 8월 3일` rather than `August 3, 2026`.
+
+Resolved during the build and passed to the page as plain data: a reader
+downloads the one language the wiki is in, not every language it has been
+translated into.
+
 ### Backlinks and Graph
 
 Every page ends with the pages that link to it, gathered from both wiki links

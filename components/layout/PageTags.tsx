@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Tag as TagIcon } from 'lucide-react';
+import { getStrings } from '@/lib/site';
 import type { Tag } from '@/lib/content/tags';
 
 /**
@@ -15,8 +16,10 @@ import type { Tag } from '@/lib/content/tags';
 export function PageTags({ tags }: { tags: Tag[] }) {
   if (tags.length === 0) return null;
 
+  const t = getStrings();
+
   return (
-    <nav aria-label="Tags" className="mb-6 flex flex-wrap items-center gap-2">
+    <nav aria-label={t.tags} className="mb-6 flex flex-wrap items-center gap-2">
       <TagIcon className="h-3.5 w-3.5 flex-shrink-0 text-gray-400" aria-hidden="true" />
       {tags.map((tag) => (
         <Link

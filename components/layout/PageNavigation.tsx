@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { getStrings } from '@/lib/site';
 import type { Adjacent } from '@/lib/navigation/sequence';
 
 /**
@@ -22,9 +23,11 @@ export function PageNavigation({ adjacent }: { adjacent: Adjacent }) {
   // has none, and gets nothing rather than an empty bar.
   if (!previous && !next) return null;
 
+  const t = getStrings();
+
   return (
     <nav
-      aria-label="Page navigation"
+      aria-label={t.pageNavigation}
       className="mt-12 flex items-stretch gap-4 border-t border-gray-200 pt-6 dark:border-gray-800"
     >
       {previous ? (
@@ -36,7 +39,7 @@ export function PageNavigation({ adjacent }: { adjacent: Adjacent }) {
           <ChevronLeft className="h-4 w-4 flex-shrink-0 text-gray-400 transition-transform group-hover:-translate-x-0.5" />
           <span className="min-w-0">
             <span className="block text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
-              Previous
+              {t.previous}
             </span>
             <span className="block truncate text-sm font-medium text-gray-900 dark:text-gray-100">
               {previous.title}
@@ -57,7 +60,7 @@ export function PageNavigation({ adjacent }: { adjacent: Adjacent }) {
         >
           <span className="min-w-0">
             <span className="block text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
-              Next
+              {t.next}
             </span>
             <span className="block truncate text-sm font-medium text-gray-900 dark:text-gray-100">
               {next.title}

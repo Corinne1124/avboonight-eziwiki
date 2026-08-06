@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect } from 'react';
+import { payload } from '@/payload/config';
+import { resolveStrings } from '@/lib/i18n/strings';
 
 interface GlobalErrorProps {
   error: Error & { digest?: string };
@@ -12,12 +14,17 @@ interface GlobalErrorProps {
  * Catches errors that occur outside of the normal error boundary
  */
 export default function GlobalError({ error, reset }: GlobalErrorProps) {
+  // This boundary replaces the root layout, so the provider that would supply
+  // these is exactly what has failed. It resolves them itself instead —
+  // affording the reader of a crashed Korean wiki a page in Korean.
+  const t = resolveStrings(payload.global.lang, payload.global.strings);
+
   useEffect(() => {
     console.error('Global application error:', error);
   }, [error]);
 
   return (
-    <html lang="en">
+    <html lang={payload.global.lang ?? 'en'}>
       <body>
         <div className="min-h-screen flex items-center justify-center px-4 bg-gray-50 dark:bg-gray-900">
           <div className="max-w-md w-full text-center">
@@ -38,12 +45,10 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
             </div>
 
             <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-              Critical Error
+              {t.criticalError}
             </h1>
 
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
-              A critical error occurred. Please try refreshing the page.
-            </p>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">{t.criticalErrorBody}</p>
 
             {error.message && (
               <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-6">
@@ -58,14 +63,14 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
                 onClick={reset}
                 className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
               >
-                Try again
+                {t.tryAgain}
               </button>
 
               <a
                 href="/"
                 className="px-6 py-3 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100 font-medium rounded-lg transition-colors"
               >
-                Go home
+                {t.goHome}
               </a>
             </div>
           </div>

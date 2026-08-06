@@ -1,5 +1,7 @@
 import { Share2 } from 'lucide-react';
 import { GraphView } from '@/components/graph/GraphView';
+import { format } from '@/lib/i18n/strings';
+import { getStrings } from '@/lib/site';
 import type { LocalGraph as LocalGraphData } from '@/lib/graph/build';
 
 /**
@@ -27,6 +29,7 @@ export function LocalGraph({ graph, path }: { graph: LocalGraphData; path: strin
   if (graph.nodes.length < 2) return null;
 
   const neighbours = graph.nodes.length - 1;
+  const t = getStrings();
 
   return (
     <section
@@ -38,7 +41,7 @@ export function LocalGraph({ graph, path }: { graph: LocalGraphData; path: strin
         className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400"
       >
         <Share2 className="h-3.5 w-3.5" />
-        Connected to {neighbours} {neighbours === 1 ? 'page' : 'pages'}
+        {format(neighbours === 1 ? t.connectedToOne : t.connectedToMany, { count: neighbours })}
       </h2>
 
       <GraphView

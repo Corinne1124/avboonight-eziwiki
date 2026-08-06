@@ -11,6 +11,8 @@ import { useUrlMap } from '@/components/providers/UrlMapProvider';
 import { SearchTrigger } from '@/components/search/SearchTrigger';
 import { useSearchStore } from '@/lib/store/searchStore';
 import { filterHiddenItems } from '@/lib/navigation/builder';
+import { useStrings } from '@/components/providers/StringsProvider';
+import { format } from '@/lib/i18n/format';
 
 /**
  * Props for the Sidebar component
@@ -30,13 +32,15 @@ interface SidebarProps {
  * way to reach the project it came from.
  */
 function RepoLink({ href, collapsed }: { href: string; collapsed: boolean }) {
+  const t = useStrings();
+
   return (
     <a
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      aria-label="Source repository"
-      title="Source repository"
+      aria-label={t.sourceRepository}
+      title={t.sourceRepository}
       className={`rounded-md p-2 text-gray-600 transition-colors hover:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-800 ${
         collapsed ? '' : 'flex-shrink-0'
       }`}
@@ -97,6 +101,7 @@ function NavigationItemComponent({
   const router = useRouter();
   const { href: urlFor } = useUrlMap();
   const { activeTabId, tabs } = useTabStore();
+  const t = useStrings();
   const hasChildren = item.children && item.children.length > 0;
 
   const bgColor = item.color || backgroundColor;
@@ -181,7 +186,9 @@ function NavigationItemComponent({
               // The button is a bare chevron, so it needs a name of its own —
               // and it has to name the section, or a screen reader announces
               // one indistinguishable "Expand" per section.
-              aria-label={`${isExpanded ? 'Collapse' : 'Expand'} ${item.name}`}
+              aria-label={format(isExpanded ? t.collapseSection : t.expandSection, {
+                name: item.name,
+              })}
               aria-expanded={isExpanded}
             >
               <ChevronRight
@@ -263,6 +270,7 @@ function NavigationItemComponent({
  */
 export function Sidebar({ navigation, repoUrl }: SidebarProps) {
   const { sidebarWidth, sidebarCollapsed, setSidebarWidth, setSidebarCollapsed } = useTabStore();
+  const t = useStrings();
 
   const visibleNavigation = filterHiddenItems(navigation);
 
@@ -342,8 +350,8 @@ export function Sidebar({ navigation, repoUrl }: SidebarProps) {
             <button
               onClick={handleToggle}
               className="p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-800 rounded-md transition-colors flex-shrink-0"
-              aria-label="Collapse sidebar"
-              title="Collapse sidebar"
+              aria-label={t.collapseSidebar}
+              title={t.collapseSidebar}
             >
               <ChevronsLeft className="w-4 h-4" />
             </button>
@@ -353,8 +361,8 @@ export function Sidebar({ navigation, repoUrl }: SidebarProps) {
             <button
               onClick={openSearch}
               className="rounded-md p-2 text-gray-600 transition-colors hover:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-800"
-              aria-label="Search documentation"
-              title="Search documentation"
+              aria-label={t.searchDialog}
+              title={t.searchDialog}
             >
               <Search className="h-4 w-4" />
             </button>
@@ -362,8 +370,8 @@ export function Sidebar({ navigation, repoUrl }: SidebarProps) {
             <button
               onClick={handleToggle}
               className="rounded-md p-2 text-gray-600 transition-colors hover:bg-gray-200 dark:text-gray-400 dark:hover:bg-gray-800"
-              aria-label="Expand sidebar"
-              title="Expand sidebar"
+              aria-label={t.expandSidebar}
+              title={t.expandSidebar}
             >
               <ChevronsRight className="h-4 w-4" />
             </button>

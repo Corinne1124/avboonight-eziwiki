@@ -4,6 +4,7 @@ import 'katex/dist/katex.min.css';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { TabInitializer } from '@/components/layout/TabInitializer';
 import { UrlMapProvider } from '@/components/providers/UrlMapProvider';
+import { StringsProvider } from '@/components/providers/StringsProvider';
 import { SearchDialog } from '@/components/search/SearchDialog';
 import { payload } from '@/payload/config';
 import { validatePayload } from '@/lib/payload/validator';
@@ -174,15 +175,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           href="#main-content"
           className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-gray-900 focus:shadow-lg focus:outline focus:outline-2 focus:outline-blue-600 dark:focus:bg-gray-900 dark:focus:text-gray-100"
         >
-          Skip to content
+          {site.strings.skipToContent}
         </a>
-        <UrlMapProvider value={site.urlMap}>
-          <TabInitializer navigation={site.navigation} />
-          <PageLayout navigation={site.navigation} repoUrl={site.global.repoUrl}>
-            {children}
-          </PageLayout>
-          <SearchDialog />
-        </UrlMapProvider>
+        <StringsProvider value={site.strings}>
+          <UrlMapProvider value={site.urlMap}>
+            <TabInitializer navigation={site.navigation} />
+            <PageLayout navigation={site.navigation} repoUrl={site.global.repoUrl}>
+              {children}
+            </PageLayout>
+            <SearchDialog />
+          </UrlMapProvider>
+        </StringsProvider>
       </body>
     </html>
   );

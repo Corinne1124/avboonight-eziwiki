@@ -14,6 +14,10 @@ export const payloadSchema = {
         description: { type: 'string', minLength: 1 },
         favicon: { type: 'string' },
         lang: { type: 'string', minLength: 2 },
+        // Deliberately not enumerated: the keys are a TypeScript concern, and
+        // repeating them here would mean a new string could be added in one
+        // place and rejected in the other.
+        strings: { type: 'object', additionalProperties: { type: 'string' } },
         baseUrl: { type: 'string', format: 'uri' },
         repoUrl: { type: 'string', format: 'uri' },
         urlStrategy: { type: 'string', enum: ['path', 'hash'] },

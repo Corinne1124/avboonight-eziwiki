@@ -5,8 +5,10 @@ import { useRouter } from 'next/navigation';
 import { useTabStore } from '@/lib/store/tabStore';
 import { TabBarSkeleton } from './TabBarSkeleton';
 import { useUrlMap } from '@/components/providers/UrlMapProvider';
+import { useStrings } from '@/components/providers/StringsProvider';
 
 export function TabBar() {
+  const t = useStrings();
   const router = useRouter();
   const { href: urlFor } = useUrlMap();
   const {
@@ -30,7 +32,7 @@ export function TabBar() {
   const tabBarRef = useRef<HTMLDivElement>(null);
 
   const handleNewTab = () => {
-    addTab({ title: 'New Tab', path: '' });
+    addTab({ title: t.newTabTitle, path: '' });
     router.replace('/');
   };
 
@@ -46,7 +48,7 @@ export function TabBar() {
 
     if (remainingTabs.length === 0) {
       removeTab(tabId);
-      addTab({ title: 'New Tab', path: '' });
+      addTab({ title: t.newTabTitle, path: '' });
 
       router.replace('/');
     } else {
@@ -214,7 +216,7 @@ export function TabBar() {
                   transition-opacity
                   ${isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}
                 `}
-                aria-label="Close tab"
+                aria-label={t.closeTab}
               >
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
@@ -265,8 +267,8 @@ export function TabBar() {
       <button
         onClick={handleNewTab}
         className="flex-shrink-0 p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-md transition-colors"
-        aria-label="New tab"
-        title="New tab"
+        aria-label={t.newTab}
+        title={t.newTab}
       >
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />

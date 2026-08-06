@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { FileText, Hash, Loader2, Search as SearchIcon } from 'lucide-react';
 import { useSearchStore } from '@/lib/store/searchStore';
 import { search, type SearchResult } from '@/lib/search/client';
+import { useStrings } from '@/components/providers/StringsProvider';
+import { format } from '@/lib/i18n/format';
 
 /**
  * Full-text search dialog, opened with ⌘K or from the sidebar.
@@ -54,6 +56,7 @@ function Highlighted({ text, query }: { text: string; query: string }) {
 }
 
 export function SearchDialog() {
+  const t = useStrings();
   const router = useRouter();
   const { isOpen, close, toggle } = useSearchStore();
 
@@ -189,7 +192,7 @@ export function SearchDialog() {
       <div
         role="dialog"
         aria-modal="true"
-        aria-label="Search documentation"
+        aria-label={t.searchDialog}
         className="relative w-full max-w-2xl overflow-hidden rounded-xl bg-white shadow-2xl ring-1 ring-black/10 dark:bg-gray-900 dark:ring-white/10"
         onMouseDown={(event) => event.stopPropagation()}
         onKeyDown={handleKeyDown}
@@ -201,8 +204,8 @@ export function SearchDialog() {
             type="text"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search documentation…"
-            aria-label="Search query"
+            placeholder={t.searchPlaceholder}
+            aria-label={t.searchQuery}
             aria-controls="search-results"
             className="flex-1 bg-transparent py-3.5 text-sm text-gray-900 outline-none placeholder:text-gray-400 dark:text-gray-100"
           />
@@ -217,13 +220,13 @@ export function SearchDialog() {
 
           {!error && query.trim() && !isLoading && results.length === 0 && (
             <p className="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
-              No results for “{query.trim()}”
+              {format(t.searchEmpty, { query: query.trim() })}
             </p>
           )}
 
           {!error && !query.trim() && (
             <p className="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
-              Search titles, headings, and page contents.
+              {t.searchHint}
             </p>
           )}
 

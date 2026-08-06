@@ -3,6 +3,7 @@
 import React, { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { bounds, layout, type LayoutEdge } from '@/lib/graph/layout';
+import { useStrings } from '@/components/providers/StringsProvider';
 
 /**
  * Renders the document link graph as an interactive SVG.
@@ -40,6 +41,7 @@ const MAX_RADIUS = 14;
 export function GraphView({ nodes, edges, activePath, heightClass = 'h-[70vh]' }: GraphViewProps) {
   const router = useRouter();
   const [hovered, setHovered] = useState<string | null>(null);
+  const t = useStrings();
 
   const positions = useMemo(() => {
     const settled = layout(
@@ -69,9 +71,7 @@ export function GraphView({ nodes, edges, activePath, heightClass = 'h-[70vh]' }
 
   if (nodes.length === 0) {
     return (
-      <p className="py-16 text-center text-sm text-gray-500 dark:text-gray-400">
-        No pages to graph yet.
-      </p>
+      <p className="py-16 text-center text-sm text-gray-500 dark:text-gray-400">{t.graphEmpty}</p>
     );
   }
 

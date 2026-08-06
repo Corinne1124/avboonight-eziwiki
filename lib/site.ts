@@ -2,6 +2,7 @@ import { payload } from '@/payload/config';
 import { getNavigation } from './navigation/auto';
 import { getUrlMap } from './navigation/urlMap';
 import { getAllDocPaths, getContentRegistry } from './content/registry';
+import { resolveStrings, type Strings } from './i18n/strings';
 import type { NavigationItem, GlobalConfig, ThemeConfig } from './payload/types';
 import type { UrlMap } from './navigation/url';
 
@@ -25,6 +26,20 @@ export interface Site {
   docPaths: string[];
   /** Paths that should be built but never listed or indexed */
   hiddenPaths: Set<string>;
+  /** What the interface says, in the language the wiki declares */
+  strings: Strings;
+}
+
+/**
+ * The interface strings for this wiki.
+ *
+ * Server components read them from here. Client components take them from
+ * `useStrings()`, which the layout seeds with this same value.
+ *
+ * @returns The resolved strings
+ */
+export function getStrings(): Strings {
+  return resolveStrings(payload.global.lang, payload.global.strings);
 }
 
 /**
@@ -82,5 +97,6 @@ export function getSite(): Site {
     urlMap: getUrlMap(),
     docPaths: getAllDocPaths(),
     hiddenPaths: collectHiddenPaths(navigation),
+    strings: getStrings(),
   };
 }

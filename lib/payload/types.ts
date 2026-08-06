@@ -1,4 +1,5 @@
 import type { UrlStrategy } from '../navigation/url';
+import type { Strings } from '../i18n/strings';
 
 /**
  * Navigation item in the sidebar hierarchy
@@ -36,6 +37,23 @@ export interface GlobalConfig {
    * `en` default is read aloud as English. Defaults to `en`.
    */
   lang?: string;
+  /**
+   * Replacements for individual interface strings.
+   *
+   * The interface follows {@link lang} where a translation exists, and falls
+   * back to English where one does not. This is how a wiki in any other
+   * language says its own words without waiting for a translation to be
+   * contributed — and how one in a translated language overrules a wording it
+   * disagrees with.
+   *
+   * ```typescript
+   * strings: { search: 'Suchen…', onThisPage: 'Auf dieser Seite' }
+   * ```
+   *
+   * Keys are those of `Strings` in `lib/i18n/strings.ts`; anything left out
+   * keeps its translated value.
+   */
+  strings?: Partial<Strings>;
   /** Base URL for the site */
   baseUrl?: string;
   /**

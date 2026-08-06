@@ -72,8 +72,19 @@ global: {
 - **`favicon`** — path to a file in `public/`
 - **`lang`** — BCP 47 language tag for the content, such as `ko` or `ja`.
   Announced on the root element, where screen readers take pronunciation from
-  it and translation tools decide what to offer. Defaults to `en`, so a wiki
-  written in another language should set it.
+  it and translation tools decide what to offer. It also picks the language the
+  interface itself speaks, and the format dates are written in. Defaults to
+  `en`, so a wiki written in another language should set it.
+- **`strings`** — replacements for individual interface strings, for a language
+  with no translation yet or a wording you disagree with. Anything left out
+  keeps its translated value.
+
+  ```typescript
+  strings: { search: 'Suchen…', onThisPage: 'Auf dieser Seite' }
+  ```
+
+  The keys are those of `Strings` in `lib/i18n/strings.ts`.
+
 - **`baseUrl`** — used for canonical URLs, the sitemap, and Open Graph tags. Set
   it before you publish; social previews and `robots.txt` depend on it.
 - **`repoUrl`** — source repository, linked from the sidebar. Omit it and no

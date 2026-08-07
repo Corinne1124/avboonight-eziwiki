@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { payload } from '@/payload/config';
-import { resolveStrings } from '@/lib/i18n/strings';
+import { DEFAULT_STRINGS } from '@/lib/i18n/strings';
 
 interface GlobalErrorProps {
   error: Error & { digest?: string };
@@ -14,10 +14,12 @@ interface GlobalErrorProps {
  * Catches errors that occur outside of the normal error boundary
  */
 export default function GlobalError({ error, reset }: GlobalErrorProps) {
-  // This boundary replaces the root layout, so the provider that would supply
-  // these is exactly what has failed. It resolves them itself instead —
-  // affording the reader of a crashed Korean wiki a page in Korean.
-  const t = resolveStrings(payload.global.lang, payload.global.strings);
+  // English, and deliberately. This boundary replaces the root layout, so the
+  // provider that would translate it is exactly what has failed — and its
+  // chunk is loaded with every page, so carrying every translation here would
+  // charge every visitor for a screen almost none of them will see. The `lang`
+  // below still names the document's language for anything reading it.
+  const t = DEFAULT_STRINGS;
 
   useEffect(() => {
     console.error('Global application error:', error);

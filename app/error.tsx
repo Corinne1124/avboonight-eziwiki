@@ -1,8 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { payload } from '@/payload/config';
-import { resolveStrings } from '@/lib/i18n/strings';
+import { useStrings } from '@/components/providers/StringsProvider';
 
 interface ErrorProps {
   error: Error & { digest?: string };
@@ -13,10 +12,11 @@ interface ErrorProps {
  * Error boundary component for runtime error handling
  */
 export default function Error({ error, reset }: ErrorProps) {
-  // Resolved here rather than read from the provider: an error boundary should
-  // not depend on the tree it is standing in for. It is its own chunk, so the
-  // translations it carries are downloaded only if a page ever fails.
-  const t = resolveStrings(payload.global.lang, payload.global.strings);
+  // Read from the provider rather than resolved here. Next loads a boundary's
+  // chunk with the page it guards, not when it is needed, so resolving here
+  // put every translation the wiki has into a file every visitor downloads.
+  // This boundary renders inside the root layout, so the provider is mounted.
+  const t = useStrings();
 
   useEffect(() => {
     console.error('Application error:', error);

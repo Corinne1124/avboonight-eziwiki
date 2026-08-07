@@ -376,8 +376,10 @@ export async function getDocHeadings(docPath: string): Promise<Heading[]> {
   const file = new VFile(doc.content);
   file.data.docPath = doc.path;
 
-  const processed = await headingProcessor.run(headingProcessor.parse(file), file);
-  void processed;
+  // `run` rather than `process`: the transformed tree is not wanted and
+  // serialising it back to HTML is most of what this is avoiding. The headings
+  // are left on the file by `rehypeCollectHeadings`, not on the tree.
+  await headingProcessor.run(headingProcessor.parse(file), file);
 
   const headings = (file.data.headings as Heading[] | undefined) ?? [];
   headingCache.set(docPath, headings);

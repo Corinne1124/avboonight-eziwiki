@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { renderLlmsTxt } from './llms';
+import { renderLlmsTxt, oneLine } from './llms';
 import { getSite } from '../site';
 import { getReadingOrder } from '../navigation/sequence';
 import { getDoc } from './registry';
@@ -73,5 +73,43 @@ describe('renderLlmsTxt', () => {
     for (const summary of summaries) {
       expect(summary.split('. ').length, summary).toBeLessThanOrEqual(2);
     }
+  });
+});
+
+describe('oneLine', () => {
+  it('keeps the first sentence', () => {
+    expect(oneLine('Get going in 5 minutes. Then read the rest.')).toBe('Get going in 5 minutes.');
+  });
+
+  it('splits a sentence that ends in a character no Latin range contains', () => {
+    // With an ASCII letter class this never matched, so every entry in a
+    // Korean or Japanese wiki carried a whole paragraph.
+    expect(oneLine('빠른 시작 안내입니다. 자세한 내용은 다음 장에서 다룹니다.')).toBe(
+      '빠른 시작 안내입니다.',
+    );
+  });
+
+  it('accepts a full stop that needs no space after it', () => {
+    expect(oneLine('5分で始められます。詳細は次章で。')).toBe('5分で始められます。');
+    expect(oneLine('빠른 시작입니다。다음 장에서 계속。')).toBe('빠른 시작입니다。');
+  });
+
+  it('does not split inside a word or a number', () => {
+    expect(oneLine('Built on node.js and shipped as 1.2 of the package')).toBe(
+      'Built on node.js and shipped as 1.2 of the package',
+    );
+  });
+
+  it('collapses whitespace and survives having none of it', () => {
+    expect(oneLine('  a   paragraph\nwrapped  ')).toBe('a paragraph wrapped');
+    expect(oneLine('   ')).toBe('');
+  });
+
+  it('truncates a sentence too long to be a summary', () => {
+    const long = `${'word '.repeat(80)}end.`;
+    const out = oneLine(long);
+
+    expect(out.length).toBeLessThanOrEqual(200);
+    expect(out.endsWith('…')).toBe(true);
   });
 });

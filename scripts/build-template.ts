@@ -105,6 +105,14 @@ const EXCLUDE_FILES = new Set([
   // Asserts that this repository's pages are dated from its commits. A
   // scaffolded project has no history yet, and often no repository at all.
   'lib/content/lastModified.test.ts',
+  // The same, one step further out: the sitemap's dates come from those
+  // commits, so a project without them has every entry undated — correctly,
+  // and these would call it a failure.
+  'app/sitemap.test.ts',
+  // Both count the demo content. A starter has two pages, no hidden ones, and
+  // no document with enough headings to satisfy them.
+  'lib/content/llms.test.ts',
+  'lib/markdown/headings.test.ts',
 ]);
 
 /** Directories never copied. */

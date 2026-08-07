@@ -34,14 +34,26 @@ export const LLMS_PATH = '/llms.txt';
  *
  * @param text - Excerpt text
  * @returns A single sentence, or an empty string
+ *
+ * @example
+ * ```typescript
+ * oneLine('Get going in 5 minutes. Then read on.'); // 'Get going in 5 minutes.'
+ * ```
  */
-function oneLine(text: string): string {
+export function oneLine(text: string): string {
   const flat = text.replace(/\s+/g, ' ').trim();
   if (!flat) return '';
 
-  // Split on a full stop that ends a word rather than one inside `e.g.` or a
-  // version number.
-  const end = flat.search(/(?<=[a-z0-9)”'"])\.(\s|$)/i);
+  // A full stop that ends a sentence rather than one inside `node.js` or
+  // `1.2`, which is what the lookahead rules out.
+  //
+  // Letters are matched by property rather than by `a-z`: a Korean or Japanese
+  // description ends its sentences in characters no Latin range contains, and
+  // with an ASCII class the search simply never matched, so every entry in
+  // such a wiki carried a whole paragraph. `。` needs no space after it —
+  // that is the point of having its own character — so it terminates on its
+  // own.
+  const end = flat.search(/(?<=[\p{L}\p{N})”'"])(?:\.(?=\s|$)|。)/u);
   const sentence = end === -1 ? flat : flat.slice(0, end + 1);
 
   return sentence.length > 200 ? `${sentence.slice(0, 197).trimEnd()}…` : sentence;

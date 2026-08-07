@@ -5,34 +5,10 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { NavigationItem } from '@/lib/payload/types';
 import { useUrlMap } from '@/components/providers/UrlMapProvider';
+import { getBreadcrumbTrail } from '@/lib/navigation/breadcrumb';
 
 interface BreadcrumbProps {
   navigation: NavigationItem[];
-}
-
-/**
- * Build breadcrumb trail by finding the path through navigation tree
- */
-function buildBreadcrumbTrail(
-  items: NavigationItem[],
-  targetPath: string,
-  trail: Array<{ name: string; path?: string }> = [],
-): Array<{ name: string; path?: string }> | null {
-  for (const item of items) {
-    if (item.path === targetPath) {
-      return [...trail, { name: item.name, path: item.path }];
-    }
-
-    if (item.children) {
-      const found = buildBreadcrumbTrail(item.children, targetPath, [
-        ...trail,
-        { name: item.name, path: item.path },
-      ]);
-      if (found) return found;
-    }
-  }
-
-  return null;
 }
 
 export function Breadcrumb({ navigation }: BreadcrumbProps) {
@@ -50,7 +26,7 @@ export function Breadcrumb({ navigation }: BreadcrumbProps) {
     return null;
   }
 
-  const trail = buildBreadcrumbTrail(navigation, currentPath);
+  const trail = getBreadcrumbTrail(navigation, currentPath);
 
   if (!trail || trail.length === 0) {
     return null;

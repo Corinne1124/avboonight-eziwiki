@@ -13,6 +13,7 @@ import { getAliasMap, aliasUrl, resolveAliasUrl } from '@/lib/content/aliases';
 import { getTagsFor } from '@/lib/content/tags';
 import { getLastModified, getPublished } from '@/lib/content/lastModified';
 import { getEditUrl } from '@/lib/content/editUrl';
+import { getBreadcrumbTrail } from '@/lib/navigation/breadcrumb';
 import { renderDoc } from '@/lib/markdown/render';
 import { getDoc, type ContentDoc } from '@/lib/content/registry';
 import { docPathToUrl, urlToDocPath } from '@/lib/navigation/url';
@@ -97,6 +98,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const ogImage = rawOgImage ? fileUrl(rawOgImage, global.baseUrl) : undefined;
   const canonicalUrl = pageUrl(resolved.url, global.baseUrl);
 
+  const published = getPublished(resolved.path);
+  const modified = getLastModified(resolved.path)?.iso ?? published;
+
   return {
     title,
     description,
@@ -109,6 +113,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     // Hidden pages stay reachable by direct link but should not be indexed.
     robots: hiddenPaths.has(resolved.path) ? { index: false, follow: false } : undefined,
     openGraph: {
+      // `article` rather than the default `website`: a documentation page is a
+      // document, and the type is what lets the two timestamps below be stated
+      // at all. Both are how a crawler tells a page kept current from one
+      // written once — omitted when nothing knows, never stamped with the
+      // build.
+      type: 'article',
+      publishedTime: published ?? undefined,
+      modifiedTime: modified ?? undefined,
       title,
       description,
       url: canonicalUrl,
@@ -183,6 +195,48 @@ function ArticleSchema({ doc, url }: { doc: ContentDoc; url: string }) {
 }
 
 /**
+ * Emits the trail to this page as structured data.
+ *
+ * The same walk the visible breadcrumb makes, so the two cannot disagree —
+ * structured data describing a trail the page does not show is the kind of
+ * mismatch that costs more than the markup gains.
+ *
+ * A page the navigation does not contain gets nothing rather than a trail
+ * invented from its URL, which for the `hash` strategy would be a single
+ * meaningless digest anyway.
+ */
+function BreadcrumbSchema({ path }: { path: string }) {
+  const { global, navigation, urlMap } = getSite();
+  const trail = getBreadcrumbTrail(navigation, path);
+
+  if (!trail || trail.length < 2) return null;
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{
+        __html: JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'BreadcrumbList',
+          itemListElement: trail.map((crumb, index) => {
+            const url = crumb.path ? docPathToUrl(urlMap, crumb.path) : null;
+
+            return {
+              '@type': 'ListItem',
+              position: index + 1,
+              name: crumb.name,
+              // A section that is only a heading has nowhere to point, and
+              // schema.org allows the item to be a bare name for exactly that.
+              ...(url ? { item: pageUrl(url, global.baseUrl) } : {}),
+            };
+          }),
+        }),
+      }}
+    />
+  );
+}
+
+/**
  * Renders a content page: the document body, plus its table of contents on
  * screens wide enough to carry a second column.
  */
@@ -208,6 +262,7 @@ export default async function ContentPage({ params }: PageProps) {
       <div className="flex gap-8">
         <article className="prose prose-slate min-w-0 max-w-none flex-1 dark:prose-invert">
           <ArticleSchema doc={doc} url={resolved.url} />
+          <BreadcrumbSchema path={resolved.path} />
           <PageTags tags={getTagsFor(resolved.path)} />
           <MarkdownContent html={rendered.html} />
           <PageMeta

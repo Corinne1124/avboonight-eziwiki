@@ -300,6 +300,41 @@ tags: [deployment, hosting]
 Each subject gets a page at `/tags/<name>`, `/tags` lists them all, and every
 tagged page shows what it belongs to. Hidden pages stay out.
 
+### Crawlers and Answer Engines
+
+Every page carries a canonical URL, Open Graph and Twitter cards, `Article`
+structured data, and a `BreadcrumbList` matching the trail the page actually
+shows — a trail stated but not shown is the kind of mismatch that costs more
+than the markup gains.
+
+`sitemap.xml` dates each page from the commit that last touched it. That is the
+whole point of the field: a sitemap that stamps every page with the moment the
+site was published tells a crawler that all of it changed, every deploy, until
+the crawler stops believing the field. A page with no history yet carries no
+date rather than a guess, and an index page carries the newest date among the
+pages it lists.
+
+`llms.txt` is written for the other kind of reader. An answer engine arriving
+at a page gets navigation it cannot use, a contents rail, a search box, and the
+article somewhere inside; it has to infer what the site is and which pages
+matter, and the sidebar is thirty links while the article is one. The file
+states it instead — the wiki's name, what it is, and every page with a sentence
+about it, in reading order:
+
+```markdown
+# My Wiki
+
+> My personal knowledge base
+
+## Pages
+
+- [Quick Start](https://example.com/getting-started/quick-start/): Get going in 5 minutes.
+```
+
+It is generated from the same registry the sitemap uses, so a page added,
+renamed or re-described appears there without anyone maintaining a second list.
+Hidden pages are left out of both.
+
 ### Wanted Pages
 
 A link to a page that does not exist yet is how a wiki grows: someone writes

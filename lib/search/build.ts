@@ -1,5 +1,5 @@
 import { getContentRegistry } from '../content/registry';
-import { renderDoc } from '../markdown/render';
+import { getDocHeadings } from '../markdown/render';
 import { docPathToUrl } from '../navigation/url';
 import { getSite } from '../site';
 import { SEARCH_INDEX_VERSION, type SearchDoc, type SearchIndex } from './types';
@@ -168,12 +168,13 @@ export async function buildSearchIndex(): Promise<SearchIndex> {
     if (!url) continue;
 
     const href = `/${url}`;
-    const rendered = await renderDoc(doc.path);
 
-    // Anchors come from the rendered document, so they are exactly the ids
-    // rehype-slug produced and the links will resolve.
+    // Anchors come from the same plugins the page runs, so they are exactly
+    // the ids rehype-slug produced and the links will resolve. Only the
+    // headings are needed, and stopping there skips highlighting code and
+    // drawing diagrams the index will never look at.
     const [preamble, ...sections] = splitSections(doc.content);
-    const anchors = matchAnchors(sections, rendered?.headings ?? []);
+    const anchors = matchAnchors(sections, await getDocHeadings(doc.path));
 
     entries.push({
       id: doc.path,

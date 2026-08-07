@@ -230,6 +230,38 @@ function createProcessor(): Processor {
     .use(rehypeStringify, { allowDangerousHtml: true }) as unknown as Processor;
 }
 
+/**
+ * A processor that stops once the headings are known.
+ *
+ * The plugins that make rendering expensive — the highlighter, the diagram
+ * renderer, the maths typesetter — all run *after* `rehypeCollectHeadings`,
+ * so none of them can affect a heading's id. Anything that only wants the
+ * headings can therefore stop at that point, and the search index, which wants
+ * nothing else from the render, no longer pays to syntax-highlight code and
+ * draw diagrams it will never look at.
+
+ * Built from the same prefix as the full pipeline rather than a re-implemented
+ * slug rule: the ids have to be exactly the ones the page emits or every
+ * section link in search results lands in the wrong place.
+ */
+function createHeadingProcessor(): Processor {
+  return unified()
+    .use(remarkParse)
+    .use(remarkGfm)
+    .use(remarkMath)
+    .use(remarkCallouts)
+    .use(remarkWikiLinks, {
+      link: resolveWikiLink,
+      embed: resolveWikiEmbed,
+      transclude: resolveWikiTransclusion,
+    })
+    .use(remarkRehype, { allowDangerousHtml: true })
+    .use(rehypeCodeMetastring)
+    .use(rehypeRaw)
+    .use(rehypeSlug)
+    .use(rehypeCollectHeadings) as unknown as Processor;
+}
+
 /** Language set the current processor was built with. */
 let processorLangs = '';
 
@@ -310,4 +342,45 @@ export async function renderDoc(docPath: string): Promise<RenderedMarkdown | nul
   cache.set(docPath, rendered);
 
   return rendered;
+}
+
+/** Heading processor, built once alongside the full one. */
+let headingProcessor: Processor | null = null;
+const headingCache = new Map<string, Heading[]>();
+
+/**
+ * Extracts a document's headings without rendering it.
+ *
+ * Same ids as {@link renderDoc} would produce, from the same plugins, but
+ * stopping before the highlighter, the diagram renderer and the maths
+ * typesetter — none of which a heading id depends on. A caller that already
+ * has the full render should read `headings` off that instead; this is for the
+ * ones that never need the HTML.
+ *
+ * @param docPath - Content-relative path without extension
+ * @returns The headings, or an empty list if no such document exists
+ */
+export async function getDocHeadings(docPath: string): Promise<Heading[]> {
+  const hit = cached(headingCache.get(docPath) ?? null);
+  if (hit) return hit;
+
+  // A full render, if one has already happened, has the answer for free.
+  const rendered = cached(cache.get(docPath) ?? null);
+  if (rendered) return rendered.headings;
+
+  const doc = getDoc(docPath);
+  if (!doc) return [];
+
+  if (!headingProcessor) headingProcessor = createHeadingProcessor();
+
+  const file = new VFile(doc.content);
+  file.data.docPath = doc.path;
+
+  const processed = await headingProcessor.run(headingProcessor.parse(file), file);
+  void processed;
+
+  const headings = (file.data.headings as Heading[] | undefined) ?? [];
+  headingCache.set(docPath, headings);
+
+  return headings;
 }

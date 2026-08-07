@@ -25,7 +25,10 @@ export function PageTags({ tags }: { tags: Tag[] }) {
         <Link
           key={tag.slug}
           href={`/tags/${encodeURIComponent(tag.slug)}/`}
-          className="rounded-md bg-gray-100 px-2 py-0.5 text-xs text-gray-700 no-underline transition-colors hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+          // `py-1` rather than `py-0.5`: a tag is a target of its own, not a
+          // link inside a sentence, so it carries the 24px WCAG 2.2 asks —
+          // which twelve-pixel text and two pixels of padding fell short of.
+          className="inline-flex items-center rounded-md bg-gray-100 px-2 py-1 text-xs text-gray-700 no-underline transition-colors hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
         >
           {tag.name}
         </Link>

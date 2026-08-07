@@ -86,7 +86,7 @@ export function PageMeta({ lastModified, editUrl }: PageMetaProps) {
           // anchor as a link in the accent colour, which would put this row in
           // competition with the reading-order cards below it. It is metadata,
           // and reads as metadata until it is pointed at.
-          className="inline-flex items-center gap-1.5 text-gray-500 no-underline transition-colors hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
+          className="inline-flex items-center gap-1.5 py-0.5 text-gray-500 no-underline transition-colors hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
         >
           <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
           {t.editThisPage}

@@ -39,10 +39,16 @@ html {
   scroll-behavior: smooth;
 }
 
-@media (max-width: 768px) {
-  button,
-  a {
-    min-height: 44px;
-    min-width: 44px;
-  }
-}
+/*
+ * Touch targets are sized per control rather than floored here.
+ *
+ * A blanket `min-height: 44px; min-width: 44px` on every `a` and `button`
+ * below 768px used to stand in this place. It did nothing for the controls —
+ * measured without it, the smallest is 36×36, comfortably past the 24×24
+ * WCAG 2.2 asks — and a great deal to the small ones that are not controls at
+ * all: a flex item is blockified, so each tag on a page became a 44px box
+ * with a word adrift in it.
+ *
+ * What it was protecting is now stated where the target is, which is also the
+ * only place that can tell a chip from a paragraph link.
+ */

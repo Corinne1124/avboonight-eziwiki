@@ -46,8 +46,13 @@ export function PageLayout({ navigation, repoUrl, children }: PageLayoutProps) {
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950">
-      <header className="md:hidden sticky top-0 z-30 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-4 py-3">
-        <div className="flex items-center justify-between">
+      {/*
+        A fixed `h-16` rather than whatever the contents come to: the bar below
+        has to stick underneath this one, and it can only be told where to stop
+        by a height that is decided here rather than measured.
+      */}
+      <header className="md:hidden sticky top-0 z-30 h-16 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-4">
+        <div className="flex h-full items-center justify-between">
           <button
             onClick={toggleMobileMenu}
             className="p-2 -ml-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md transition-colors active:bg-gray-200 dark:active:bg-gray-700 touch-manipulation"
@@ -79,12 +84,28 @@ export function PageLayout({ navigation, repoUrl, children }: PageLayoutProps) {
         <Sidebar navigation={navigation} repoUrl={repoUrl} />
 
         <main id="main-content" tabIndex={-1} className="flex-1 min-w-0 flex flex-col">
-          <div className="sticky top-0 z-20 bg-white dark:bg-gray-950">
+          {/*
+            `top-16` on a phone, where the header above is sticky at 0 and this
+            would otherwise stick to the same line and disappear behind it —
+            taking the breadcrumb, and with it any sense of where the reader
+            is, out of view the moment they started reading. There is no header
+            from `md` up, so it sticks to the top there.
+          */}
+          <div className="sticky top-16 z-20 bg-white md:top-0 dark:bg-gray-950">
             <TabBar />
             <NavigationButtons navigation={navigation} />
           </div>
 
-          <div className="flex-1 overflow-y-auto">
+          {/*
+            No `overflow-y` here. It was set to `auto` and never scrolled —
+            nothing constrains this box's height, so it grows to fit the
+            article — but declaring it made this the scroll container for
+            everything inside, and `position: sticky` sticks to its scroll
+            container. The contents rail was sticking to a box that never
+            scrolls, so it slid away with the page and left the reader without
+            it for the length of the article.
+          */}
+          <div className="flex-1">
             {/* Wide enough to seat the table-of-contents rail beside the
                 article; the article itself stays measured by its own prose
                 width. */}

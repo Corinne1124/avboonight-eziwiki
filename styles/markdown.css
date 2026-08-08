@@ -242,9 +242,21 @@ html.dark .ezw-broken-link {
 /* ------------------------------------------------------------- anchors ---- */
 
 /* The header is sticky, so an anchored heading would otherwise land underneath
-   it. */
+   it — arriving from a search result or a contents link at the one heading the
+   reader asked for, and not showing it to them.
+
+   How much there is to clear differs: a phone carries the search bar and the
+   tab strip, 136px between them, where a wide screen carries only the strip at
+   78px. The mobile figure is the default and the wider one is the override,
+   the way every other measurement here is written. */
 .ezw-prose :where(h1, h2, h3, h4, h5, h6)[id] {
-  scroll-margin-top: 6rem;
+  scroll-margin-top: 9.5rem;
+}
+
+@media (min-width: 768px) {
+  .ezw-prose :where(h1, h2, h3, h4, h5, h6)[id] {
+    scroll-margin-top: 6rem;
+  }
 }
 
 /* -------------------------------------------------------------- images ---- */

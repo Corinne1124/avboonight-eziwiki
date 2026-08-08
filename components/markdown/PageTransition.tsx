@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { usePathname } from 'next/navigation';
 
 /**
@@ -12,10 +12,20 @@ interface PageTransitionProps {
 }
 
 /**
- * Page transition wrapper that animates content on route changes
+ * Fades a page in when the reader arrives at it.
  *
- * Provides smooth fade-in and slide-up animations when navigating
- * between pages. The animation is triggered by pathname changes.
+ * Keyed on the path, so React replaces the element on a route change and the
+ * animation runs again from the start. That is the whole mechanism: no state,
+ * no timer, and nothing that has to render an invisible copy of the page first
+ * in order to have something to fade from.
+ *
+ * The version this replaces did have all three. It set `opacity-0` on arrival,
+ * waited 50ms on a timer, then transitioned `all` over 500ms — so half a second
+ * of fade sat on top of however long the navigation itself took, and for the
+ * first stretch of it the page the reader had just asked for was blank. The
+ * animation here is short enough to read as a softening rather than a wait, and
+ * touches only opacity, which the compositor can handle without laying out the
+ * fifteen thousand pixels of article underneath.
  *
  * @param props - Component props
  * @param props.children - Content to wrap with transition effects
@@ -29,27 +39,9 @@ interface PageTransitionProps {
  */
 export function PageTransition({ children }: PageTransitionProps) {
   const pathname = usePathname();
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    // Reset animation on route change
-    setIsVisible(false);
-
-    // Trigger animation after a brief delay
-    const timer = setTimeout(() => {
-      setIsVisible(true);
-    }, 50);
-
-    return () => clearTimeout(timer);
-  }, [pathname]);
 
   return (
-    <div
-      className={`
-        transition-all duration-500 ease-out
-        ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}
-      `}
-    >
+    <div key={pathname} className="ezw-page-enter">
       {children}
     </div>
   );

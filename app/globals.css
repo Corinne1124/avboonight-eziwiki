@@ -39,6 +39,45 @@ html {
   scroll-behavior: smooth;
 }
 
+/* The page fade, run by `PageTransition` on arrival. Keyed on the path there,
+   so the element is replaced on a route change and this starts again.
+
+   Only opacity moves. The article beneath can be fifteen thousand pixels tall,
+   and opacity is the one property the compositor can animate without going
+   back to layout for any of it. */
+@keyframes ezw-page-enter {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.ezw-page-enter {
+  animation: ezw-page-enter 140ms ease-out;
+}
+
+/*
+ * Motion is a preference, and the operating system already knows the answer.
+ *
+ * Smooth scrolling is the one that matters most here: a reader who has asked
+ * for less motion and then clicks a contents link is sent gliding through
+ * fifteen thousand pixels of article, which is the exact thing the setting
+ * exists to prevent. The jump is instant instead, and the page arrives rather
+ * than fading in.
+ */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .ezw-page-enter {
+    animation: none;
+  }
+}
+
 /*
  * Touch targets are sized per control rather than floored here.
  *

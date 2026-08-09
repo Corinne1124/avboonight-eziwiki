@@ -8,7 +8,7 @@ import { resolveTarget } from '../content/resolver';
 import { findWikiLinks } from '../markdown/wikilink';
 import { resolveAsset } from '../content/assets';
 import { getSite } from '../site';
-import { cached } from '../cache';
+import { cached, contentGeneration, stamp } from '../cache';
 
 /**
  * The document link graph.
@@ -144,6 +144,7 @@ function scanDoc(doc: ContentDoc): { targets: Set<string>; broken: BrokenLink[] 
 }
 
 let memo: LinkGraph | null = null;
+const memoStamp = stamp();
 
 /**
  * Builds the link graph across all visible documents, memoised per process.
@@ -155,7 +156,7 @@ let memo: LinkGraph | null = null;
  * @returns The graph
  */
 export function getLinkGraph(): LinkGraph {
-  const hit = cached(memo);
+  const hit = cached(memo, memoStamp);
   if (hit) return hit;
 
   const { docs } = getContentRegistry();
@@ -201,6 +202,8 @@ export function getLinkGraph(): LinkGraph {
   }));
 
   memo = { nodes, edges, backlinks, outbound, broken };
+
+  memoStamp.at = contentGeneration();
   return memo;
 }
 

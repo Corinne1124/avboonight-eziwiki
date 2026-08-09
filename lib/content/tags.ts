@@ -1,7 +1,7 @@
 import { getContentRegistry, type ContentDoc } from './registry';
 import { getSite } from '../site';
 import { docPathToUrl } from '../navigation/url';
-import { cached } from '../cache';
+import { cached, contentGeneration, stamp } from '../cache';
 
 /**
  * Subjects, gathered across the folder tree.
@@ -41,6 +41,7 @@ export interface Tag {
 }
 
 let memo: Tag[] | null = null;
+const memoStamp = stamp();
 
 /**
  * Converts a page to the shape a listing needs.
@@ -67,7 +68,7 @@ function toTaggedPage(doc: ContentDoc): TaggedPage | null {
  * ```
  */
 export function getTags(): Tag[] {
-  const hit = cached(memo);
+  const hit = cached(memo, memoStamp);
   if (hit) return hit;
 
   const { docs } = getContentRegistry();
@@ -92,6 +93,8 @@ export function getTags(): Tag[] {
   }
 
   memo = [...bySlug.values()].sort((a, b) => a.name.localeCompare(b.name));
+
+  memoStamp.at = contentGeneration();
   return memo;
 }
 

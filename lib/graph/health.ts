@@ -1,7 +1,7 @@
 import { getLinkGraph, type GraphNode } from './build';
 import { normalizeTarget } from '../content/resolver';
 import { getReadingOrder } from '../navigation/sequence';
-import { cached } from '../cache';
+import { cached, contentGeneration, stamp } from '../cache';
 
 /**
  * What the link graph says about the state of the wiki.
@@ -35,7 +35,9 @@ export interface WantedPage {
 }
 
 let memo: WikiHealth | null = null;
+const memoStamp = stamp();
 let wantedMemo: WantedPage[] | null = null;
+const wantedStamp = stamp();
 
 /**
  * Finds pages that are disconnected from the rest of the wiki.
@@ -53,7 +55,7 @@ let wantedMemo: WantedPage[] | null = null;
  * ```
  */
 export function getWikiHealth(): WikiHealth {
-  const hit = cached(memo);
+  const hit = cached(memo, memoStamp);
   if (hit) return hit;
 
   const graph = getLinkGraph();
@@ -66,6 +68,7 @@ export function getWikiHealth(): WikiHealth {
   const deadEnds = graph.nodes.filter((node) => (graph.outbound.get(node.path) ?? []).length === 0);
 
   memo = { orphans, deadEnds };
+  memoStamp.at = contentGeneration();
   return memo;
 }
 
@@ -119,7 +122,7 @@ export function suggestPath(target: string): string {
  * ```
  */
 export function getWantedPages(): WantedPage[] {
-  const hit = cached(wantedMemo);
+  const hit = cached(wantedMemo, wantedStamp);
   if (hit) return hit;
 
   const wanted = new Map<string, WantedPage>();
@@ -146,6 +149,7 @@ export function getWantedPages(): WantedPage[] {
   wantedMemo = [...wanted.values()].sort(
     (a, b) => b.wantedBy.length - a.wantedBy.length || a.target.localeCompare(b.target),
   );
+  wantedStamp.at = contentGeneration();
 
   return wantedMemo;
 }

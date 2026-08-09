@@ -2,7 +2,7 @@ import { getAllDocPaths } from '../content/registry';
 import { payload } from '@/payload/config';
 import { generatePathHash } from './hash';
 import { DEFAULT_URL_STRATEGY, normalizeSlug, type UrlMap, type UrlStrategy } from './url';
-import { cached } from '../cache';
+import { cached, contentGeneration, stamp } from '../cache';
 
 /**
  * Server-side construction of the {@link UrlMap}.
@@ -64,6 +64,7 @@ export function buildUrlMap(docPaths: string[], strategy: UrlStrategy): UrlMap {
 }
 
 let memo: UrlMap | null = null;
+const memoStamp = stamp();
 
 /**
  * Returns the URL map for the whole content tree, memoised per process.
@@ -74,8 +75,9 @@ let memo: UrlMap | null = null;
  * @returns The site-wide URL mapping
  */
 export function getUrlMap(): UrlMap {
-  const hit = cached(memo);
+  const hit = cached(memo, memoStamp);
   if (hit) return hit;
   memo = buildUrlMap(getAllDocPaths(), getUrlStrategy());
+  memoStamp.at = contentGeneration();
   return memo;
 }

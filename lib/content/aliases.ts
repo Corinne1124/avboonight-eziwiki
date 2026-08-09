@@ -1,5 +1,5 @@
 import { getContentRegistry } from './registry';
-import { cached } from '../cache';
+import { cached, contentGeneration, stamp } from '../cache';
 import { normalizeSlug, type UrlStrategy } from '../navigation/url';
 import { generatePathHash } from '../navigation/hash';
 
@@ -19,6 +19,7 @@ import { generatePathHash } from '../navigation/hash';
 export type AliasMap = Map<string, string>;
 
 let memo: AliasMap | null = null;
+const memoStamp = stamp();
 
 /**
  * Builds the alias index.
@@ -38,7 +39,7 @@ let memo: AliasMap | null = null;
  * ```
  */
 export function getAliasMap(): AliasMap {
-  const hit = cached(memo);
+  const hit = cached(memo, memoStamp);
   if (hit) return hit;
 
   const { docs, byPath } = getContentRegistry();
@@ -66,6 +67,8 @@ export function getAliasMap(): AliasMap {
   }
 
   memo = map;
+
+  memoStamp.at = contentGeneration();
   return memo;
 }
 

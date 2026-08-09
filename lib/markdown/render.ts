@@ -25,7 +25,7 @@ import { remarkCallouts } from './remark-callout';
 import { rehypeMermaid } from './rehype-mermaid';
 import { transformerLineMarks } from './shiki-transformers';
 import { getUsedLanguages } from './languages';
-import { cached } from '../cache';
+import { currentMap, stamp } from '../cache';
 import { BASE_PATH } from '../basePath';
 import { getUrlMap } from '../navigation/urlMap';
 import { getDoc } from '../content/registry';
@@ -320,6 +320,7 @@ export async function renderMarkdown(
 }
 
 const cache = new Map<string, RenderedMarkdown>();
+const cacheStamp = stamp();
 
 /**
  * Renders a document from the content registry, memoised by path.
@@ -332,14 +333,15 @@ const cache = new Map<string, RenderedMarkdown>();
  * @returns The rendered document, or null if no such document exists
  */
 export async function renderDoc(docPath: string): Promise<RenderedMarkdown | null> {
-  const hit = cached(cache.get(docPath) ?? null);
+  const store = currentMap(cache, cacheStamp);
+  const hit = store.get(docPath);
   if (hit) return hit;
 
   const doc = getDoc(docPath);
   if (!doc) return null;
 
   const rendered = await renderMarkdown(doc.content, doc.path);
-  cache.set(docPath, rendered);
+  store.set(docPath, rendered);
 
   return rendered;
 }
@@ -347,6 +349,7 @@ export async function renderDoc(docPath: string): Promise<RenderedMarkdown | nul
 /** Heading processor, built once alongside the full one. */
 let headingProcessor: Processor | null = null;
 const headingCache = new Map<string, Heading[]>();
+const headingStamp = stamp();
 
 /**
  * Extracts a document's headings without rendering it.
@@ -361,11 +364,12 @@ const headingCache = new Map<string, Heading[]>();
  * @returns The headings, or an empty list if no such document exists
  */
 export async function getDocHeadings(docPath: string): Promise<Heading[]> {
-  const hit = cached(headingCache.get(docPath) ?? null);
+  const store = currentMap(headingCache, headingStamp);
+  const hit = store.get(docPath);
   if (hit) return hit;
 
   // A full render, if one has already happened, has the answer for free.
-  const rendered = cached(cache.get(docPath) ?? null);
+  const rendered = currentMap(cache, cacheStamp).get(docPath);
   if (rendered) return rendered.headings;
 
   const doc = getDoc(docPath);
@@ -382,7 +386,7 @@ export async function getDocHeadings(docPath: string): Promise<Heading[]> {
   await headingProcessor.run(headingProcessor.parse(file), file);
 
   const headings = (file.data.headings as Heading[] | undefined) ?? [];
-  headingCache.set(docPath, headings);
+  store.set(docPath, headings);
 
   return headings;
 }

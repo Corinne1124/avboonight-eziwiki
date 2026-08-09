@@ -1,7 +1,7 @@
 import { NavigationItem } from '../payload/types';
 import { getContentRegistry, titleize, type ContentDoc, type DirMeta } from '../content/registry';
 import { extractAllPaths } from './builder';
-import { cached } from '../cache';
+import { cached, contentGeneration, stamp } from '../cache';
 
 /**
  * Filesystem-derived navigation.
@@ -202,6 +202,7 @@ export function mergeDiscoveredDocs(curated: NavigationItem[]): NavigationItem[]
 }
 
 let memo: NavigationItem[] | null = null;
+const memoStamp = stamp();
 
 /**
  * Returns the site navigation, memoised per process.
@@ -217,11 +218,12 @@ export function getNavigation(
   curated: NavigationItem[] | undefined,
   autoNavigation = true,
 ): NavigationItem[] {
-  const hit = cached(memo);
+  const hit = cached(memo, memoStamp);
   if (hit) return hit;
 
   const base = curated ?? [];
   memo = autoNavigation ? mergeDiscoveredDocs(base) : cloneTree(base);
+  memoStamp.at = contentGeneration();
 
   return memo;
 }

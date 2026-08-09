@@ -2,7 +2,7 @@ import { getSite } from '../site';
 import { extractAllPaths, filterHiddenItems } from './builder';
 import { docPathToUrl } from './url';
 import { getDoc } from '../content/registry';
-import { cached } from '../cache';
+import { cached, contentGeneration, stamp } from '../cache';
 
 /**
  * The order pages are meant to be read in.
@@ -31,6 +31,7 @@ export interface Adjacent {
 }
 
 let memo: string[] | null = null;
+const memoStamp = stamp();
 
 /**
  * Every page in reading order, hidden ones excluded.
@@ -46,7 +47,7 @@ let memo: string[] | null = null;
  * ```
  */
 export function getReadingOrder(): string[] {
-  const hit = cached(memo);
+  const hit = cached(memo, memoStamp);
   if (hit) return hit;
 
   const { navigation } = getSite();
@@ -54,6 +55,7 @@ export function getReadingOrder(): string[] {
   // Sections that only group pages carry no path of their own and drop out
   // here, leaving just the readable pages.
   memo = extractAllPaths(filterHiddenItems(navigation));
+  memoStamp.at = contentGeneration();
   return memo;
 }
 

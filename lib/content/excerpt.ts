@@ -5,7 +5,7 @@ import { visit } from 'unist-util-visit';
 import type { Root, RootContent } from 'mdast';
 import { toString as mdastToString } from 'mdast-util-to-string';
 import { getDoc } from './registry';
-import { CACHE_DERIVED_CONTENT } from '../cache';
+import { currentMap, stamp } from '../cache';
 
 /**
  * Short plain-text summaries of documents.
@@ -95,6 +95,7 @@ export function buildExcerpt(markdown: string, description?: string): string {
 }
 
 const cache = new Map<string, string>();
+const cacheStamp = stamp();
 
 /**
  * Returns a document's summary, memoised by path.
@@ -112,17 +113,16 @@ const cache = new Map<string, string>();
  * ```
  */
 export function getExcerpt(docPath: string): string {
-  // Checked through the map rather than `cached()`, because an empty summary is
-  // a legitimate result and would otherwise be indistinguishable from a miss.
-  if (CACHE_DERIVED_CONTENT) {
-    const hit = cache.get(docPath);
-    if (hit !== undefined) return hit;
-  }
+  // Read through the map rather than a truthiness check: an empty summary is a
+  // legitimate result and would otherwise be indistinguishable from a miss.
+  const store = currentMap(cache, cacheStamp);
+  const hit = store.get(docPath);
+  if (hit !== undefined) return hit;
 
   const doc = getDoc(docPath);
   const excerpt = doc ? buildExcerpt(doc.content, doc.description) : '';
 
-  cache.set(docPath, excerpt);
+  store.set(docPath, excerpt);
   return excerpt;
 }
 

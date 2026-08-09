@@ -1,6 +1,6 @@
 import { bundledLanguages, type BuiltinLanguage } from 'shiki';
 import { getContentRegistry } from '../content/registry';
-import { cached } from '../cache';
+import { cached, contentGeneration, stamp } from '../cache';
 
 /**
  * Works out which syntax-highlighting grammars the site actually needs.
@@ -65,6 +65,7 @@ export function findFenceLanguages(markdown: string): string[] {
 }
 
 let memo: BuiltinLanguage[] | null = null;
+const memoStamp = stamp();
 
 /**
  * Returns the grammars to load for this site.
@@ -77,7 +78,7 @@ let memo: BuiltinLanguage[] | null = null;
  * @returns Bundled language names, sorted
  */
 export function getUsedLanguages(): BuiltinLanguage[] {
-  const hit = cached(memo);
+  const hit = cached(memo, memoStamp);
   if (hit) return hit;
 
   const known = new Set(Object.keys(bundledLanguages));
@@ -92,6 +93,7 @@ export function getUsedLanguages(): BuiltinLanguage[] {
   // The filter is what makes the assertion sound: only names present in the
   // bundle survive, and those are exactly the BuiltinLanguage values.
   memo = [...wanted].filter((language) => known.has(language)).sort() as BuiltinLanguage[];
+  memoStamp.at = contentGeneration();
   return memo;
 }
 

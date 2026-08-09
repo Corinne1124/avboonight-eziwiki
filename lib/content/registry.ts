@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
-import { cached } from '../cache';
+import { cached, contentGeneration, stamp } from '../cache';
 
 /**
  * A single Markdown document discovered under the content directory.
@@ -303,6 +303,7 @@ export interface ContentRegistry {
 }
 
 let memo: ContentRegistry | null = null;
+const memoStamp = stamp();
 
 /**
  * Scans the content directory and builds the document registry.
@@ -322,7 +323,7 @@ let memo: ContentRegistry | null = null;
  * ```
  */
 export function getContentRegistry(): ContentRegistry {
-  const hit = cached(memo);
+  const hit = cached(memo, memoStamp);
   if (hit) return hit;
 
   const files = walkMarkdown(CONTENT_DIR, CONTENT_DIR);
@@ -350,6 +351,8 @@ export function getContentRegistry(): ContentRegistry {
   }
 
   memo = { docs, byPath, dirMeta };
+
+  memoStamp.at = contentGeneration();
   return memo;
 }
 

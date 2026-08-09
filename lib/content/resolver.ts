@@ -1,5 +1,5 @@
 import { getContentRegistry, type ContentDoc } from './registry';
-import { cached } from '../cache';
+import { cached, contentGeneration, stamp } from '../cache';
 
 /**
  * Resolves the loose targets people write in wiki links to actual documents.
@@ -30,6 +30,7 @@ interface ResolverIndex {
 }
 
 let memo: ResolverIndex | null = null;
+const memoStamp = stamp();
 
 /**
  * Normalises a target for comparison: trimmed, lower-cased, extension removed.
@@ -49,7 +50,7 @@ export function normalizeTarget(target: string): string {
  * Builds the lookup tables, memoised per process.
  */
 function getIndex(): ResolverIndex {
-  const hit = cached(memo);
+  const hit = cached(memo, memoStamp);
   if (hit) return hit;
 
   const byPath = new Map<string, ContentDoc>();
@@ -69,6 +70,8 @@ function getIndex(): ResolverIndex {
   }
 
   memo = { byPath, byBasename, byTitle };
+
+  memoStamp.at = contentGeneration();
   return memo;
 }
 

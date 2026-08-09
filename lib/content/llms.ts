@@ -4,7 +4,7 @@ import { getReadingOrder } from '../navigation/sequence';
 import { getExcerpt } from './excerpt';
 import { docPathToUrl } from '../navigation/url';
 import { pageUrl } from '../basePath';
-import { cached } from '../cache';
+import { cached, contentGeneration, stamp } from '../cache';
 
 /**
  * The wiki, written out for something that reads rather than crawls.
@@ -60,6 +60,7 @@ export function oneLine(text: string): string {
 }
 
 let memo: string | null = null;
+const memoStamp = stamp();
 
 /**
  * Renders `llms.txt` for this wiki.
@@ -83,7 +84,7 @@ let memo: string | null = null;
  * ```
  */
 export function renderLlmsTxt(): string {
-  const hit = cached(memo);
+  const hit = cached(memo, memoStamp);
   if (hit) return hit;
 
   const { global, urlMap, hiddenPaths } = getSite();
@@ -107,6 +108,7 @@ export function renderLlmsTxt(): string {
 
   lines.push('');
   memo = lines.join('\n');
+  memoStamp.at = contentGeneration();
 
   return memo;
 }

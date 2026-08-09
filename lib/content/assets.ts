@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { cached } from '../cache';
+import { cached, contentGeneration, stamp } from '../cache';
 
 /**
  * Index of the static files a page can embed.
@@ -55,6 +55,7 @@ export interface AssetRegistry {
 }
 
 let memo: AssetRegistry | null = null;
+const memoStamp = stamp();
 
 /**
  * Collects embeddable files beneath a directory.
@@ -102,7 +103,7 @@ function walkAssets(dir: string, root: string): string[] {
  * ```
  */
 export function getAssetRegistry(): AssetRegistry {
-  const hit = cached(memo);
+  const hit = cached(memo, memoStamp);
   if (hit) return hit;
 
   const assets: Asset[] = walkAssets(PUBLIC_DIR, PUBLIC_DIR).map((relative) => ({
@@ -121,6 +122,8 @@ export function getAssetRegistry(): AssetRegistry {
   }
 
   memo = { assets, byPath, byName };
+
+  memoStamp.at = contentGeneration();
   return memo;
 }
 

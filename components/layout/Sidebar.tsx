@@ -201,14 +201,35 @@ function NavigationItemComponent({
             <Link
               href={urlFor(item.path)}
               onClick={handleLinkClick}
+              // The page you are on is marked by lifting it off the section
+              // rather than by colouring it. A fixed blue used to do the job,
+              // which worked until a section carried a colour of its own —
+              // and sections carry whatever colour their `_meta.json` names,
+              // so there was no blue that could not clash with one. Brightness
+              // has no such problem: a pale surface reads as "raised" over
+              // yellow, green or pink alike.
               className={`flex-1 px-2 py-1 rounded-md text-sm transition-colors touch-manipulation ${
                 isActive
-                  ? 'bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-100 font-medium'
-                  : !bgColor
-                    ? 'text-gray-600 dark:text-gray-300 hover:bg-black/5 dark:hover:bg-white/10 active:bg-black/10 dark:active:bg-white/20'
-                    : ''
+                  ? `font-medium shadow-sm ${
+                      bgColor
+                        ? ''
+                        : 'bg-white text-gray-900 ring-1 ring-black/5 dark:bg-white/15 dark:text-gray-50 dark:ring-white/10'
+                    }`
+                  : bgColor
+                    ? 'hover:bg-black/5 active:bg-black/10'
+                    : 'text-gray-600 dark:text-gray-300 hover:bg-black/5 dark:hover:bg-white/10 active:bg-black/10 dark:active:bg-white/20'
               } ${!hasChildren ? 'ml-5' : ''}`}
-              style={bgColor && !isActive ? { color: textColor } : undefined}
+              // A section keeps its colour in both themes, so the raised
+              // surface over one does too and needs no dark variant. Only the
+              // uncoloured case has a background that changes underneath it,
+              // and that is handled by the classes above.
+              style={
+                isActive && bgColor
+                  ? { backgroundColor: '#ffffff', color: 'rgb(31, 41, 55)' }
+                  : bgColor
+                    ? { color: textColor }
+                    : undefined
+              }
             >
               {item.icon && <span className="mr-2">{item.icon}</span>}
               {item.name}

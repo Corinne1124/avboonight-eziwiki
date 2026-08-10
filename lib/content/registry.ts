@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
-import { cached, contentGeneration, stamp } from '../cache';
+import { CONTENT_DIR, cached, contentGeneration, stamp } from '../cache';
 
 /**
  * A single Markdown document discovered under the content directory.
@@ -66,8 +66,10 @@ export interface DirMeta {
   hidden?: boolean;
 }
 
-/** Directory holding all Markdown content, resolved from the project root. */
-export const CONTENT_DIR = path.join(process.cwd(), 'content');
+/** Directory holding all Markdown content. Re-exported from the cache module,
+ * which owns the definition so its change signature can never watch a
+ * different tree than the one read here. */
+export { CONTENT_DIR };
 
 /** Sort weight applied to documents that do not declare `order`. */
 const DEFAULT_ORDER = Number.MAX_SAFE_INTEGER;

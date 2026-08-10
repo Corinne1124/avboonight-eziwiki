@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { cached, contentGeneration, stamp } from '../cache';
+import { cached, contentGeneration, stamp, PUBLIC_DIR, PUBLIC_SKIP_DIRS } from '../cache';
 
 /**
  * Index of the static files a page can embed.
@@ -14,14 +14,15 @@ import { cached, contentGeneration, stamp } from '../cache';
  */
 
 /** Directory whose contents are served from the site root. */
-export const PUBLIC_DIR = path.join(process.cwd(), 'public');
+export { PUBLIC_DIR };
 
 /**
  * Directories under `public/` that hold generated or structural files rather
- * than embeddable assets. Indexing them would let `![[search-index.json]]`
- * resolve, which is never what an author meant.
+ * than embeddable assets. Indexing them would let a font resolve as an embed,
+ * which is never what an author meant. Owned by the cache module so its
+ * change signature skips exactly what this index skips.
  */
-const SKIP_DIRS = new Set(['fonts']);
+const SKIP_DIRS = PUBLIC_SKIP_DIRS;
 
 /** Extensions an embed may point at. */
 const EMBEDDABLE = new Set([

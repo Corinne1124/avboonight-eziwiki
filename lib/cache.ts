@@ -4,9 +4,9 @@ import path from 'path';
 /**
  * Whether derived data may be memoised for the lifetime of the process.
  *
- * Everything the site renders is derived from files under `content/`. During a
- * build those files never change, so scanning and rendering them once and
- * reusing the result is pure win.
+ * Everything the site renders is derived from the source directories below.
+ * During a build they never change, so scanning and rendering once and reusing
+ * the result is pure win.
  *
  * Test runs keep it on: content is fixed there too, and the memoisation
  * behaviour is itself something the tests assert.
@@ -14,13 +14,28 @@ import path from 'path';
 export const CACHE_DERIVED_CONTENT = process.env.NODE_ENV !== 'development';
 
 /**
- * Directories derived data is read from.
+ * The two directories derived data is read from.
  *
- * `content/` is the obvious one. `public/` is here because the asset index —
- * what `![[image.png]]` may point at — is a scan of it, and a memo of that
- * scan has to notice a file dropped in as surely as it notices an edit.
+ * Defined here and imported everywhere else — including by the registry and
+ * the asset index, which are what read them — so that a root can only ever be
+ * renamed in one place. Defining them at the readers instead would leave this
+ * module watching a directory nobody else was looking at, which is precisely
+ * the kind of quiet divergence a cache signature must not have.
  */
-const SOURCE_DIRS = [path.join(process.cwd(), 'content'), path.join(process.cwd(), 'public')];
+export const CONTENT_DIR = path.join(process.cwd(), 'content');
+export const PUBLIC_DIR = path.join(process.cwd(), 'public');
+
+/**
+ * Top-level directories under `public/` that no derived data reads.
+ *
+ * The asset index skips them (a font is not something `![[…]]` should
+ * resolve to), so the signature skips them too: the point of the signature is
+ * to change exactly when what the memos read changes, and `public/fonts` can
+ * churn without any memo caring.
+ */
+export const PUBLIC_SKIP_DIRS = new Set(['fonts']);
+
+const SOURCE_DIRS = [CONTENT_DIR, PUBLIC_DIR];
 
 /**
  * How long a signature is trusted before the files are inspected again.
@@ -58,6 +73,7 @@ function scan(dir: string, parts: string[]): string[] {
 
   for (const entry of entries) {
     if (entry.name.startsWith('.')) continue;
+    if (dir === PUBLIC_DIR && PUBLIC_SKIP_DIRS.has(entry.name)) continue;
 
     const full = path.join(dir, entry.name);
 
@@ -79,10 +95,17 @@ function scan(dir: string, parts: string[]): string[] {
 }
 
 /**
- * A number that changes whenever anything under `content/` does.
+ * A number that changes whenever anything under the source directories does.
  *
  * Memoised getters store the generation they were built at and rebuild when it
  * moves. In production it never moves, so they build once.
+ *
+ * One clock for both directories, deliberately. Splitting it — an assets
+ * generation for `public/`, a content generation for the rest — would spare
+ * the content memos a rebuild when an image lands, at the price of every memo
+ * having to name its clock. The rebuild being spared costs on the order of a
+ * hundred milliseconds, in development, on the rare occasion a file is added
+ * to `public/`; the complexity would be paid on every getter, forever.
  *
  * @returns The current generation
  */

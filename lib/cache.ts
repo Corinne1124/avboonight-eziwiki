@@ -13,8 +13,14 @@ import path from 'path';
  */
 export const CACHE_DERIVED_CONTENT = process.env.NODE_ENV !== 'development';
 
-/** Directory whose contents everything else is derived from. */
-const CONTENT_DIR = path.join(process.cwd(), 'content');
+/**
+ * Directories derived data is read from.
+ *
+ * `content/` is the obvious one. `public/` is here because the asset index —
+ * what `![[image.png]]` may point at — is a scan of it, and a memo of that
+ * scan has to notice a file dropped in as surely as it notices an edit.
+ */
+const SOURCE_DIRS = [path.join(process.cwd(), 'content'), path.join(process.cwd(), 'public')];
 
 /**
  * How long a signature is trusted before the files are inspected again.
@@ -87,46 +93,15 @@ export function contentGeneration(): number {
   if (now - checkedAt < RECHECK_MS) return generation;
   checkedAt = now;
 
-  const next = scan(CONTENT_DIR, []).sort().join('\n');
+  const next = SOURCE_DIRS.flatMap((dir) => scan(dir, []))
+    .sort()
+    .join('\n');
   if (next !== signature) {
     signature = next;
     generation += 1;
   }
 
   return generation;
-}
-
-/**
- * Memoises a build step against the state of the content directory.
- *
- * In production the work happens once. In development it happens once per
- * edit — which is the behaviour the old `cached()` was reaching for by
- * refusing to cache at all in development, except that a page render asks for
- * the registry some four hundred times, and it was rebuilding it four hundred
- * times to answer a question whose answer could not have changed in between.
- *
- * @param build - Produces the value
- * @returns A getter that rebuilds only when the content has changed
- *
- * @example
- * ```typescript
- * export const getThing = memoised(() => buildThing());
- * ```
- */
-export function memoised<T>(build: () => T): () => T {
-  let value: T | undefined;
-  let builtAt = -1;
-
-  return () => {
-    const now = contentGeneration();
-
-    if (value !== undefined && builtAt === now) return value;
-
-    value = build();
-    builtAt = now;
-
-    return value;
-  };
 }
 
 /**

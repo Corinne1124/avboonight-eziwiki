@@ -272,6 +272,7 @@ A leading `!` shows the target instead of linking to it, the way a vault does:
 ```markdown
 ![[diagram.png]] # an image from public/, by name or by path
 ![[diagram.png|Architecture]] # the label becomes alt text
+![[manual.pdf]] # a PDF, in a viewer
 ![[quick-start]] # another page's text, inline
 ![[quick-start#prerequisites]] # just that section
 ```
@@ -284,6 +285,19 @@ Transclusion applies when the embed is alone in its paragraph — blocks cannot
 sit inside a sentence — and a page cannot include itself, directly or through a
 chain. Nesting stops after three levels. Included headings stay out of the
 contents rail, which describes the page you are on.
+
+### PDF Embeds
+
+A PDF embedded on its own line gets a viewer that follows the theme: pages drawn
+as you reach them, a counter that follows the scroll, zoom, download, and full
+screen.
+
+The build emits only a link to the file; the viewer is mounted onto it in the
+browser, so pdf.js is fetched only by a page that actually has a document on it,
+and a reader without JavaScript is handed the file itself. The data pdf.js
+fetches for character maps, standard fonts, and image codecs is staged into
+`public/pdfjs/` by the build — but only when the wiki contains a PDF, so a wiki
+without one deploys nothing extra.
 
 ### Tags
 

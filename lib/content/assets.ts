@@ -24,17 +24,27 @@ export { PUBLIC_DIR };
  */
 const SKIP_DIRS = PUBLIC_SKIP_DIRS;
 
-/** Extensions an embed may point at. */
-const EMBEDDABLE = new Set([
-  '.png',
-  '.jpg',
-  '.jpeg',
-  '.gif',
-  '.webp',
-  '.avif',
-  '.svg',
-  '.bmp',
-  '.ico',
+/**
+ * What an embedded file is shown as.
+ *
+ * An image goes straight into the prose; a document is too big to be a figure
+ * and gets a viewer of its own, so the two cannot share one code path past
+ * this point.
+ */
+export type AssetKind = 'image' | 'pdf';
+
+/** Extensions an embed may point at, and what each is shown as. */
+const EMBEDDABLE = new Map<string, AssetKind>([
+  ['.png', 'image'],
+  ['.jpg', 'image'],
+  ['.jpeg', 'image'],
+  ['.gif', 'image'],
+  ['.webp', 'image'],
+  ['.avif', 'image'],
+  ['.svg', 'image'],
+  ['.bmp', 'image'],
+  ['.ico', 'image'],
+  ['.pdf', 'pdf'],
 ]);
 
 /** A file under `public/` that a page may embed. */
@@ -43,6 +53,10 @@ export interface Asset {
   path: string;
   /** Root-relative URL, before the deployment base path is applied */
   url: string;
+  /** How the file is shown when a page embeds it */
+  kind: AssetKind;
+  /** Size in bytes, or 0 when it could not be read */
+  size: number;
 }
 
 /** Assets indexed for lookup. */
@@ -90,6 +104,24 @@ function walkAssets(dir: string, root: string): string[] {
 }
 
 /**
+ * Reads a file's size, for the label a viewer shows before the file loads.
+ *
+ * A reader deciding whether to open a document wants to know what it will cost
+ * them, and the build already knows. Zero on failure rather than an exception:
+ * a size that could not be read is a missing label, not a broken page.
+ *
+ * @param full - Absolute path to the file
+ * @returns Size in bytes, or 0
+ */
+function fileSize(full: string): number {
+  try {
+    return fs.statSync(full).size;
+  } catch {
+    return 0;
+  }
+}
+
+/**
  * Scans `public/` and indexes what an embed may point at.
  *
  * Memoised for the process, like the content registry, and for the same
@@ -110,6 +142,9 @@ export function getAssetRegistry(): AssetRegistry {
   const assets: Asset[] = walkAssets(PUBLIC_DIR, PUBLIC_DIR).map((relative) => ({
     path: relative,
     url: `/${relative}`,
+    // Non-null: `walkAssets` only returns files whose extension is a key.
+    kind: EMBEDDABLE.get(path.extname(relative).toLowerCase())!,
+    size: fileSize(path.join(PUBLIC_DIR, relative)),
   }));
 
   const byPath = new Map(assets.map((asset) => [asset.path.toLowerCase(), asset]));

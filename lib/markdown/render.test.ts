@@ -314,6 +314,60 @@ describe('embeds', () => {
   });
 });
 
+describe('document embeds', () => {
+  it('renders a PDF alone in its paragraph as a viewer figure', async () => {
+    const { html } = await renderMarkdown('![[sample.pdf]]\n');
+
+    expect(html).toContain('<figure');
+    expect(html).toContain('class="ezw-pdf"');
+    expect(html).toContain('data-ezw-pdf');
+    expect(html).toContain('data-name="sample.pdf"');
+  });
+
+  // The address lives on the fallback link and nowhere else, which is what
+  // lets `rehypeBasePath` correct it for a subdirectory deployment.
+  it('carries the file’s URL on a real link inside the figure', async () => {
+    const { html } = await renderMarkdown('![[sample.pdf]]\n');
+
+    expect(html).toContain('class="ezw-pdf__fallback"');
+    expect(html).toContain('href="/documents/sample.pdf"');
+    expect(html).toContain('download');
+    expect(html).not.toContain('<img');
+  });
+
+  it('records the size the build measured', async () => {
+    const { html } = await renderMarkdown('![[sample.pdf]]\n');
+
+    expect(html).toMatch(/data-size="[1-9]\d*"/);
+  });
+
+  it('uses the label to name the file when one is given', async () => {
+    const { html } = await renderMarkdown('![[sample.pdf|The handbook]]\n');
+
+    // The label names it to the reader; `data-name` stays the real filename,
+    // which is what the viewer's header and the download are about.
+    expect(html).toContain('>The handbook</a>');
+    expect(html).toContain('data-name="sample.pdf"');
+  });
+
+  it('accepts the full path under public/', async () => {
+    const { html } = await renderMarkdown('![[documents/sample.pdf]]\n');
+
+    expect(html).toContain('href="/documents/sample.pdf"');
+  });
+
+  // A viewer is a block and cannot sit inside a sentence, so an embed written
+  // mid-prose becomes the most an inline position can carry: a link.
+  it('becomes a link when the embed shares its paragraph with prose', async () => {
+    const { html } = await renderMarkdown('See ![[sample.pdf|the handbook]] for details.\n');
+
+    expect(html).not.toContain('ezw-pdf');
+    expect(html).toContain('class="ezw-file-link"');
+    expect(html).toContain('href="/documents/sample.pdf"');
+    expect(html).toContain('>the handbook</a>');
+  });
+});
+
 describe('transclusion', () => {
   it('includes a whole document when the embed is alone in its paragraph', async () => {
     const { html } = await renderMarkdown('![[quick-start]]\n');

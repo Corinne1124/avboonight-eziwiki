@@ -35,10 +35,20 @@ export interface WikiLinkTarget {
  */
 export type WikiLinkResolver = (target: string) => WikiLinkTarget | null;
 
+/** A static file an embed resolved to. */
+export interface EmbedTarget {
+  /** Root-relative URL of the file */
+  url: string;
+  /** How it should be shown */
+  kind: 'image' | 'pdf';
+  /** Size in bytes, shown in a viewer's header before the file loads */
+  size?: number;
+}
+
 /**
  * Resolves an embed target to a static file, or null when there is none.
  */
-export type EmbedResolver = (target: string) => { url: string } | null;
+export type EmbedResolver = (target: string) => EmbedTarget | null;
 
 /** A document whose content is to be shown inside another. */
 export interface TranscludeTarget {
@@ -93,11 +103,24 @@ function toNode(link: WikiLink, resolvers: WikiLinkResolvers): PhrasingContent {
   if (link.embed && resolvers.embed) {
     const asset = resolvers.embed(link.target);
 
-    if (asset) {
+    if (asset?.kind === 'image') {
       return {
         type: 'image',
         url: asset.url,
         alt: link.label ?? link.target,
+      };
+    }
+
+    // A document gets a viewer, which is a block and cannot sit inside a
+    // sentence — `embedBlocks` below builds that from an embed standing alone
+    // in its own paragraph. Written mid-prose it becomes a link to the file,
+    // which is the most an inline position can carry.
+    if (asset) {
+      return {
+        type: 'link',
+        url: asset.url,
+        data: { hProperties: { className: ['ezw-file-link'], download: true } },
+        children: [{ type: 'text', value: link.label ?? link.target }],
       };
     }
   }
@@ -293,6 +316,91 @@ function transclude(tree: Root, resolvers: WikiLinkResolvers, stack: string[]): 
 }
 
 /**
+ * Builds the block a document embed becomes.
+ *
+ * What ships is a `<figure>` holding a plain link to the file. The viewer is
+ * mounted into it in the browser, so the markup the build emits is already the
+ * fallback: a reader without script, or one whose viewer fails to load, gets a
+ * working link to the document rather than an empty box.
+ *
+ * The link is also where the URL lives, rather than a `data-` attribute,
+ * because `rehypeBasePath` prefixes hrefs — a deployment in a subdirectory gets
+ * the right address for free, in the one place the address is written.
+ *
+ * `blockquote` is a carrier for the figure the way it is for a transclusion:
+ * a block-level type that accepts block children, renamed on the way out.
+ *
+ * @param embed - The parsed embed
+ * @param target - What it resolved to
+ * @returns The replacement block, or null when the file is not one with a viewer
+ */
+function embedBlock(embed: WikiLink, target: EmbedTarget): RootContent | null {
+  if (target.kind !== 'pdf') return null;
+
+  const name = target.url.split('/').pop() || embed.target;
+
+  return {
+    type: 'blockquote',
+    data: {
+      hName: 'figure',
+      hProperties: {
+        className: ['ezw-pdf'],
+        'data-ezw-pdf': '',
+        'data-name': name,
+        ...(target.size ? { 'data-size': String(target.size) } : {}),
+      },
+    },
+    children: [
+      {
+        type: 'paragraph',
+        data: {
+          hName: 'a',
+          hProperties: {
+            className: ['ezw-pdf__fallback'],
+            href: target.url,
+            download: true,
+          },
+        },
+        children: [{ type: 'text', value: embed.label ?? name }],
+      },
+    ],
+  };
+}
+
+/**
+ * Replaces sole-embed paragraphs with the viewer the file they name deserves.
+ *
+ * Runs after transclusion and before the inline pass, on the same paragraphs
+ * transclusion looks at and for the same reason: what replaces the paragraph is
+ * a block, and a block cannot be produced from inside one.
+ *
+ * @param tree - Tree to transform in place
+ * @param resolvers - Target resolvers
+ */
+function embedBlocks(tree: Root, resolvers: WikiLinkResolvers): void {
+  const resolve = resolvers.embed;
+  if (!resolve) return;
+
+  visit(tree, 'paragraph', (node: Paragraph, index, parent) => {
+    if (!parent || index === undefined) return;
+
+    const embed = soleEmbed(node);
+    if (!embed?.target) return;
+
+    const target = resolve(embed.target);
+    if (!target) return;
+
+    const block = embedBlock(embed, target);
+    if (!block) return;
+
+    parent.children.splice(index, 1, block);
+
+    // Past the block just inserted: its own children hold nothing to visit.
+    return index + 1;
+  });
+}
+
+/**
  * Remark plugin factory.
  *
  * @param resolvers - Resolves a target to a document, and optionally to a file
@@ -312,6 +420,10 @@ export function remarkWikiLinks(resolvers: WikiLinkResolvers) {
     // below would otherwise have already turned the embed into a link.
     const docPath = file?.data?.docPath;
     transclude(tree, resolvers, typeof docPath === 'string' ? [docPath] : []);
+
+    // Then document embeds, for the same reason: a viewer is a block, and the
+    // inline pass below would already have turned the embed into a link.
+    embedBlocks(tree, resolvers);
 
     visit(tree, 'text', (node: Text, index, parent) => {
       if (!parent || index === undefined) return;

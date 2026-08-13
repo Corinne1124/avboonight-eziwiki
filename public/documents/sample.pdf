@@ -1,0 +1,90 @@
+%PDF-1.4
+%‚„œ”
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [4 0 R 6 0 R 8 0 R] /Count 3 >>
+endobj
+3 0 obj
+<< /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> /F2 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >> /F3 << /Type /Font /Subtype /Type1 /BaseFont /Courier >> >>
+endobj
+4 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font 3 0 R >> /Contents 5 0 R >>
+endobj
+5 0 obj
+<< /Length 854 >>
+stream
+0.145 0.388 0.921 rg
+56 742 44 6 re f
+BT /F2 26 Tf 0.12 0.16 0.22 rg 56 690 Td (EziWiki) Tj ET
+BT /F1 12 Tf 0.42 0.45 0.5 rg 56 668 Td (Sample document) Tj ET
+0.85 0.87 0.9 RG 0.8 w 56 650 m 539 650 l S
+BT /F1 11.5 Tf 0.16 0.2 0.26 rg 56 616 Td (This PDF ships with the EziWiki demo content so the) Tj ET
+BT /F1 11.5 Tf 0.16 0.2 0.26 rg 56 596 Td (document viewer has something to show.) Tj ET
+BT /F1 11.5 Tf 0.16 0.2 0.26 rg 56 556 Td (It was embedded from Markdown with a single line:) Tj ET
+BT /F3 11.5 Tf 0.16 0.2 0.26 rg 56 516 Td (    ![[sample.pdf]]) Tj ET
+BT /F1 11.5 Tf 0.16 0.2 0.26 rg 56 476 Td (Nothing else is needed. The build finds the file under) Tj ET
+BT /F1 11.5 Tf 0.16 0.2 0.26 rg 56 456 Td (public/, emits a link to it, and the viewer is mounted) Tj ET
+BT /F1 11.5 Tf 0.16 0.2 0.26 rg 56 436 Td (into that link in the browser.) Tj ET
+endstream
+endobj
+6 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font 3 0 R >> /Contents 7 0 R >>
+endobj
+7 0 obj
+<< /Length 1022 >>
+stream
+0.145 0.388 0.921 rg
+56 742 44 6 re f
+BT /F2 26 Tf 0.12 0.16 0.22 rg 56 690 Td (Page two) Tj ET
+BT /F1 12 Tf 0.42 0.45 0.5 rg 56 668 Td (Scrolling and paging) Tj ET
+0.85 0.87 0.9 RG 0.8 w 56 650 m 539 650 l S
+BT /F1 11.5 Tf 0.16 0.2 0.26 rg 56 616 Td (Pages are drawn as you reach them, not all at once, so a) Tj ET
+BT /F1 11.5 Tf 0.16 0.2 0.26 rg 56 596 Td (long document costs no more to open than a short one.) Tj ET
+BT /F1 11.5 Tf 0.16 0.2 0.26 rg 56 556 Td (The chevrons in the toolbar move a page at a time. The) Tj ET
+BT /F1 11.5 Tf 0.16 0.2 0.26 rg 56 536 Td (counter follows the scroll either way, so it always says) Tj ET
+BT /F1 11.5 Tf 0.16 0.2 0.26 rg 56 516 Td (where you are rather than where you last clicked.) Tj ET
+BT /F1 11.5 Tf 0.16 0.2 0.26 rg 56 476 Td (The viewer scrolls on its own; reaching the last page) Tj ET
+BT /F1 11.5 Tf 0.16 0.2 0.26 rg 56 456 Td (leaves you on the last page rather than carrying you off) Tj ET
+BT /F1 11.5 Tf 0.16 0.2 0.26 rg 56 436 Td (into the rest of the article.) Tj ET
+endstream
+endobj
+8 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font 3 0 R >> /Contents 9 0 R >>
+endobj
+9 0 obj
+<< /Length 998 >>
+stream
+0.145 0.388 0.921 rg
+56 742 44 6 re f
+BT /F2 26 Tf 0.12 0.16 0.22 rg 56 690 Td (Page three) Tj ET
+BT /F1 12 Tf 0.42 0.45 0.5 rg 56 668 Td (Zoom, download, full screen) Tj ET
+0.85 0.87 0.9 RG 0.8 w 56 650 m 539 650 l S
+BT /F1 11.5 Tf 0.16 0.2 0.26 rg 56 616 Td (A document opens fitted to the column it was embedded in.) Tj ET
+BT /F1 11.5 Tf 0.16 0.2 0.26 rg 56 596 Td (That fit is what 100% means here, so it stays fitted when) Tj ET
+BT /F1 11.5 Tf 0.16 0.2 0.26 rg 56 576 Td (the window is resized or the viewer is thrown full screen.) Tj ET
+BT /F1 11.5 Tf 0.16 0.2 0.26 rg 56 536 Td (Past 100% the page overflows and the viewer scrolls) Tj ET
+BT /F1 11.5 Tf 0.16 0.2 0.26 rg 56 516 Td (sideways to follow it.) Tj ET
+BT /F1 11.5 Tf 0.16 0.2 0.26 rg 56 476 Td (The download button hands over the original file, which is) Tj ET
+BT /F1 11.5 Tf 0.16 0.2 0.26 rg 56 456 Td (also what a reader without JavaScript is given in place of) Tj ET
+BT /F1 11.5 Tf 0.16 0.2 0.26 rg 56 436 Td (all of this.) Tj ET
+endstream
+endobj
+xref
+0 10
+0000000000 65535 f 
+0000000015 00000 n 
+0000000064 00000 n 
+0000000133 00000 n 
+0000000334 00000 n 
+0000000450 00000 n 
+0000001355 00000 n 
+0000001471 00000 n 
+0000002545 00000 n 
+0000002661 00000 n 
+trailer
+<< /Size 10 /Root 1 0 R >>
+startxref
+3710
+%%EOF

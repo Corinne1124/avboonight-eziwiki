@@ -20,7 +20,12 @@ import {
   rehypeInternalLinks,
   type Heading,
 } from './rehype-plugins';
-import { remarkWikiLinks, type WikiLinkTarget, type TranscludeTarget } from './remark-wikilink';
+import {
+  remarkWikiLinks,
+  type WikiLinkTarget,
+  type TranscludeTarget,
+  type EmbedTarget,
+} from './remark-wikilink';
 import { remarkCallouts } from './remark-callout';
 import { rehypeMermaid } from './rehype-mermaid';
 import { transformerLineMarks } from './shiki-transformers';
@@ -103,9 +108,9 @@ function resolveWikiLink(target: string): WikiLinkTarget | null {
  * @param target - Raw target text from inside the brackets
  * @returns The file's URL, or null when nothing matches
  */
-function resolveWikiEmbed(target: string): { url: string } | null {
+function resolveWikiEmbed(target: string): EmbedTarget | null {
   const asset = resolveAsset(target);
-  return asset ? { url: asset.url } : null;
+  return asset ? { url: asset.url, kind: asset.kind, size: asset.size } : null;
 }
 
 /** Parser for included documents; no rendering plugins, so it stays cheap. */

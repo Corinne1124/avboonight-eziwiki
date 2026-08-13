@@ -36,5 +36,8 @@ next-env.d.ts
 # Generated search index
 /public/search-index.json
 
+# Staged pdf.js document data
+/public/pdfjs/
+
 # Generated CLI template
 /packages/create-eziwiki/template/

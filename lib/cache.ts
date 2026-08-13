@@ -32,8 +32,13 @@ export const PUBLIC_DIR = path.join(process.cwd(), 'public');
  * resolve to), so the signature skips them too: the point of the signature is
  * to change exactly when what the memos read changes, and `public/fonts` can
  * churn without any memo caring.
+ *
+ * `pdfjs` holds the character maps and font programs the document viewer
+ * fetches — some two hundred files, staged by a build step. Walking them on
+ * every signature check would cost more than everything else here put
+ * together, and not one of them is something a page can embed.
  */
-export const PUBLIC_SKIP_DIRS = new Set(['fonts']);
+export const PUBLIC_SKIP_DIRS = new Set(['fonts', 'pdfjs']);
 
 const SOURCE_DIRS = [CONTENT_DIR, PUBLIC_DIR];
 

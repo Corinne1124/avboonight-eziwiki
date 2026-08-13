@@ -267,6 +267,275 @@ html.dark .ezw-broken-link {
   border-radius: 0.5rem;
 }
 
+/* ----------------------------------------------------------- documents ---- */
+
+/* A document embedded with `![[manual.pdf]]`.
+
+   The figure is all the build emits — a link to the file, and the hooks the
+   browser needs to find it. Everything below the fallback rule therefore only
+   applies once the viewer has mounted, which is why the two are styled as
+   separate things rather than as one thing in two states. */
+.ezw-pdf {
+  margin: 1.5rem 0;
+}
+
+/* What a reader sees without script, and what stays if the viewer cannot
+   load: a plain, obvious link to the file. */
+.ezw-pdf__fallback,
+.ezw-file-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.875rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  text-decoration: none;
+  color: var(--color-text);
+  background: var(--color-sidebar-bg);
+}
+
+.ezw-pdf__fallback::before,
+.ezw-file-link::before {
+  content: 'PDF';
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 0.1rem 0.3rem;
+  border-radius: 0.1875rem;
+  color: var(--color-background);
+  background: var(--color-primary);
+}
+
+.ezw-pdf__fallback:hover,
+.ezw-file-link:hover {
+  border-color: var(--color-primary);
+}
+
+.ezw-pdf__viewer {
+  /* The page inside is white, and neither theme's surfaces are a good seat for
+     it: the light sidebar grey is so near white that the page has no edge, and
+     the dark one is a mid grey that makes the page glare. These are chosen for
+     that one job. */
+  --ezw-pdf-surface: #eceef2;
+  --ezw-pdf-height: min(70vh, 42rem);
+
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+  overflow: hidden;
+  background: var(--color-background);
+}
+
+html.dark .ezw-pdf__viewer {
+  --ezw-pdf-surface: #0d1219;
+}
+
+@media (max-width: 640px) {
+  .ezw-pdf__viewer {
+    --ezw-pdf-height: 60vh;
+  }
+}
+
+/* --- toolbar --- */
+
+.ezw-pdf__bar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding: 0.5rem 0.625rem 0.5rem 0.875rem;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-background);
+}
+
+.ezw-pdf__file {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  /* Lets the name below actually truncate: a flex item will not shrink past
+     its content unless it is told it may. */
+  min-width: 0;
+  flex: 1 1 8rem;
+}
+
+.ezw-pdf__icon {
+  flex: none;
+  width: 1rem;
+  height: 1rem;
+  color: var(--color-primary);
+}
+
+.ezw-pdf__name {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ezw-pdf__meta {
+  flex: none;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.ezw-pdf__controls {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-left: auto;
+}
+
+/* Controls that belong together — the page pair, the zoom pair — read as one
+   control with a value in the middle rather than as three loose buttons. */
+.ezw-pdf__group {
+  display: flex;
+  align-items: center;
+  padding: 0.125rem;
+  border-radius: 0.4375rem;
+  background: var(--color-sidebar-bg);
+}
+
+.ezw-pdf__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  flex: none;
+  border-radius: 0.3125rem;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.ezw-pdf__button svg {
+  width: 0.9375rem;
+  height: 0.9375rem;
+}
+
+.ezw-pdf__button:hover:not(:disabled) {
+  color: var(--color-text);
+  background: var(--color-sidebar-hover);
+}
+
+.ezw-pdf__group .ezw-pdf__button:hover:not(:disabled) {
+  background: var(--color-background);
+}
+
+.ezw-pdf__button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+/* Fixed width and lining figures, so the bar does not twitch sideways every
+   time the page number or the zoom level changes width. */
+.ezw-pdf__count {
+  min-width: 3.25rem;
+  padding: 0 0.125rem;
+  text-align: center;
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+/* --- pages --- */
+
+/* Block flow rather than a flex column, deliberately. Zoomed past the width
+   of the box a page has to overflow, and a centred flex item overflows in both
+   directions — the left edge of the page ends up before the start of the
+   scrollable area, where no amount of scrolling can reach it. A block centred
+   with `margin-inline: auto` overflows to the right only, which is the edge
+   scrolling can follow. */
+.ezw-pdf__scroll {
+  /* The offset parent of the pages, so that a page's `offsetTop` and this
+     box's `scrollTop` are measured from the same origin — which is what lets
+     the viewer say which page the reader is on. */
+  position: relative;
+  height: var(--ezw-pdf-height);
+  padding: 1rem;
+  overflow: auto;
+  background: var(--ezw-pdf-surface);
+  /* Reaching the last page hands the scroll back to the article otherwise,
+     which carries the reader off the document they were reading. */
+  overscroll-behavior: contain;
+}
+
+.ezw-pdf__scroll:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
+}
+
+/* `max-content` so the page is exactly as wide as the canvas it holds. Before
+   it is drawn the component sizes it to the box instead, holding open the
+   shape of page one — so the document has its true length from the first
+   frame and the scrollbar does not lurch as pages arrive. */
+.ezw-pdf__page {
+  width: max-content;
+  margin: 0 auto 1rem;
+  background: #ffffff;
+  border-radius: 0.25rem;
+  overflow: hidden;
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 0.16),
+    0 4px 12px rgb(0 0 0 / 0.1);
+}
+
+.ezw-pdf__page:last-child {
+  margin-bottom: 0;
+}
+
+.ezw-pdf__page canvas {
+  display: block;
+}
+
+.ezw-pdf__state {
+  padding: 3.5rem 1rem;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ezw-pdf__state--loading {
+    animation: ezw-pdf-pulse 1.4s ease-in-out infinite;
+  }
+
+  @keyframes ezw-pdf-pulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.45;
+    }
+  }
+}
+
+/* --- full screen --- */
+
+/* The element the Fullscreen API promotes is the viewer itself, so it has to
+   grow to the screen it was just given; without this it keeps the height it
+   had in the article and sits in the middle of a black field. */
+.ezw-pdf__viewer[data-fullscreen] {
+  height: 100%;
+  border: none;
+  border-radius: 0;
+}
+
+.ezw-pdf__viewer[data-fullscreen] .ezw-pdf__scroll {
+  height: auto;
+  flex: 1;
+  padding: 1.5rem;
+}
+
 /* --------------------------------------------------------------- misc ----- */
 
 .ezw-prose table {

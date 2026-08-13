@@ -84,6 +84,29 @@ export interface Strings {
   /** Confirmation shown after copying */
   copied: string;
 
+  /** Shown while an embedded document is being opened */
+  pdfLoading: string;
+  /** Shown when an embedded document cannot be opened */
+  pdfError: string;
+  /** Accessible name of the document viewer. `{name}` */
+  pdfDocument: string;
+  /** Where the reader is in the document. `{page}`, `{pages}` */
+  pdfPageOf: string;
+  /** Goes back one page */
+  pdfPrevious: string;
+  /** Goes forward one page */
+  pdfNext: string;
+  /** Makes the pages larger */
+  pdfZoomIn: string;
+  /** Makes the pages smaller */
+  pdfZoomOut: string;
+  /** Saves the document */
+  pdfDownload: string;
+  /** Fills the screen with the viewer */
+  pdfFullscreen: string;
+  /** Returns the viewer to the page */
+  pdfExitFullscreen: string;
+
   /** Heading on a former address */
   pageMoved: string;
   /** Explains the forwarding on a former address */
@@ -179,6 +202,18 @@ const EN: Strings = {
   copy: 'Copy',
   copied: 'Copied',
 
+  pdfLoading: 'Opening document…',
+  pdfError: 'This document could not be shown.',
+  pdfDocument: '{name}, document viewer',
+  pdfPageOf: 'Page {page} of {pages}',
+  pdfPrevious: 'Previous page',
+  pdfNext: 'Next page',
+  pdfZoomIn: 'Zoom in',
+  pdfZoomOut: 'Zoom out',
+  pdfDownload: 'Download',
+  pdfFullscreen: 'Full screen',
+  pdfExitFullscreen: 'Exit full screen',
+
   pageMoved: 'This page moved',
   pageMovedBody: 'You are being taken there now. If nothing happens, follow the link.',
   continueTo: 'Continue to {title}',
@@ -246,6 +281,18 @@ const KO: Strings = {
   editThisPage: '이 페이지 편집',
   copy: '복사',
   copied: '복사됨',
+
+  pdfLoading: '문서를 여는 중…',
+  pdfError: '이 문서를 표시하지 못했습니다.',
+  pdfDocument: '{name} 문서 뷰어',
+  pdfPageOf: '{pages}쪽 중 {page}쪽',
+  pdfPrevious: '이전 쪽',
+  pdfNext: '다음 쪽',
+  pdfZoomIn: '확대',
+  pdfZoomOut: '축소',
+  pdfDownload: '내려받기',
+  pdfFullscreen: '전체 화면',
+  pdfExitFullscreen: '전체 화면 끝내기',
 
   pageMoved: '이 페이지는 옮겨졌습니다',
   pageMovedBody: '곧 새 주소로 이동합니다. 이동하지 않으면 아래 링크를 눌러 주세요.',

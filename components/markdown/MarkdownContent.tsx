@@ -1,5 +1,6 @@
 import { CodeCopy } from './CodeCopy';
 import { LinkPreview } from './LinkPreview';
+import { PdfEmbeds } from './PdfEmbed';
 
 /**
  * Props for the MarkdownContent component
@@ -14,7 +15,8 @@ interface MarkdownContentProps {
  *
  * The markup arrives already parsed, highlighted, and link-resolved from
  * `renderDoc()`, so this is a server component that emits static HTML. The only
- * client-side code is the copy-button and link-preview listeners.
+ * client-side code attaches behaviour to what the build produced: the copy
+ * buttons, the link previews, and the viewers for any embedded documents.
  *
  * Passing build-time output to `dangerouslySetInnerHTML` is safe here in the
  * sense that matters: the input is the repository's own content files, not user
@@ -35,6 +37,7 @@ export function MarkdownContent({ html }: MarkdownContentProps) {
       <div className="ezw-prose" dangerouslySetInnerHTML={{ __html: html }} />
       <CodeCopy />
       <LinkPreview />
+      <PdfEmbeds />
     </>
   );
 }

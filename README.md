@@ -288,16 +288,24 @@ contents rail, which describes the page you are on.
 
 ### PDF Embeds
 
-A PDF embedded on its own line gets a viewer that follows the theme: pages drawn
-as you reach them, a counter that follows the scroll, zoom, download, and full
-screen.
+A PDF embedded on its own line is shown as its first page, drawn to WebP during
+the build. Press Open and it becomes a viewer that follows the theme: pages
+drawn as you reach them, a counter that follows the scroll, zoom, download, and
+full screen.
 
-The build emits only a link to the file; the viewer is mounted onto it in the
-browser, so pdf.js is fetched only by a page that actually has a document on it,
-and a reader without JavaScript is handed the file itself. The data pdf.js
-fetches for character maps, standard fonts, and image codecs is staged into
-`public/pdfjs/` by the build — but only when the wiki contains a PDF, so a wiki
+pdf.js — a megabyte of parser — is fetched only when a reader actually opens a
+document, so passing one by costs a single image. What the build emits is that
+image and a link to the file, which is also what a reader without JavaScript is
+left with.
+
+Posters need `npm i -D @napi-rs/canvas`, which is not installed by default; the
+build says so when it finds a PDF without it, and documents open either way. The
+data pdf.js fetches for character maps, standard fonts, and image codecs is
+staged into `public/pdfjs/` — but only when the wiki contains a PDF, so a wiki
 without one deploys nothing extra.
+
+Whole documents are deliberately _not_ rasterised: a six-page text PDF of 33 kB
+becomes 1.3 MB of WebP and loses its text layer along with it.
 
 ### Tags
 

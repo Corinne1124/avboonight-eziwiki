@@ -27,21 +27,37 @@ Here is one:
 
 ## What the build emits
 
-Nothing but a link:
+A picture of the first page, and a link:
 
 ```html
-<figure class="ezw-pdf" data-ezw-pdf data-name="sample.pdf" data-size="3976">
+<figure class="ezw-pdf" data-ezw-pdf data-name="sample.pdf" data-size="3976" data-pages="3">
+  <img
+    class="ezw-pdf__poster"
+    src="/pdf-posters/documents/sample.pdf.webp"
+    width="1200"
+    height="1698"
+    alt="sample.pdf"
+  />
   <a class="ezw-pdf__fallback" href="/documents/sample.pdf" download>sample.pdf</a>
 </figure>
 ```
 
-The viewer is mounted into that figure in the browser, and pdf.js — a megabyte
-of parser — is fetched only once a page turns out to have a document on it. A
-page without one is exactly as heavy as it was before.
+The poster is that first page, drawn once during the build. It is why the page
+above shows the document rather than a placeholder, and why **pdf.js is not
+fetched at all until you press Open** — a megabyte of parser, skipped entirely
+for a reader who was only passing the document by.
 
-That ordering is also why the fallback is a real link rather than a placeholder:
-without script, or before the viewer loads, or if it fails to, a reader is given
-the file itself.
+That ordering is also what makes the markup its own fallback. Without script, or
+before hydration, or if the viewer fails to load, a reader is left with a picture
+of the document and a link to it rather than an empty box.
+
+### Why only the first page
+
+Rasterising every page was measured and refused. A six-page text PDF of 33 kB
+became 1.3 MB of WebP — thirty-eight times the file it would replace — and the
+pages lost their text on the way, so no selection, no in-page search, and
+nothing for a screen reader. One page as a preview is the part of that idea
+that pays for itself.
 
 ## Where it has to stand
 
@@ -73,6 +89,20 @@ that uses a standard face without embedding it, an image codec for a scan.
 `npm run build` stages them into `public/pdfjs/` — but only when the wiki
 actually contains a PDF, so a wiki without one deploys nothing extra.
 
+Posters are written to `public/pdf-posters/`, redrawn only when their PDF has
+changed, and removed when it is deleted. Neither directory is committed.
+
+Drawing them needs a renderer, which is not installed by default because it is
+a native binary and most wikis have no PDF to draw:
+
+```bash
+npm i -D @napi-rs/canvas
+```
+
+Without it everything still works — the viewer simply opens straight away and
+draws the first page in the browser, which is what the poster exists to avoid.
+`npm run build` says so when it finds a PDF and no renderer.
+
 > [!NOTE]
 > Adding the first PDF to an already-running `npm run dev` needs a restart, so
-> that the staging step runs.
+> that the staging and poster steps run.

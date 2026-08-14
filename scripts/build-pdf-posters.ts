@@ -145,6 +145,10 @@ async function main() {
     return;
   }
 
+  // Narrowed once, here: the guard above proves it is loaded, but that proof
+  // does not survive into the closures below.
+  const canvas2d = canvasLib;
+
   // pdf.js builds its paths from whatever `Path2D` and `DOMMatrix` it finds as
   // globals, and the context that has to fill them belongs to the canvas
   // library. Seeding the globals from that same library is what makes the two
@@ -161,6 +165,40 @@ async function main() {
     path.dirname(require.resolve('pdfjs-dist/package.json')),
     'standard_fonts/',
   );
+
+  /**
+   * How pdf.js is to make scratch canvases of its own.
+   *
+   * It builds one whenever a page contains an image, composes the decoded
+   * pixels onto it, and draws that onto the page. In a browser it would reach
+   * for `document.createElement`; here there is no document, and what it
+   * reached for instead took the whole process down with a segmentation fault
+   * — which no `try` can catch, so a single scanned page killed the build with
+   * no message at all.
+   *
+   * A text-only document never asks for one, which is why every PDF drawn so
+   * far worked and this was found only on the first scan.
+   */
+  class NodeCanvasFactory {
+    create(width: number, height: number) {
+      const canvas = canvas2d.createCanvas(width || 1, height || 1);
+      return { canvas, context: canvas.getContext('2d') };
+    }
+
+    reset(target: { canvas: { width: number; height: number } }, width: number, height: number) {
+      target.canvas.width = width;
+      target.canvas.height = height;
+    }
+
+    destroy(target: { canvas: { width: number; height: number } | null; context: unknown }) {
+      if (target.canvas) {
+        target.canvas.width = 0;
+        target.canvas.height = 0;
+      }
+      target.canvas = null;
+      target.context = null;
+    }
+  }
 
   const previous = await readManifest();
   const manifest: Record<string, PosterEntry> = {};
@@ -192,7 +230,11 @@ async function main() {
     const data = new Uint8Array(await fs.readFile(source));
 
     try {
-      const doc = await pdfjs.getDocument({ data, standardFontDataUrl }).promise;
+      const doc = await pdfjs.getDocument({
+        data,
+        standardFontDataUrl,
+        CanvasFactory: NodeCanvasFactory,
+      }).promise;
       const page = await doc.getPage(1);
 
       const natural = page.getViewport({ scale: 1 });
@@ -200,7 +242,7 @@ async function main() {
       const width = Math.floor(viewport.width);
       const height = Math.floor(viewport.height);
 
-      const canvas = canvasLib.createCanvas(width, height);
+      const canvas = canvas2d.createCanvas(width, height);
       const context = canvas.getContext('2d');
 
       // A PDF page is transparent where nothing is drawn, and WebP keeps that

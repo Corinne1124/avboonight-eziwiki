@@ -39,8 +39,8 @@ next-env.d.ts
 # Staged pdf.js document data
 /public/pdfjs/
 
-# Generated PDF posters
-/public/pdf-posters/
+# Generated PDF page images
+/public/pdf-images/
 
 # Generated CLI template
 /packages/create-eziwiki/template/

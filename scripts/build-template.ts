@@ -166,9 +166,9 @@ function buildTemplateManifest(): Record<string, unknown> {
 
   const devDependencies = { ...pkg.devDependencies };
   // A native binary, some seven megabytes of it, whose only job is drawing the
-  // first page of an embedded PDF. Most wikis have no PDF in them and would be
-  // downloading it to do nothing. `build:posters` says how to add it, and says
-  // so only to someone who has actually embedded a document.
+  // pages of an embedded PDF. Most wikis have no PDF in them and would be
+  // downloading it to do nothing. `build:pdf-images` says how to add it, and
+  // says so only to someone who has actually embedded a document.
   delete devDependencies['@napi-rs/canvas'];
 
   return {

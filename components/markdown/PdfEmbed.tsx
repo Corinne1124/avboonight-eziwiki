@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import type { PDFDocumentProxy, RenderTask } from 'pdfjs-dist';
 import { useStrings } from '@/components/providers/StringsProvider';
-import { format } from '@/lib/i18n/format';
+import { format, formatBytes } from '@/lib/i18n/format';
 import { asset } from '@/lib/basePath';
 
 /**
@@ -75,27 +75,6 @@ function loadPdfjs(): Promise<typeof import('pdfjs-dist')> {
   });
 
   return pdfjs;
-}
-
-/**
- * Renders a byte count the way a reader reads it.
- *
- * @param bytes - Size on disk
- * @returns A short label such as `2.4 MB`
- */
-function formatBytes(bytes: number): string {
-  const units = ['B', 'KB', 'MB', 'GB'];
-  let value = bytes;
-  let unit = 0;
-
-  while (value >= 1024 && unit < units.length - 1) {
-    value /= 1024;
-    unit += 1;
-  }
-
-  // One decimal below ten, none above: `1.2 MB` is informative, `847.3 KB` is
-  // three digits of noise.
-  return `${value < 10 && unit > 0 ? value.toFixed(1) : Math.round(value)} ${units[unit]}`;
 }
 
 /**

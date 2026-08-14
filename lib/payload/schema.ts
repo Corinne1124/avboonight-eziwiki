@@ -57,6 +57,15 @@ export const payloadSchema = {
         $ref: '#/definitions/navigationItem',
       },
     },
+    documents: {
+      type: 'object',
+      properties: {
+        raster: {
+          type: 'array',
+          items: { type: 'string', minLength: 1 },
+        },
+      },
+    },
     theme: {
       type: 'object',
       properties: {

@@ -135,6 +135,32 @@ export interface ThemeConfig {
 }
 
 /**
+ * How embedded documents are shown.
+ */
+export interface DocumentsConfig {
+  /**
+   * Documents to show as images of their pages rather than in the viewer.
+   *
+   * For scans. A scanned page is already a picture, so drawing it during the
+   * build and serving the result costs no more than the PDF did — often less,
+   * since a re-encode to WebP beats what a scanner wrote — and the page then
+   * needs no parser, no worker, and no script at all to be read.
+   *
+   * It is opt-in because the same treatment ruins a text document: a six-page
+   * text PDF of 33 kB comes to 1.3 MB of images, and loses the text that made
+   * it selectable, searchable, and readable aloud. Nothing about a file says
+   * reliably which kind it is, so this asks.
+   *
+   * Paths are relative to `public/`, and understand `*`, `**` and `?`:
+   *
+   * ```typescript
+   * documents: { raster: ['scans/**', 'archive/*.pdf'] }
+   * ```
+   */
+  raster?: string[];
+}
+
+/**
  * Complete payload structure
  */
 export interface Payload {
@@ -151,4 +177,6 @@ export interface Payload {
   navigation?: NavigationItem[];
   /** Theme customization */
   theme?: Partial<ThemeConfig>;
+  /** How embedded documents are shown */
+  documents?: DocumentsConfig;
 }

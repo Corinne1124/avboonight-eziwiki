@@ -622,6 +622,73 @@ html.dark .ezw-pdf__viewer {
   }
 }
 
+/* --- shown as images --- */
+
+/* A document the payload named as a scan. There is no viewer here and no
+   script behind it: the pages are `<img>`s the build drew, in a box that
+   borrows the same chrome so it reads as the same kind of thing. */
+.ezw-pdf--raster {
+  --ezw-pdf-surface: #eceef2;
+  --ezw-pdf-height: min(70vh, 42rem);
+
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+  overflow: hidden;
+  background: var(--color-background);
+}
+
+html.dark .ezw-pdf--raster {
+  --ezw-pdf-surface: #0d1219;
+}
+
+@media (max-width: 640px) {
+  .ezw-pdf--raster {
+    --ezw-pdf-height: 60vh;
+  }
+}
+
+/* The name and size are the only things in this bar, so it needs the padding
+   the viewer's gets from its control cluster. */
+.ezw-pdf--raster .ezw-pdf__bar {
+  padding: 0.625rem 0.875rem;
+}
+
+.ezw-pdf__download {
+  flex: none;
+  margin-left: auto;
+  padding: 0.25rem 0.625rem;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  text-decoration: none;
+  color: var(--color-text-muted);
+  background: var(--color-sidebar-bg);
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.ezw-pdf__download:hover {
+  color: var(--color-text);
+  background: var(--color-sidebar-hover);
+}
+
+.ezw-pdf__page-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 0 auto 1rem;
+  border-radius: 0.25rem;
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 0.16),
+    0 4px 12px rgb(0 0 0 / 0.1);
+}
+
+.ezw-pdf__page-image:last-child {
+  margin-bottom: 0;
+}
+
 /* --- full screen --- */
 
 /* The element the Fullscreen API promotes is the viewer itself, so it has to

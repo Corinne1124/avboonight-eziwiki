@@ -9,6 +9,8 @@ import type {
   BlockContent,
 } from 'mdast';
 import { WIKILINK_PATTERN, parseWikiLink, type WikiLink } from './wikilink';
+import { getStrings } from '../site';
+import { format, formatBytes } from '../i18n/format';
 
 /**
  * Turns `[[wiki links]]` into ordinary Markdown links.
@@ -43,12 +45,14 @@ export interface EmbedTarget {
   kind: 'image' | 'pdf';
   /** Size in bytes, shown in a viewer's header before the file loads */
   size?: number;
-  /** First page, drawn at build time; absent when none was drawn */
-  poster?: {
-    url: string;
-    width: number;
-    height: number;
+  /** Pages drawn at build time; absent when none were drawn */
+  images?: {
+    /** `poster` is the first page only; `raster` is all of them */
+    mode: 'poster' | 'raster';
+    /** Pages in the document */
     pages: number;
+    /** The images, in page order */
+    files: Array<{ url: string; width: number; height: number }>;
   };
 }
 
@@ -348,28 +352,14 @@ function embedBlock(embed: WikiLink, target: EmbedTarget): RootContent | null {
 
   const name = target.url.split('/').pop() || embed.target;
   const label = embed.label ?? name;
-  const { poster } = target;
 
+  if (target.images?.mode === 'raster') return rasterBlock(target, label);
+
+  const poster = target.images?.files[0];
   const children: BlockContent[] = [];
 
   if (poster) {
-    children.push({
-      type: 'paragraph',
-      data: {
-        hName: 'img',
-        hProperties: {
-          className: ['ezw-pdf__poster'],
-          src: poster.url,
-          // Written out so the box is the right shape before the image
-          // arrives; a poster that resized the article as it loaded would
-          // move whatever the reader was already reading.
-          width: poster.width,
-          height: poster.height,
-          alt: label,
-        },
-      },
-      children: [],
-    });
+    children.push(pageImage(poster, label, ['ezw-pdf__poster']));
   }
 
   return {
@@ -379,9 +369,9 @@ function embedBlock(embed: WikiLink, target: EmbedTarget): RootContent | null {
       hProperties: {
         className: ['ezw-pdf'],
         'data-ezw-pdf': '',
-        'data-name': name,
+        'data-name': label,
         ...(target.size ? { 'data-size': String(target.size) } : {}),
-        ...(poster ? { 'data-pages': String(poster.pages) } : {}),
+        ...(target.images ? { 'data-pages': String(target.images.pages) } : {}),
       },
     },
     children: [
@@ -397,6 +387,122 @@ function embedBlock(embed: WikiLink, target: EmbedTarget): RootContent | null {
           },
         },
         children: [{ type: 'text', value: label }],
+      },
+    ],
+  };
+}
+
+/**
+ * One drawn page as an image.
+ *
+ * The dimensions are written out so the box is the right shape before the
+ * image arrives; a page that resized the article as it loaded would move
+ * whatever the reader was already reading.
+ *
+ * `paragraph` is the carrier — a block-level type renamed on the way out, the
+ * same trick the figure itself uses.
+ */
+function pageImage(
+  page: { url: string; width: number; height: number },
+  alt: string,
+  className: string[],
+): BlockContent {
+  return {
+    type: 'paragraph',
+    data: {
+      hName: 'img',
+      hProperties: {
+        className,
+        src: page.url,
+        width: page.width,
+        height: page.height,
+        alt,
+      },
+    },
+    children: [],
+  };
+}
+
+/**
+ * A document shown as pictures of its pages.
+ *
+ * For scans, which the payload names. There is no `data-ezw-pdf` here, and
+ * that absence is the feature: the viewer never finds this figure, so pdf.js
+ * is not fetched by it under any circumstance and the whole thing works with
+ * script switched off. What it costs is what a scan never had to give — its
+ * pages carry no text to select, search, or read aloud.
+ *
+ * The header is therefore written here rather than rendered by a component,
+ * which is also why it carries no icon: an icon would mean inlining an SVG
+ * into every embed to save a component that is not running.
+ *
+ * @param target - What the embed resolved to, with every page drawn
+ * @param label - What to call it: the author's label, or the file name
+ * @returns The figure
+ */
+function rasterBlock(target: EmbedTarget, label: string): RootContent {
+  const images = target.images!;
+  const meta = [target.size ? formatBytes(target.size) : null, `${images.pages}p`]
+    .filter(Boolean)
+    .join(' · ');
+
+  const bar: BlockContent = {
+    type: 'blockquote',
+    data: { hName: 'div', hProperties: { className: ['ezw-pdf__bar'] } },
+    children: [
+      {
+        type: 'blockquote',
+        data: { hName: 'div', hProperties: { className: ['ezw-pdf__file'] } },
+        children: [
+          {
+            type: 'paragraph',
+            data: { hName: 'span', hProperties: { className: ['ezw-pdf__name'], title: label } },
+            children: [{ type: 'text', value: label }],
+          },
+          {
+            type: 'paragraph',
+            data: { hName: 'span', hProperties: { className: ['ezw-pdf__meta'] } },
+            children: [{ type: 'text', value: meta }],
+          },
+        ],
+      },
+      {
+        type: 'paragraph',
+        data: {
+          hName: 'a',
+          hProperties: {
+            className: ['ezw-pdf__download'],
+            href: target.url,
+            download: true,
+          },
+        },
+        children: [{ type: 'text', value: getStrings().pdfDownload }],
+      },
+    ],
+  };
+
+  return {
+    type: 'blockquote',
+    data: {
+      hName: 'figure',
+      hProperties: {
+        className: ['ezw-pdf', 'ezw-pdf--raster'],
+        'data-name': label,
+        'data-pages': String(images.pages),
+      },
+    },
+    children: [
+      bar,
+      {
+        type: 'blockquote',
+        data: { hName: 'div', hProperties: { className: ['ezw-pdf__scroll'] } },
+        children: images.files.map((page, index) =>
+          pageImage(
+            page,
+            format(getStrings().pdfPageOf, { page: index + 1, pages: images.pages }),
+            ['ezw-pdf__page-image'],
+          ),
+        ),
       },
     ],
   };

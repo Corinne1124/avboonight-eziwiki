@@ -36,7 +36,7 @@ import { getUrlMap } from '../navigation/urlMap';
 import { getDoc } from '../content/registry';
 import { resolveTarget } from '../content/resolver';
 import { resolveAsset } from '../content/assets';
-import { getPoster } from '../content/posters';
+import { getPdfImages } from '../content/pdfImages';
 import { getExcerpt } from '../content/excerpt';
 import GithubSlugger from 'github-slugger';
 import { toString as mdastToString } from 'mdast-util-to-string';
@@ -104,6 +104,19 @@ function resolveWikiLink(target: string): WikiLinkTarget | null {
 }
 
 /**
+ * Reshapes what the build drew into what the embed pass expects.
+ *
+ * @param assetPath - Path relative to `public/`
+ * @returns The drawn pages, or undefined when there are none
+ */
+function toEmbedImages(assetPath: string): EmbedTarget['images'] {
+  const drawn = getPdfImages(assetPath);
+  if (!drawn) return undefined;
+
+  return { mode: drawn.mode, pages: drawn.pages, files: drawn.images };
+}
+
+/**
  * Resolves an embed target to a file under `public/`.
  *
  * @param target - Raw target text from inside the brackets
@@ -117,7 +130,7 @@ function resolveWikiEmbed(target: string): EmbedTarget | null {
     url: asset.url,
     kind: asset.kind,
     size: asset.size,
-    ...(asset.kind === 'pdf' ? { poster: getPoster(asset.path) ?? undefined } : {}),
+    ...(asset.kind === 'pdf' ? { images: toEmbedImages(asset.path) } : {}),
   };
 }
 

@@ -344,7 +344,7 @@ describe('document embeds', () => {
     if (!html.includes('ezw-pdf__poster')) return;
 
     expect(html).toMatch(/<img[^>]*class="ezw-pdf__poster[^"]*"/);
-    expect(html).toContain('src="/pdf-posters/documents/sample.pdf.webp"');
+    expect(html).toContain('src="/pdf-images/documents/sample.pdf.1.webp"');
     // Written out so the box is the right shape before the image arrives.
     expect(html).toMatch(/width="\d+"/);
     expect(html).toMatch(/height="\d+"/);
@@ -363,13 +363,15 @@ describe('document embeds', () => {
     expect(html).toMatch(/data-size="[1-9]\d*"/);
   });
 
+  // The label is what the document is called wherever a reader sees its name:
+  // the viewer's header reads it off `data-name`, and the fallback link is the
+  // same words again. The file name stays on the href, where it belongs.
   it('uses the label to name the file when one is given', async () => {
     const { html } = await renderMarkdown('![[sample.pdf|The handbook]]\n');
 
-    // The label names it to the reader; `data-name` stays the real filename,
-    // which is what the viewer's header and the download are about.
+    expect(html).toContain('data-name="The handbook"');
     expect(html).toContain('>The handbook</a>');
-    expect(html).toContain('data-name="sample.pdf"');
+    expect(html).toContain('href="/documents/sample.pdf"');
   });
 
   it('accepts the full path under public/', async () => {
@@ -380,6 +382,45 @@ describe('document embeds', () => {
 
   // A viewer is a block and cannot sit inside a sentence, so an embed written
   // mid-prose becomes the most an inline position can carry: a link.
+  // `documents.raster` in the payload names `scans/**`, so the demo scan is
+  // shown as pictures of its pages and never reaches the viewer.
+  it('shows a document named as a scan as images of its pages', async () => {
+    const { html } = await renderMarkdown('![[field-notebook.pdf]]\n');
+    if (!html.includes('ezw-pdf--raster')) return;
+
+    expect(html).toContain('class="ezw-pdf ezw-pdf--raster"');
+    expect(html).toContain('src="/pdf-images/scans/field-notebook.pdf.1.webp"');
+    expect(html).toContain('src="/pdf-images/scans/field-notebook.pdf.2.webp"');
+  });
+
+  // The absence is the feature: the client only ever looks for this attribute,
+  // so without it pdf.js cannot be fetched by this figure under any
+  // circumstance, and the pages are readable with script switched off.
+  it('leaves a scan with nothing for the viewer to attach to', async () => {
+    const { html } = await renderMarkdown('![[field-notebook.pdf]]\n');
+    if (!html.includes('ezw-pdf--raster')) return;
+
+    const figure = /<figure class="ezw-pdf ezw-pdf--raster"[\s\S]*?<\/figure>/.exec(html)?.[0];
+    expect(figure).toBeDefined();
+    expect(figure).not.toContain('data-ezw-pdf');
+    expect(figure).toContain('href="/scans/field-notebook.pdf"');
+  });
+
+  it('numbers a scan’s pages in their alt text', async () => {
+    const { html } = await renderMarkdown('![[field-notebook.pdf]]\n');
+    if (!html.includes('ezw-pdf--raster')) return;
+
+    expect(html).toContain('alt="Page 1 of 2"');
+    expect(html).toContain('alt="Page 2 of 2"');
+  });
+
+  it('lets the label name a scan in its header', async () => {
+    const { html } = await renderMarkdown('![[field-notebook.pdf|Field notebook]]\n');
+    if (!html.includes('ezw-pdf--raster')) return;
+
+    expect(html).toContain('>Field notebook</span>');
+  });
+
   it('becomes a link when the embed shares its paragraph with prose', async () => {
     const { html } = await renderMarkdown('See ![[sample.pdf|the handbook]] for details.\n');
 

@@ -38,12 +38,12 @@ export const PUBLIC_DIR = path.join(process.cwd(), 'public');
  * every signature check would cost more than everything else here put
  * together, and not one of them is something a page can embed.
  *
- * `pdf-posters` holds first pages drawn from the PDFs, and skipping it is
+ * `pdf-images` holds pages drawn from the PDFs, and skipping it is
  * load-bearing rather than an economy: they are `.webp`, so indexing them
- * would let `![[manual.pdf.webp]]` resolve to a generated file, and they are
+ * would let `![[manual.pdf.1.webp]]` resolve to a generated file, and they are
  * derived from documents the signature is already watching.
  */
-export const PUBLIC_SKIP_DIRS = new Set(['fonts', 'pdfjs', 'pdf-posters']);
+export const PUBLIC_SKIP_DIRS = new Set(['fonts', 'pdfjs', 'pdf-images']);
 
 const SOURCE_DIRS = [CONTENT_DIR, PUBLIC_DIR];
 

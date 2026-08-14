@@ -66,6 +66,20 @@ export const payload: Payload = {
       },
     },
   },
+  documents: {
+    /**
+     * Documents to show as pictures of their pages rather than in the viewer.
+     *
+     * For scans. A scanned page is already a picture and carries no text to
+     * select or search, so drawing it during the build loses nothing and saves
+     * the reader the parser, the worker, and every line of script.
+     *
+     * Opt-in because the same treatment ruins a text document — thirty-eight
+     * times the bytes, and the text gone with it. See
+     * `content/features/pdf-embeds.md`.
+     */
+    raster: ['scans/**'],
+  },
   theme: {
     primary: '#2563eb',
     secondary: '#7c3aed',

@@ -98,6 +98,30 @@ function formatBytes(bytes: number): string {
   return `${value < 10 && unit > 0 ? value.toFixed(1) : Math.round(value)} ${units[unit]}`;
 }
 
+/**
+ * The line under a document's name: how big it is and how long.
+ *
+ * @param size - Bytes, or 0 when the build did not record it
+ * @param pages - Page count, or 0 when it is not known yet
+ * @returns A short label, or '' when neither is known
+ */
+function documentMeta(size: number, pages: number): string {
+  return [size ? formatBytes(size) : null, pages ? `${pages}p` : null].filter(Boolean).join(' · ');
+}
+
+/** The name and size of a document, shown in the same place either way. */
+function PdfHeading({ name, meta }: { name: string; meta: string }) {
+  return (
+    <div className="ezw-pdf__file">
+      <FileText className="ezw-pdf__icon" aria-hidden="true" />
+      <span className="ezw-pdf__name" title={name}>
+        {name}
+      </span>
+      {meta && <span className="ezw-pdf__meta">{meta}</span>}
+    </div>
+  );
+}
+
 /** One page of a document, drawn when the reader is close to it. */
 interface PdfPageProps {
   /** The open document */
@@ -209,13 +233,15 @@ interface PdfViewerProps {
   name: string;
   /** Size in bytes, shown beside the name; 0 when it was not recorded */
   size: number;
+  /** Page count the build recorded, used until the document itself says */
+  pages?: number;
 }
 
 /**
  * The document viewer: a toolbar, a scrolling stack of pages, and the controls
  * a reader expects to find on one.
  */
-function PdfViewer({ src, name, size }: PdfViewerProps) {
+function PdfViewer({ src, name, size, pages: hinted }: PdfViewerProps) {
   const t = useStrings();
   const root = useRef<HTMLDivElement>(null);
   const scroller = useRef<HTMLDivElement>(null);
@@ -370,21 +396,15 @@ function PdfViewer({ src, name, size }: PdfViewerProps) {
     else void root.current?.requestFullscreen();
   }, []);
 
-  const pages = doc?.numPages ?? 0;
-  const meta = [size ? formatBytes(size) : null, pages ? `${pages}p` : null]
-    .filter(Boolean)
-    .join(' · ');
+  // The build already counted the pages, so the header can say how long the
+  // document is while it is still opening rather than after.
+  const pages = doc?.numPages ?? hinted ?? 0;
+  const meta = documentMeta(size, pages);
 
   return (
     <div ref={root} className="ezw-pdf__viewer" data-fullscreen={full ? '' : undefined}>
       <div className="ezw-pdf__bar">
-        <div className="ezw-pdf__file">
-          <FileText className="ezw-pdf__icon" aria-hidden="true" />
-          <span className="ezw-pdf__name" title={name}>
-            {name}
-          </span>
-          {meta && <span className="ezw-pdf__meta">{meta}</span>}
-        </div>
+        <PdfHeading name={name} meta={meta} />
 
         <div className="ezw-pdf__controls">
           {pages > 1 && (
@@ -477,6 +497,109 @@ function PdfViewer({ src, name, size }: PdfViewerProps) {
   );
 }
 
+/** The first page of a document, drawn during the build. */
+interface PosterImage {
+  /** URL, already carrying the deployment base path */
+  url: string;
+  /** Natural size, so the box is the right shape before the image arrives */
+  width: number;
+  height: number;
+}
+
+/**
+ * A document shown as its first page, with the viewer one click away.
+ *
+ * This is what the build's poster buys. The reader sees the document itself
+ * rather than a placeholder, at the cost of one image, and pdf.js is not
+ * fetched at all until they ask to read past the first page. On a page whose
+ * documents are references rather than the point — an appendix, a spec linked
+ * in passing — that is most readers.
+ *
+ * The preview stands exactly as tall as the viewer that replaces it, so
+ * opening a document does not move the prose underneath it.
+ */
+function PdfPreview({
+  src,
+  name,
+  meta,
+  poster,
+  onOpen,
+}: {
+  src: string;
+  name: string;
+  meta: string;
+  poster: PosterImage;
+  onOpen: () => void;
+}) {
+  const t = useStrings();
+
+  return (
+    <div className="ezw-pdf__viewer">
+      <div className="ezw-pdf__bar">
+        <PdfHeading name={name} meta={meta} />
+
+        <div className="ezw-pdf__controls">
+          <a className="ezw-pdf__button" href={src} download aria-label={t.pdfDownload}>
+            <Download aria-hidden="true" />
+          </a>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        className="ezw-pdf__preview"
+        onClick={onOpen}
+        aria-label={format(t.pdfOpen, { name })}
+      >
+        {/* Empty alt: the button around it carries the name, and a screen
+            reader announcing both would say the document twice.
+
+            A plain `<img>` rather than `next/image`: the site is a static
+            export with optimisation off, so the component would add a wrapper
+            and a loader around the same request. This is also the same element
+            the build already emitted — replacing it with a different one would
+            fetch the poster a second time. */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          className="ezw-pdf__poster"
+          src={poster.url}
+          width={poster.width}
+          height={poster.height}
+          alt=""
+        />
+        <span className="ezw-pdf__open" aria-hidden="true">
+          <Maximize2 />
+          {t.pdfOpenShort}
+        </span>
+      </button>
+    </div>
+  );
+}
+
+/**
+ * A document embed: its first page, and the viewer once asked for.
+ *
+ * Without a poster there is nothing to preview, so the viewer opens straight
+ * away — which is what happens when the build ran without a canvas to draw on.
+ */
+function PdfEmbed({ src, name, size, pages, poster }: PdfViewerProps & { poster?: PosterImage }) {
+  const [open, setOpen] = useState(!poster);
+
+  if (!open && poster) {
+    return (
+      <PdfPreview
+        src={src}
+        name={name}
+        meta={documentMeta(size, pages ?? 0)}
+        poster={poster}
+        onOpen={() => setOpen(true)}
+      />
+    );
+  }
+
+  return <PdfViewer src={src} name={name} size={size} pages={pages} />;
+}
+
 /** A figure the build emitted, and what it says about the file inside it. */
 interface Embed {
   /** The figure the viewer is mounted into */
@@ -485,6 +608,8 @@ interface Embed {
   src: string;
   name: string;
   size: number;
+  pages: number;
+  poster?: PosterImage;
 }
 
 /**
@@ -515,16 +640,31 @@ export function PdfEmbeds() {
       const fallback = host.querySelector<HTMLAnchorElement>('.ezw-pdf__fallback');
       if (!fallback) continue;
 
+      const image = host.querySelector<HTMLImageElement>('.ezw-pdf__poster');
+
       found.push({
         host,
         src: fallback.getAttribute('href') ?? '',
         name: host.dataset.name ?? '',
         size: Number(host.dataset.size ?? 0),
+        pages: Number(host.dataset.pages ?? 0),
+        poster: image
+          ? {
+              // `getAttribute` rather than `.src`, which resolves to an
+              // absolute URL — harmless, but it would make the React-rendered
+              // image look like a different one and fetch it again.
+              url: image.getAttribute('src') ?? '',
+              width: image.width,
+              height: image.height,
+            }
+          : undefined,
       });
 
-      // Only now that the viewer is certain to replace it: removing it first
-      // and then failing would leave the reader with neither.
+      // Only now that the preview is certain to replace them: removing them
+      // first and then failing would leave the reader with neither. The image
+      // React renders next has the same URL, so it comes from the cache.
       fallback.remove();
+      image?.remove();
     }
 
     setEmbeds(found);
@@ -536,7 +676,13 @@ export function PdfEmbeds() {
     <>
       {embeds.map((embed, i) =>
         createPortal(
-          <PdfViewer src={embed.src} name={embed.name} size={embed.size} />,
+          <PdfEmbed
+            src={embed.src}
+            name={embed.name}
+            size={embed.size}
+            pages={embed.pages}
+            poster={embed.poster}
+          />,
           embed.host,
           // A page may embed the same document twice, so the position in the
           // page identifies the mount where the URL would not.

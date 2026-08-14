@@ -388,6 +388,11 @@ html.dark .ezw-pdf__viewer {
   align-items: center;
   gap: 0.25rem;
   margin-left: auto;
+  /* The height a grouped control comes to: a 1.75rem button inside 0.125rem of
+     padding. Stated here so the preview's lone download button makes a bar of
+     the same height as the viewer's full set, and opening a document does not
+     nudge the article down by the difference. */
+  min-height: 2rem;
 }
 
 /* Controls that belong together — the page pair, the zoom pair — read as one
@@ -444,6 +449,104 @@ html.dark .ezw-pdf__viewer {
   font-variant-numeric: tabular-nums;
   color: var(--color-text-muted);
   white-space: nowrap;
+}
+
+/* --- first-page preview --- */
+
+/* The poster the build drew, before the reader asks for the viewer. It stands
+   exactly as tall as the viewer that replaces it, so opening a document does
+   not shift the prose underneath it. */
+.ezw-pdf__preview {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: var(--ezw-pdf-height);
+  padding: 1rem 1rem 0;
+  overflow: hidden;
+  background: var(--ezw-pdf-surface);
+  cursor: pointer;
+}
+
+.ezw-pdf__preview .ezw-pdf__poster {
+  display: block;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  border-radius: 0.25rem 0.25rem 0 0;
+  /* Anchored to the top: the first thing on a first page is the title, and
+     that is what says which document this is. */
+  object-fit: cover;
+  object-position: top center;
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 0.16),
+    0 4px 12px rgb(0 0 0 / 0.1);
+}
+
+/* The page does not end where the box does, and saying so is the whole job of
+   this gradient — without it a cropped page reads as a short one. */
+.ezw-pdf__preview::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0;
+  height: 8rem;
+  background: linear-gradient(to top, var(--ezw-pdf-surface) 30%, transparent);
+  pointer-events: none;
+}
+
+.ezw-pdf__open {
+  position: absolute;
+  left: 50%;
+  bottom: 1.75rem;
+  z-index: 1;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-text);
+  background: var(--color-background);
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 0.1),
+    0 4px 12px rgb(0 0 0 / 0.12);
+  transition:
+    transform 150ms ease,
+    border-color 150ms ease;
+}
+
+.ezw-pdf__open svg {
+  width: 0.875rem;
+  height: 0.875rem;
+  color: var(--color-primary);
+}
+
+.ezw-pdf__preview:hover .ezw-pdf__open {
+  border-color: var(--color-primary);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ezw-pdf__preview:hover .ezw-pdf__open {
+    transform: translateX(-50%) translateY(-2px);
+  }
+}
+
+.ezw-pdf__preview:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
+}
+
+/* Before hydration, and forever without script, the poster is just a picture
+   of the document sitting above its download link. */
+.ezw-pdf > .ezw-pdf__poster {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 0 0 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
 }
 
 /* --- pages --- */

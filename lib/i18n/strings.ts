@@ -84,6 +84,10 @@ export interface Strings {
   /** Confirmation shown after copying */
   copied: string;
 
+  /** Opens the viewer from the first-page preview. `{name}` */
+  pdfOpen: string;
+  /** The same, on the button itself, where the name is already beside it */
+  pdfOpenShort: string;
   /** Shown while an embedded document is being opened */
   pdfLoading: string;
   /** Shown when an embedded document cannot be opened */
@@ -202,6 +206,8 @@ const EN: Strings = {
   copy: 'Copy',
   copied: 'Copied',
 
+  pdfOpen: 'Open {name}',
+  pdfOpenShort: 'Open',
   pdfLoading: 'Opening document…',
   pdfError: 'This document could not be shown.',
   pdfDocument: '{name}, document viewer',
@@ -282,6 +288,8 @@ const KO: Strings = {
   copy: '복사',
   copied: '복사됨',
 
+  pdfOpen: '{name} 열기',
+  pdfOpenShort: '열기',
   pdfLoading: '문서를 여는 중…',
   pdfError: '이 문서를 표시하지 못했습니다.',
   pdfDocument: '{name} 문서 뷰어',

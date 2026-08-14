@@ -164,6 +164,13 @@ function buildTemplateManifest(): Record<string, unknown> {
   // Only meaningful inside this repository.
   delete scripts['build:template'];
 
+  const devDependencies = { ...pkg.devDependencies };
+  // A native binary, some seven megabytes of it, whose only job is drawing the
+  // first page of an embedded PDF. Most wikis have no PDF in them and would be
+  // downloading it to do nothing. `build:posters` says how to add it, and says
+  // so only to someone who has actually embedded a document.
+  delete devDependencies['@napi-rs/canvas'];
+
   return {
     name: 'my-wiki',
     version: '0.1.0',
@@ -171,7 +178,7 @@ function buildTemplateManifest(): Record<string, unknown> {
     description: 'Documentation site built with eziwiki',
     scripts,
     dependencies: pkg.dependencies,
-    devDependencies: pkg.devDependencies,
+    devDependencies,
   };
 }
 

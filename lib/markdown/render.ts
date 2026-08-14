@@ -36,6 +36,7 @@ import { getUrlMap } from '../navigation/urlMap';
 import { getDoc } from '../content/registry';
 import { resolveTarget } from '../content/resolver';
 import { resolveAsset } from '../content/assets';
+import { getPoster } from '../content/posters';
 import { getExcerpt } from '../content/excerpt';
 import GithubSlugger from 'github-slugger';
 import { toString as mdastToString } from 'mdast-util-to-string';
@@ -110,7 +111,14 @@ function resolveWikiLink(target: string): WikiLinkTarget | null {
  */
 function resolveWikiEmbed(target: string): EmbedTarget | null {
   const asset = resolveAsset(target);
-  return asset ? { url: asset.url, kind: asset.kind, size: asset.size } : null;
+  if (!asset) return null;
+
+  return {
+    url: asset.url,
+    kind: asset.kind,
+    size: asset.size,
+    ...(asset.kind === 'pdf' ? { poster: getPoster(asset.path) ?? undefined } : {}),
+  };
 }
 
 /** Parser for included documents; no rendering plugins, so it stays cheap. */

@@ -43,6 +43,13 @@ export interface EmbedTarget {
   kind: 'image' | 'pdf';
   /** Size in bytes, shown in a viewer's header before the file loads */
   size?: number;
+  /** First page, drawn at build time; absent when none was drawn */
+  poster?: {
+    url: string;
+    width: number;
+    height: number;
+    pages: number;
+  };
 }
 
 /**
@@ -318,14 +325,16 @@ function transclude(tree: Root, resolvers: WikiLinkResolvers, stack: string[]): 
 /**
  * Builds the block a document embed becomes.
  *
- * What ships is a `<figure>` holding a plain link to the file. The viewer is
- * mounted into it in the browser, so the markup the build emits is already the
- * fallback: a reader without script, or one whose viewer fails to load, gets a
- * working link to the document rather than an empty box.
+ * What ships is a `<figure>` holding the document's first page as an ordinary
+ * image, and a plain link to the file. The viewer is mounted into it in the
+ * browser only once the reader asks for it, so the markup the build emits is
+ * both what they see first and what they are left with if script never runs:
+ * a picture of the document and a link to it, rather than an empty box.
  *
- * The link is also where the URL lives, rather than a `data-` attribute,
- * because `rehypeBasePath` prefixes hrefs — a deployment in a subdirectory gets
- * the right address for free, in the one place the address is written.
+ * The image and the link are also where the two URLs live, rather than
+ * `data-` attributes, because `rehypeBasePath` prefixes `src` and `href` — a
+ * deployment in a subdirectory gets the right addresses for free, in the one
+ * place each address is written.
  *
  * `blockquote` is a carrier for the figure the way it is for a transclusion:
  * a block-level type that accepts block children, renamed on the way out.
@@ -338,6 +347,30 @@ function embedBlock(embed: WikiLink, target: EmbedTarget): RootContent | null {
   if (target.kind !== 'pdf') return null;
 
   const name = target.url.split('/').pop() || embed.target;
+  const label = embed.label ?? name;
+  const { poster } = target;
+
+  const children: BlockContent[] = [];
+
+  if (poster) {
+    children.push({
+      type: 'paragraph',
+      data: {
+        hName: 'img',
+        hProperties: {
+          className: ['ezw-pdf__poster'],
+          src: poster.url,
+          // Written out so the box is the right shape before the image
+          // arrives; a poster that resized the article as it loaded would
+          // move whatever the reader was already reading.
+          width: poster.width,
+          height: poster.height,
+          alt: label,
+        },
+      },
+      children: [],
+    });
+  }
 
   return {
     type: 'blockquote',
@@ -348,9 +381,11 @@ function embedBlock(embed: WikiLink, target: EmbedTarget): RootContent | null {
         'data-ezw-pdf': '',
         'data-name': name,
         ...(target.size ? { 'data-size': String(target.size) } : {}),
+        ...(poster ? { 'data-pages': String(poster.pages) } : {}),
       },
     },
     children: [
+      ...children,
       {
         type: 'paragraph',
         data: {
@@ -361,7 +396,7 @@ function embedBlock(embed: WikiLink, target: EmbedTarget): RootContent | null {
             download: true,
           },
         },
-        children: [{ type: 'text', value: embed.label ?? name }],
+        children: [{ type: 'text', value: label }],
       },
     ],
   };

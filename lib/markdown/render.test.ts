@@ -332,7 +332,29 @@ describe('document embeds', () => {
     expect(html).toContain('class="ezw-pdf__fallback"');
     expect(html).toContain('href="/documents/sample.pdf"');
     expect(html).toContain('download');
-    expect(html).not.toContain('<img');
+    // The document itself is never the source of an image; only its poster is.
+    expect(html).not.toContain('<img src="/documents/sample.pdf"');
+  });
+
+  // The poster is drawn by `npm run build:posters`. It is absent on a checkout
+  // that has not run it, so these describe what is emitted when it is there
+  // rather than asserting it always is.
+  it('shows the first page as an image when the build drew one', async () => {
+    const { html } = await renderMarkdown('![[sample.pdf]]\n');
+    if (!html.includes('ezw-pdf__poster')) return;
+
+    expect(html).toMatch(/<img[^>]*class="ezw-pdf__poster[^"]*"/);
+    expect(html).toContain('src="/pdf-posters/documents/sample.pdf.webp"');
+    // Written out so the box is the right shape before the image arrives.
+    expect(html).toMatch(/width="\d+"/);
+    expect(html).toMatch(/height="\d+"/);
+  });
+
+  it('records the page count the poster build measured', async () => {
+    const { html } = await renderMarkdown('![[sample.pdf]]\n');
+    if (!html.includes('ezw-pdf__poster')) return;
+
+    expect(html).toContain('data-pages="3"');
   });
 
   it('records the size the build measured', async () => {

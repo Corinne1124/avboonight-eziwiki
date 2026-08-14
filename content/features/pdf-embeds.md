@@ -106,3 +106,30 @@ draws the first page in the browser, which is what the poster exists to avoid.
 > [!NOTE]
 > Adding the first PDF to an already-running `npm run dev` needs a restart, so
 > that the staging and poster steps run.
+
+## Scans
+
+A scanned page is already a picture. It carries no text to select, search, or
+read aloud, so drawing it during the build loses nothing — and usually costs
+less than the PDF did, since a re-encode to WebP beats what a scanner wrote.
+The demo scan below is 247 kB as a PDF and 90 kB as images.
+
+Name those documents in `payload/config.ts`:
+
+```typescript
+documents: {
+  raster: ['scans/**'],
+}
+```
+
+Paths are relative to `public/` and understand `*`, `**` and `?`.
+
+![[field-notebook.pdf|Field notebook, 1985]]
+
+That figure is `<img>` tags in a box. No viewer, no pdf.js, no script of any
+kind — switch JavaScript off and it is unchanged.
+
+It is opt-in rather than automatic because the same treatment ruins a text
+document, and nothing about a file says reliably which kind it is. Turning it
+on for `documents/` above would have made this page's own sample thirty-eight
+times heavier and stripped its text out.

@@ -129,6 +129,11 @@ export const payload: Payload = {
       ],
     },
   ],
+  // Optional. Documents shown as images of their pages rather than in the
+  // viewer — for scans, which have no text to lose. See PDF Embeds below.
+  documents: {
+    raster: ['scans/**'],
+  },
   theme: {
     // Optional - uses defaults if omitted
     primary: '#2563eb',
@@ -304,8 +309,22 @@ data pdf.js fetches for character maps, standard fonts, and image codecs is
 staged into `public/pdfjs/` — but only when the wiki contains a PDF, so a wiki
 without one deploys nothing extra.
 
-Whole documents are deliberately _not_ rasterised: a six-page text PDF of 33 kB
-becomes 1.3 MB of WebP and loses its text layer along with it.
+Scans are the exception, and they opt in:
+
+```typescript
+documents: {
+  raster: ['scans/**'], // paths under public/; * ** ? understood
+}
+```
+
+Those documents get every page drawn instead, and are shown as those images —
+no viewer, no pdf.js, no script at all. A scanned page is already a picture and
+carries no text to select or search, so nothing is lost, and the demo scan is
+_smaller_ that way: 247 kB as a PDF, 90 kB as images.
+
+It stays opt-in because the same treatment ruins a text document — a six-page
+text PDF of 33 kB becomes 1.3 MB of WebP and loses its text layer with it — and
+nothing about a file says reliably which kind it is.
 
 ### Tags
 

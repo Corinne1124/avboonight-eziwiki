@@ -48,11 +48,18 @@ export function LinkPreview() {
   const [preview, setPreview] = useState<PreviewState | null>(null);
   const openTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  /** The link the card currently on screen describes. */
+  const shownFor = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     function clearTimers() {
       if (openTimer.current) clearTimeout(openTimer.current);
       if (closeTimer.current) clearTimeout(closeTimer.current);
+    }
+
+    function hide() {
+      shownFor.current = null;
+      setPreview(null);
     }
 
     function place(anchor: HTMLElement): PreviewState | null {
@@ -76,15 +83,23 @@ export function LinkPreview() {
 
     function open(anchor: HTMLElement, delay: number) {
       clearTimers();
+
+      // Clearing the timers just cancelled the previous link's pending close,
+      // so its card would otherwise stay up — pointing at the wrong link —
+      // until this one's opens.
+      if (shownFor.current && shownFor.current !== anchor) hide();
+
       openTimer.current = setTimeout(() => {
         const next = place(anchor);
-        if (next) setPreview(next);
+        if (!next) return;
+        shownFor.current = anchor;
+        setPreview(next);
       }, delay);
     }
 
     function close(delay = CLOSE_DELAY_MS) {
       clearTimers();
-      closeTimer.current = setTimeout(() => setPreview(null), delay);
+      closeTimer.current = setTimeout(hide, delay);
     }
 
     function anchorFrom(target: EventTarget | null): HTMLElement | null {

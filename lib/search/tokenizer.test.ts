@@ -40,6 +40,13 @@ describe('tokenize', () => {
     ]);
   });
 
+  it('emits a two-character CJK term once, not as its own bigram as well', () => {
+    // Pushed twice, the term carried double weight against every other word
+    // in the same query.
+    expect(tokenize('위키')).toEqual(['위키']);
+    expect(tokenize('API 문서')).toEqual(['api', '문서']);
+  });
+
   it('does not bigram a term that merely contains CJK', () => {
     // Mixed-script terms are left whole; splitting them would produce bigrams
     // that straddle the script boundary and match nothing.

@@ -74,7 +74,10 @@ export function tokenize(text: string): string[] {
     const lower = term.toLowerCase();
     terms.push(lower);
 
-    if (isCjk(lower) && lower.length > 1) {
+    // Only runs of three or more characters gain anything: the single bigram
+    // of a two-character term is the term itself, and pushing it twice
+    // doubled that term's weight against every other word in the query.
+    if (isCjk(lower) && [...lower].length > 2) {
       terms.push(...bigrams(lower));
     }
   }

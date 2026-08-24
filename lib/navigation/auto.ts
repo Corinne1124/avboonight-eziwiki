@@ -201,6 +201,22 @@ export function mergeDiscoveredDocs(curated: NavigationItem[]): NavigationItem[]
   return root;
 }
 
+/**
+ * Flags curated entries whose document hides itself in frontmatter.
+ *
+ * Discovery already leaves such documents out, but a curated entry is kept
+ * exactly as written — so a page marked `hidden: true` that the payload also
+ * lists stayed in the sidebar and in the reading sequence, while search, the
+ * sitemap and the graph all honoured the frontmatter. Marking the entry here
+ * lets every consumer of the tree agree with them.
+ */
+function markHiddenDocs(items: NavigationItem[], hidden: Set<string>): void {
+  for (const item of items) {
+    if (item.path && hidden.has(item.path)) item.hidden = true;
+    if (item.children) markHiddenDocs(item.children, hidden);
+  }
+}
+
 let memo: NavigationItem[] | null = null;
 const memoStamp = stamp();
 
@@ -222,7 +238,17 @@ export function getNavigation(
   if (hit) return hit;
 
   const base = curated ?? [];
-  memo = autoNavigation ? mergeDiscoveredDocs(base) : cloneTree(base);
+  const tree = autoNavigation ? mergeDiscoveredDocs(base) : cloneTree(base);
+
+  // Both branches return a clone, so this never marks the payload itself.
+  const hiddenDocs = new Set(
+    getContentRegistry()
+      .docs.filter((doc) => doc.hidden)
+      .map((doc) => doc.path),
+  );
+  markHiddenDocs(tree, hiddenDocs);
+
+  memo = tree;
   memoStamp.at = contentGeneration();
 
   return memo;

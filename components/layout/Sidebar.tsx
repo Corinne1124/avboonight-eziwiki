@@ -13,6 +13,9 @@ import { useSearchStore } from '@/lib/store/searchStore';
 import { filterHiddenItems } from '@/lib/navigation/builder';
 import { useStrings } from '@/components/providers/StringsProvider';
 import { format } from '@/lib/i18n/format';
+import { isLightColor } from '@/lib/color';
+import { Collapse } from './Collapse';
+import { ACTIVE_ON_COLOR_CLASSES, ACTIVE_ON_COLOR_STYLE, pressOverlay } from './sectionSurface';
 
 /**
  * Props for the Sidebar component
@@ -62,22 +65,6 @@ interface NavigationItemComponentProps {
   parentLines?: boolean[];
   /** Background color inherited from parent */
   backgroundColor?: string;
-}
-
-/**
- * Calculate luminance of a color to determine if it's light or dark
- * Returns true if the color is light (needs dark text)
- */
-function isLightColor(hexColor: string): boolean {
-  const hex = hexColor.replace('#', '');
-
-  const r = parseInt(hex.substring(0, 2), 16);
-  const g = parseInt(hex.substring(2, 4), 16);
-  const b = parseInt(hex.substring(4, 6), 16);
-
-  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-
-  return luminance > 0.5;
 }
 
 /**
@@ -179,8 +166,8 @@ function NavigationItemComponent({
               onClick={handleToggle}
               className={`mr-1 p-1 rounded transition-colors touch-manipulation flex-shrink-0 ${
                 !bgColor
-                  ? 'text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100 hover:bg-black/5 dark:hover:bg-white/10'
-                  : ''
+                  ? 'text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100 hover:bg-black/5 dark:hover:bg-white/10 active:bg-black/10 dark:active:bg-white/20'
+                  : pressOverlay(isLight)
               }`}
               style={bgColor ? { color: textColor } : undefined}
               // The button is a bare chevron, so it needs a name of its own —
@@ -193,7 +180,6 @@ function NavigationItemComponent({
             >
               <ChevronRight
                 className={`w-4 h-4 transition-transform duration-[120ms] ${isExpanded ? 'rotate-90' : ''}`}
-                style={{ transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)' }}
               />
             </button>
           )}
@@ -210,13 +196,11 @@ function NavigationItemComponent({
               // yellow, green or pink alike.
               className={`flex-1 px-2 py-1 rounded-md text-sm transition-colors touch-manipulation ${
                 isActive
-                  ? `font-medium shadow-sm ${
-                      bgColor
-                        ? ''
-                        : 'bg-white text-gray-900 ring-1 ring-black/5 dark:bg-white/15 dark:text-gray-50 dark:ring-white/10'
-                    }`
+                  ? bgColor
+                    ? ACTIVE_ON_COLOR_CLASSES
+                    : 'font-medium shadow-sm bg-white text-gray-900 ring-1 ring-black/5 dark:bg-white/15 dark:text-gray-50 dark:ring-white/10'
                   : bgColor
-                    ? 'hover:bg-black/5 active:bg-black/10'
+                    ? pressOverlay(isLight)
                     : 'text-gray-600 dark:text-gray-300 hover:bg-black/5 dark:hover:bg-white/10 active:bg-black/10 dark:active:bg-white/20'
               } ${!hasChildren ? 'ml-5' : ''}`}
               // A section keeps its colour in both themes, so the raised
@@ -225,7 +209,7 @@ function NavigationItemComponent({
               // and that is handled by the classes above.
               style={
                 isActive && bgColor
-                  ? { backgroundColor: '#ffffff', color: 'rgb(31, 41, 55)' }
+                  ? ACTIVE_ON_COLOR_STYLE
                   : bgColor
                     ? { color: textColor }
                     : undefined
@@ -248,14 +232,7 @@ function NavigationItemComponent({
         </div>
       </div>
       {hasChildren && (
-        <div
-          className="overflow-hidden transition-all duration-[120ms]"
-          style={{
-            maxHeight: isExpanded ? '1000px' : '0',
-            transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
-            ...getBgStyle(false),
-          }}
-        >
+        <Collapse expanded={isExpanded} style={getBgStyle(false)}>
           {item.children!.map((child, index) => {
             const newParentLines = [...parentLines, true];
 
@@ -269,7 +246,7 @@ function NavigationItemComponent({
               />
             );
           })}
-        </div>
+        </Collapse>
       )}
     </div>
   );

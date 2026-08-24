@@ -9,6 +9,9 @@ import { useUrlMap } from '@/components/providers/UrlMapProvider';
 import { filterHiddenItems } from '@/lib/navigation/builder';
 import { Github } from 'lucide-react';
 import { useStrings } from '@/components/providers/StringsProvider';
+import { isLightColor } from '@/lib/color';
+import { Collapse } from './Collapse';
+import { ACTIVE_ON_COLOR_CLASSES, ACTIVE_ON_COLOR_STYLE, pressOverlay } from './sectionSurface';
 
 /**
  * Props for the MobileMenu component
@@ -38,18 +41,6 @@ interface MobileNavigationItemProps {
   onNavigate: () => void;
   /** Background color inherited from parent */
   backgroundColor?: string;
-}
-
-/**
- * Calculate luminance of a color to determine if it's light or dark
- */
-function isLightColor(hexColor: string): boolean {
-  const hex = hexColor.replace('#', '');
-  const r = parseInt(hex.substring(0, 2), 16);
-  const g = parseInt(hex.substring(2, 4), 16);
-  const b = parseInt(hex.substring(4, 6), 16);
-  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-  return luminance > 0.5;
 }
 
 /**
@@ -131,7 +122,7 @@ function MobileNavigationItem({
             className={`flex items-center flex-1 px-2 py-1 rounded-md text-sm transition-colors touch-manipulation ${
               !bgColor
                 ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 active:bg-gray-200 dark:active:bg-gray-700'
-                : ''
+                : pressOverlay(isLight)
             }`}
             style={bgColor ? { color: textColor, ...getLeftMarginStyle() } : getLeftMarginStyle()}
             // No aria-label: this button already contains the section name, and
@@ -142,7 +133,6 @@ function MobileNavigationItem({
           >
             <svg
               className={`w-4 h-4 mr-2 -ml-1 flex-shrink-0 transition-transform duration-[120ms] ${isExpanded ? 'rotate-90' : ''}`}
-              style={{ transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)' }}
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -158,16 +148,25 @@ function MobileNavigationItem({
           <Link
             href={urlFor(item.path)}
             onClick={handleLinkClick}
+            // Over a coloured section the active page is lifted off on a
+            // white surface, as the desktop sidebar does: the fixed blue
+            // clashes with whatever colour the section's `_meta.json` names,
+            // and there is no blue that cannot. The blue stays for the
+            // uncoloured case, where it has nothing to clash with.
             className={`flex-1 px-2 py-1 rounded-md text-sm transition-colors touch-manipulation ${
               isActive
-                ? 'bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-100 font-medium'
+                ? bgColor
+                  ? ACTIVE_ON_COLOR_CLASSES
+                  : 'bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-100 font-medium'
                 : !bgColor
                   ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 active:bg-gray-200 dark:active:bg-gray-700'
-                  : ''
+                  : pressOverlay(isLight)
             }`}
             style={
-              bgColor && !isActive
-                ? { color: textColor, ...getLeftMarginStyle() }
+              bgColor
+                ? isActive
+                  ? { ...ACTIVE_ON_COLOR_STYLE, ...getLeftMarginStyle() }
+                  : { color: textColor, ...getLeftMarginStyle() }
                 : getLeftMarginStyle()
             }
           >
@@ -187,14 +186,7 @@ function MobileNavigationItem({
         )}
       </div>
       {hasChildren && (
-        <div
-          className="overflow-hidden transition-all duration-[120ms]"
-          style={{
-            maxHeight: isExpanded ? '1000px' : '0',
-            transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)',
-            ...getBgStyle(false),
-          }}
-        >
+        <Collapse expanded={isExpanded} style={getBgStyle(false)}>
           {item.children!.map((child, index) => (
             <MobileNavigationItem
               key={`${child.name}-${index}`}
@@ -205,7 +197,7 @@ function MobileNavigationItem({
               backgroundColor={bgColor}
             />
           ))}
-        </div>
+        </Collapse>
       )}
     </div>
   );

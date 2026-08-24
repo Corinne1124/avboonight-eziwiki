@@ -1,6 +1,6 @@
 import type MiniSearch from 'minisearch';
 import { tokenize } from './tokenizer';
-import { SEARCH_INDEX_PATH, type SearchDoc, type SearchIndex } from './types';
+import { SEARCH_INDEX_PATH, SEARCH_INDEX_VERSION, type SearchDoc, type SearchIndex } from './types';
 
 /**
  * Browser-side search.
@@ -104,7 +104,16 @@ export function loadSearcher(): Promise<MiniSearch<SearchDoc>> {
       throw new Error(`Search index unavailable (${response.status})`);
     }
 
-    return await createSearcher((await response.json()) as SearchIndex);
+    const index = (await response.json()) as SearchIndex;
+
+    // A cached index of another shape would not fail loudly: its entries
+    // simply lack the fields read off a hit, and the first result the reader
+    // picks navigates to `undefined`.
+    if (index.version !== SEARCH_INDEX_VERSION) {
+      throw new Error(`Search index version ${index.version} is not ${SEARCH_INDEX_VERSION}`);
+    }
+
+    return await createSearcher(index);
   })().catch((error) => {
     // Allow a later attempt to retry rather than caching the failure forever.
     loading = null;

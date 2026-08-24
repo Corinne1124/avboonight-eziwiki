@@ -60,8 +60,12 @@ function useActiveHeading(headings: Heading[]): string | null {
 
       // Near the bottom of the page the final section may never reach the
       // offset line, so pin the last heading once the page is scrolled to end.
-      const atBottom =
-        window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
+      // A page too short to scroll is "at the end" from the moment it loads,
+      // and would pin its last heading while the reader is looking at the
+      // first — so the rule applies only where scrolling is possible.
+      const scrollHeight = document.documentElement.scrollHeight;
+      const scrollable = scrollHeight > window.innerHeight + 2;
+      const atBottom = scrollable && window.innerHeight + window.scrollY >= scrollHeight - 2;
 
       if (atBottom) {
         setActive(positions[positions.length - 1].id);

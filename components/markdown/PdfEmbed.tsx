@@ -610,6 +610,17 @@ interface Embed {
  * <PdfEmbeds />
  * ```
  */
+/**
+ * What was read off each figure before its fallback markup was removed.
+ *
+ * The effect below is not otherwise repeatable: it takes the fallback out of
+ * the DOM, so a second pass over the same figure finds nothing to read and
+ * mounts nothing. Strict Mode makes exactly that second pass in development —
+ * every embed came up empty there. Keyed by element, so a figure that arrives
+ * with a new page is read afresh and one that has gone is forgotten.
+ */
+const extracted = new WeakMap<HTMLElement, Omit<Embed, 'host'>>();
+
 export function PdfEmbeds() {
   const [embeds, setEmbeds] = useState<Embed[]>([]);
   // The article's markup is swapped in place on a client-side navigation, so
@@ -620,13 +631,18 @@ export function PdfEmbeds() {
     const found: Embed[] = [];
 
     for (const host of document.querySelectorAll<HTMLElement>('[data-ezw-pdf]')) {
+      const known = extracted.get(host);
+      if (known) {
+        found.push({ host, ...known });
+        continue;
+      }
+
       const fallback = host.querySelector<HTMLAnchorElement>('.ezw-pdf__fallback');
       if (!fallback) continue;
 
       const image = host.querySelector<HTMLImageElement>('.ezw-pdf__poster');
 
-      found.push({
-        host,
+      const embed: Omit<Embed, 'host'> = {
         src: fallback.getAttribute('href') ?? '',
         name: host.dataset.name ?? '',
         size: Number(host.dataset.size ?? 0),
@@ -641,7 +657,10 @@ export function PdfEmbeds() {
               height: image.height,
             }
           : undefined,
-      });
+      };
+
+      extracted.set(host, embed);
+      found.push({ host, ...embed });
 
       // Only now that the preview is certain to replace them: removing them
       // first and then failing would leave the reader with neither. The image

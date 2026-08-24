@@ -18,6 +18,16 @@ const SECTION_DEPTHS = new Set([2, 3, 4]);
 /** Characters of body text kept per entry, to bound the index size. */
 const MAX_BODY_CHARS = 1200;
 
+/** The named entities a heading is likely to carry. */
+const ENTITIES: Record<string, string> = {
+  amp: '&',
+  lt: '<',
+  gt: '>',
+  quot: '"',
+  apos: "'",
+  nbsp: ' ',
+};
+
 /**
  * Converts Markdown to plain text suitable for indexing and previews.
  *
@@ -100,7 +110,10 @@ export function splitSections(markdown: string): Section[] {
       }
     }
 
-    const headingMatch = fence === null ? /^ {0,3}(#{1,6}) +(.*?)#*\s*$/.exec(line) : null;
+    // A closing sequence of hashes is optional and must follow a space, so
+    // the `#` in `## C#` is part of the heading — as CommonMark reads it and
+    // as the rendered heading spells it, which the anchor match depends on.
+    const headingMatch = fence === null ? /^ {0,3}(#{1,6}) +(.*?)(?:\s+#+)?\s*$/.exec(line) : null;
 
     if (headingMatch && SECTION_DEPTHS.has(headingMatch[1].length)) {
       sections.push({ heading: headingMatch[2].trim(), markdown: '' });
@@ -131,7 +144,16 @@ function matchAnchors(
   sections: Section[],
   anchors: Array<{ id: string; text: string }>,
 ): Array<string | undefined> {
-  const normalize = (value: string) => markdownToText(value).toLowerCase();
+  // The source spells a heading with escapes and entities that the render has
+  // resolved — `Tom &amp; Jerry`, `A \* B` — so both sides are brought to the
+  // rendered form before comparing, or such a section silently loses its
+  // anchor and drops the reader at the top of the page.
+  const normalize = (value: string) =>
+    markdownToText(value.replace(/\\([!-/:-@[-`{-~])/g, '$1'))
+      .replace(/&#(\d+);/g, (_, code: string) => String.fromCodePoint(Number(code)))
+      .replace(/&#x([0-9a-f]+);/gi, (_, code: string) => String.fromCodePoint(parseInt(code, 16)))
+      .replace(/&(amp|lt|gt|quot|apos|nbsp);/g, (_, name: string) => ENTITIES[name])
+      .toLowerCase();
   let cursor = 0;
 
   return sections.map((section) => {

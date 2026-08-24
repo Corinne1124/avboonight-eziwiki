@@ -89,6 +89,13 @@ describe('splitSections', () => {
   it('strips trailing closing hashes from a heading', () => {
     expect(splitSections('## Setup ##\n')[1].heading).toBe('Setup');
   });
+
+  it('keeps a hash that is part of the heading text', () => {
+    // Only a space-separated run of hashes closes a heading; the one in `C#`
+    // is the name, and dropping it left the section without an anchor.
+    expect(splitSections('## C#\n')[1].heading).toBe('C#');
+    expect(splitSections('## Issue #12\n')[1].heading).toBe('Issue #12');
+  });
 });
 
 describe('buildSearchIndex', () => {

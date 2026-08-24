@@ -1,7 +1,11 @@
 export function TabBarSkeleton() {
+  // Sized exactly like the real bar and its first tab (`h-9`/`h-8` on
+  // phones), because this placeholder exists to prevent layout shift — a
+  // stand-in of a different height would only trade a horizontal jump for a
+  // vertical one at the swap.
   return (
-    <div className="flex items-center gap-1 bg-gray-100 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 overflow-x-auto px-2 py-1">
-      <div className="flex items-center gap-2 px-3 py-1.5 rounded-md w-[180px] flex-shrink-0 bg-gray-50 dark:bg-gray-800/50 animate-pulse">
+    <div className="flex items-center gap-1 bg-gray-100 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 overflow-x-auto px-2 py-1 h-9 md:h-auto">
+      <div className="flex items-center gap-2 px-3 py-1.5 rounded-md w-[180px] flex-shrink-0 h-8 md:h-auto bg-gray-50 dark:bg-gray-800/50 animate-pulse">
         <div className="flex-1 h-4 bg-gray-300 dark:bg-gray-700 rounded" />
         <div className="w-3.5 h-3.5 bg-gray-300 dark:bg-gray-700 rounded" />
       </div>

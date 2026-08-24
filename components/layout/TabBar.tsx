@@ -173,8 +173,14 @@ export function TabBar() {
     }
   }, [contextMenu]);
 
-  // Show skeleton while hydrating
-  if (!hasHydrated) {
+  // Show skeleton while hydrating, and through the empty frame right after:
+  // hydration can finish with no stored tabs, and the first tab only arrives
+  // once TabInitializer's effect runs. Rendering the bar in between paints it
+  // with zero tabs, which walks the "+" button left and back — a one-tab-wide
+  // shift on every first visit. An empty list is always this transient state:
+  // closing the last tab immediately opens a fresh one, and TabInitializer
+  // recreates a tab whenever the list empties by any other route.
+  if (!hasHydrated || tabs.length === 0) {
     return <TabBarSkeleton />;
   }
 

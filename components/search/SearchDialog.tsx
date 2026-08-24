@@ -72,19 +72,31 @@ export function SearchDialog() {
   // Global shortcut. Bound on the document so it works regardless of focus.
   useEffect(() => {
     const handler = (event: KeyboardEvent) => {
+      if (event.isComposing) return;
+
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
         event.preventDefault();
         toggle();
+        return;
+      }
+
+      // Escape is bound here as well as on the dialog: nothing contains
+      // focus, so Tab can carry it out behind the backdrop, from where a
+      // keydown never reaches the dialog's own handler.
+      if (event.key === 'Escape' && useSearchStore.getState().isOpen) {
+        close();
       }
     };
 
     document.addEventListener('keydown', handler);
     return () => document.removeEventListener('keydown', handler);
-  }, [toggle]);
+  }, [toggle, close]);
 
   // Reset and focus each time the dialog opens.
   useEffect(() => {
     if (!isOpen) return;
+
+    const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
 
     setQuery('');
     setResults([]);
@@ -93,7 +105,13 @@ export function SearchDialog() {
 
     // Focus after paint, or the input is not yet mounted.
     const raf = requestAnimationFrame(() => inputRef.current?.focus());
-    return () => cancelAnimationFrame(raf);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      // Back to whatever opened the dialog — for a keyboard user the trigger
+      // they pressed. Left alone, focus drops to the body on close.
+      opener?.focus();
+    };
   }, [isOpen]);
 
   // Prevent the page behind the dialog from scrolling.
@@ -155,6 +173,11 @@ export function SearchDialog() {
   );
 
   const handleKeyDown = (event: React.KeyboardEvent) => {
+    // Enter, Escape and the arrows all have a meaning to an IME while a
+    // syllable is being composed; acting on them here would open the top hit
+    // for a Korean query the reader had not finished typing.
+    if (event.nativeEvent.isComposing) return;
+
     if (event.key === 'Escape') {
       event.preventDefault();
       close();

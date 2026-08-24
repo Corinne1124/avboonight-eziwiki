@@ -9,8 +9,8 @@ export interface HistoryEntry {
 export interface Tab {
   id: string;
   title: string;
+  /** Content path, or a route such as '/graph/' — see `isRoutePath` */
   path: string;
-  scrollPosition?: number;
   history: HistoryEntry[]; // History stack for this tab
   historyIndex: number; // Current position in history
 }
@@ -25,14 +25,12 @@ interface TabStore {
   addTab: (tab?: Omit<Tab, 'id' | 'history' | 'historyIndex'>) => string;
   removeTab: (id: string) => void;
   setActiveTab: (id: string) => void;
-  updateTabPath: (id: string, path: string, title: string) => void;
   navigateInHistory: (id: string, path: string, title: string) => void;
   goBack: (id: string) => { path: string; title: string } | null;
   goForward: (id: string) => { path: string; title: string } | null;
   canGoBack: (id: string) => boolean;
   canGoForward: (id: string) => boolean;
   updateTabHistoryIndex: (id: string, index: number) => void;
-  updateTabScroll: (id: string, scrollPosition: number) => void;
   closeOtherTabs: (id: string) => void;
   closeTabsToRight: (id: string) => void;
   reorderTabs: (fromIndex: number, toIndex: number) => void;
@@ -119,28 +117,32 @@ export const useTabStore = create<TabStore>()(
         }
       },
 
-      updateTabPath: (id, path, title) => {
-        set((state) => ({
-          tabs: state.tabs.map((tab) => (tab.id === id ? { ...tab, path, title } : tab)),
-        }));
-      },
-
       navigateInHistory: (id, path, title) => {
         set((state) => ({
           tabs: state.tabs.map((tab) => {
             if (tab.id !== id) return tab;
 
+            // Both values are rehydrated from localStorage, where a missing
+            // history or an index outside it is only a stale or hand-edited
+            // entry away — so they are re-anchored before being trusted. A
+            // negative index handed straight to `slice` below would not crash;
+            // it would silently discard the tab's entire history.
+            const history = tab.history?.length
+              ? tab.history
+              : [{ path: tab.path, title: tab.title }];
+            const index = Math.min(Math.max(tab.historyIndex ?? 0, 0), history.length - 1);
+
             // If navigating to a new page (not back/forward), add to history
-            const currentEntry = tab.history[tab.historyIndex];
+            const currentEntry = history[index];
             if (currentEntry.path === path) {
               // Same page, just update title if needed
-              const updatedHistory = [...tab.history];
-              updatedHistory[tab.historyIndex] = { path, title };
-              return { ...tab, title, history: updatedHistory };
+              const updatedHistory = [...history];
+              updatedHistory[index] = { path, title };
+              return { ...tab, title, history: updatedHistory, historyIndex: index };
             }
 
             // Remove any forward history and add new entry
-            const newHistory = tab.history.slice(0, tab.historyIndex + 1);
+            const newHistory = history.slice(0, index + 1);
             newHistory.push({ path, title });
 
             return {
@@ -198,16 +200,19 @@ export const useTabStore = create<TabStore>()(
         return { path: newEntry.path, title: newEntry.title };
       },
 
+      // Both mirror what goBack/goForward would actually find, not just the
+      // index bounds: a stale persisted index otherwise renders the button
+      // enabled while clicking it does nothing.
       canGoBack: (id) => {
         const { tabs } = get();
         const tab = tabs.find((t) => t.id === id);
-        return tab && tab.history ? tab.historyIndex > 0 : false;
+        return Boolean(tab?.history?.[tab.historyIndex - 1]);
       },
 
       canGoForward: (id) => {
         const { tabs } = get();
         const tab = tabs.find((t) => t.id === id);
-        return tab && tab.history ? tab.historyIndex < tab.history.length - 1 : false;
+        return Boolean(tab?.history?.[tab.historyIndex + 1]);
       },
 
       updateTabHistoryIndex: (id, index) => {
@@ -227,24 +232,31 @@ export const useTabStore = create<TabStore>()(
         }));
       },
 
-      updateTabScroll: (id, scrollPosition) => {
-        set((state) => ({
-          tabs: state.tabs.map((tab) => (tab.id === id ? { ...tab, scrollPosition } : tab)),
-        }));
-      },
-
+      // Both bail out on an id the list does not contain: filtering by a stale
+      // id would close every tab including the one it meant to keep, and
+      // findIndex's -1 fed to slice would empty the list — leaving the tab bar
+      // with nothing to show but its loading skeleton.
       closeOtherTabs: (id) => {
-        set((state) => ({
-          tabs: state.tabs.filter((tab) => tab.id === id),
-          activeTabId: id,
-        }));
+        set((state) => {
+          if (!state.tabs.some((tab) => tab.id === id)) return state;
+          return {
+            tabs: state.tabs.filter((tab) => tab.id === id),
+            activeTabId: id,
+          };
+        });
       },
 
       closeTabsToRight: (id) => {
         set((state) => {
           const index = state.tabs.findIndex((tab) => tab.id === id);
+          if (index === -1) return state;
+
+          // The active tab may be among those closed; the one the menu was
+          // opened on becomes active then, since it is the rightmost left.
+          const activeIndex = state.tabs.findIndex((tab) => tab.id === state.activeTabId);
           return {
             tabs: state.tabs.slice(0, index + 1),
+            activeTabId: activeIndex > index ? id : state.activeTabId,
           };
         });
       },
@@ -268,13 +280,14 @@ export const useTabStore = create<TabStore>()(
     }),
     {
       name: 'tab-storage',
-      // Exclude scroll position when saving to localStorage
+      // Without an explicit version the migration below never ran: zustand
+      // only calls `migrate` when the persisted version differs from this one,
+      // and both defaulted to 0 — so blobs written before tabs carried a
+      // history were rehydrated unmigrated, and the first navigation read
+      // `history[0]` off undefined.
+      version: 1,
       partialize: (state) => ({
-        tabs: state.tabs.map((tab) => {
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const { scrollPosition, ...rest } = tab;
-          return rest;
-        }),
+        tabs: state.tabs,
         activeTabId: state.activeTabId,
         sidebarWidth: state.sidebarWidth,
         sidebarCollapsed: state.sidebarCollapsed,
@@ -284,11 +297,11 @@ export const useTabStore = create<TabStore>()(
         const state = persistedState as Record<string, unknown>;
         if (state?.tabs && Array.isArray(state.tabs)) {
           state.tabs = state.tabs.map((tab: Record<string, unknown>) => {
-            // Handle old format (string array) or missing history
+            // Handle old format (string array), or a missing or empty history
             let history = tab.history;
-            if (!history) {
+            if (!Array.isArray(history) || history.length === 0) {
               history = [{ path: tab.path || '', title: tab.title || 'New Tab' }];
-            } else if (Array.isArray(history) && typeof history[0] === 'string') {
+            } else if (typeof history[0] === 'string') {
               // Migrate from old string array format to new object format
               history = history.map((path: string) => ({
                 path,
@@ -296,11 +309,13 @@ export const useTabStore = create<TabStore>()(
               }));
             }
 
-            return {
-              ...tab,
-              history,
-              historyIndex: tab.historyIndex ?? 0,
-            };
+            // Clamped rather than defaulted: an index outside the history
+            // enables a back button that finds nothing, and lets the next
+            // navigation slice entries away.
+            const rawIndex = typeof tab.historyIndex === 'number' ? tab.historyIndex : 0;
+            const historyIndex = Math.min(Math.max(rawIndex, 0), (history as unknown[]).length - 1);
+
+            return { ...tab, history, historyIndex };
           });
         }
         return state;

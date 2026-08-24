@@ -86,23 +86,40 @@ export function urlToDocPath(map: UrlMap, slug: string): string | null {
 }
 
 /**
+ * Whether a tab-store path is a route rather than a content path.
+ *
+ * Tabs record the pages they visit as content paths, but the graph and tag
+ * views have none, so those are recorded as the route itself. A leading slash
+ * tells the two apart: content paths never carry one.
+ *
+ * @param path - Value stored as a tab's `path`
+ * @returns true when the value is already an href
+ */
+export function isRoutePath(path: string): boolean {
+  return path.startsWith('/');
+}
+
+/**
  * Builds an `href` for a content path, ready to hand to a link or router.
  *
  * Falls back to the root path when the document is unknown, which keeps
- * navigation from emitting `/null` for a stale or mistyped reference.
+ * navigation from emitting `/null` for a stale or mistyped reference. A value
+ * that is already a route (see `isRoutePath`) is returned untouched.
  *
  * @param map - Precomputed URL mapping
- * @param docPath - Content-relative path without extension
+ * @param docPath - Content-relative path without extension, or a route
  * @returns A root-relative href
  *
  * @example
  * ```typescript
  * hrefFor(map, 'guides/quick-start'); // '/guides/quick-start'
  * hrefFor(map, 'does-not-exist'); // '/'
+ * hrefFor(map, '/graph/'); // '/graph/'
  * ```
  */
 export function hrefFor(map: UrlMap, docPath: string | undefined): string {
   if (!docPath) return '/';
+  if (isRoutePath(docPath)) return docPath;
   const url = docPathToUrl(map, docPath);
   return url ? `/${url}` : '/';
 }

@@ -75,6 +75,19 @@ export function TabBar() {
     setContextMenu({ x: e.clientX, y: e.clientY, tabId });
   };
 
+  // Closing tabs from the menu can make a different tab active — "Close
+  // Others" on an inactive tab, "Close to the Right" past the active one —
+  // and the page has to follow it, or the bar highlights one tab while the
+  // article shows another's.
+  const closeFromMenu = (close: (tabId: string) => void, tabId: string) => {
+    close(tabId);
+    const { activeTabId: nowActive, tabs: remaining } = useTabStore.getState();
+    if (nowActive === activeTabId) return;
+
+    const target = remaining.find((tab) => tab.id === nowActive);
+    router.replace(target?.path ? urlFor(target.path) : '/');
+  };
+
   const handleCloseContextMenu = () => {
     setContextMenu(null);
   };
@@ -291,7 +304,7 @@ export function TabBar() {
           </button>
           <button
             onClick={() => {
-              closeOtherTabs(contextMenu.tabId);
+              closeFromMenu(closeOtherTabs, contextMenu.tabId);
               handleCloseContextMenu();
             }}
             className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
@@ -300,7 +313,7 @@ export function TabBar() {
           </button>
           <button
             onClick={() => {
-              closeTabsToRight(contextMenu.tabId);
+              closeFromMenu(closeTabsToRight, contextMenu.tabId);
               handleCloseContextMenu();
             }}
             className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"

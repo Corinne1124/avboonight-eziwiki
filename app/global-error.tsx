@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { payload } from '@/payload/config';
 import { DEFAULT_STRINGS } from '@/lib/i18n/strings';
+import { asset } from '@/lib/basePath';
 
 interface GlobalErrorProps {
   error: Error & { digest?: string };
@@ -68,8 +69,10 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
                 {t.tryAgain}
               </button>
 
+              {/* Through `asset()` for the same reason as in error.tsx: a bare
+                  "/" leaves a subdirectory deployment for the domain root. */}
               <a
-                href="/"
+                href={asset('/')}
                 className="px-6 py-3 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100 font-medium rounded-lg transition-colors"
               >
                 {t.goHome}

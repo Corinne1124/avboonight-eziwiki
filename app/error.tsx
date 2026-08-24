@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import { useStrings } from '@/components/providers/StringsProvider';
+import { asset } from '@/lib/basePath';
 
 interface ErrorProps {
   error: Error & { digest?: string };
@@ -61,8 +62,15 @@ export default function Error({ error, reset }: ErrorProps) {
             {t.tryAgain}
           </button>
 
+          {/*
+            A plain anchor on purpose — a full reload is the one recovery
+            that discards whatever client state produced the error — but
+            through `asset()`: Next prefixes its own links with the base
+            path, not a hand-written href, and a bare "/" leaves a
+            subdirectory deployment for the domain root.
+          */}
           <a
-            href="/"
+            href={asset('/')}
             className="px-6 py-3 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100 font-medium rounded-lg transition-colors"
           >
             {t.goHome}

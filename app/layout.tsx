@@ -134,13 +134,34 @@ const fontFaceCss = FONT_FACES.map(
 /** Language announced when the payload names none. */
 const DEFAULT_LANG = 'en';
 
+/**
+ * Applies the reader's theme before the first paint.
+ *
+ * The static HTML carries no theme — it cannot know one — and the toggle
+ * component only runs after the whole bundle has hydrated. Left to it, every
+ * page load flashed white for a dark-mode reader; and since links inside an
+ * article are plain anchors, so did every click on one. This runs inline in
+ * `<head>`, so the class is on `<html>` before the body is laid out.
+ *
+ * Written to match what `ThemeToggle` stores: an explicit choice wins, the
+ * system preference decides otherwise. Storage can throw in private windows
+ * and under strict privacy settings, so the whole thing is guarded.
+ */
+const themeScript =
+  "try{var t=localStorage.getItem('theme');" +
+  "if(t==='dark'||(!t&&matchMedia('(prefers-color-scheme: dark)').matches))" +
+  "document.documentElement.classList.add('dark')}catch(e){}";
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const site = getSite();
   const homeUrl = pageUrl('', site.global.baseUrl);
 
   return (
-    <html lang={site.global.lang ?? DEFAULT_LANG}>
+    // The class the script above adds is not in the server markup, and React
+    // would otherwise report the difference on every dark-mode load.
+    <html lang={site.global.lang ?? DEFAULT_LANG} suppressHydrationWarning>
       <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         {FONT_FACES.filter((font) => font.preload).map((font) => (
           <link
             key={fontFile(font)}

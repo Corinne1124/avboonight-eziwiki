@@ -7,39 +7,45 @@ interface ThemeToggleProps {
   className?: string;
 }
 
+/**
+ * Switches between light and dark, and reports which is on.
+ *
+ * The `dark` class itself is put on `<html>` by the inline script in the root
+ * layout, before anything paints; this only reads it. It keeps reading it
+ * because two toggles are mounted at once — the phone header's and the
+ * sidebar's, one hidden by the viewport — and each holding its own idea of
+ * the theme meant the hidden one woke up after a resize announcing the wrong
+ * state and needing two presses to change it.
+ */
 export function ThemeToggle({ className = 'w-5 h-5' }: ThemeToggleProps) {
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [isDark, setIsDark] = useState(false);
   const t = useStrings();
 
   useEffect(() => {
-    // Get initial theme from localStorage or system preference
-    const stored = localStorage.getItem('theme') as 'light' | 'dark' | null;
-    if (stored) {
-      setTheme(stored);
-      document.documentElement.classList.toggle('dark', stored === 'dark');
-    } else {
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      const initialTheme = prefersDark ? 'dark' : 'light';
-      setTheme(initialTheme);
-      document.documentElement.classList.toggle('dark', prefersDark);
-    }
+    const root = document.documentElement;
+    const read = () => setIsDark(root.classList.contains('dark'));
+
+    read();
+    const observer = new MutationObserver(read);
+    observer.observe(root, { attributes: true, attributeFilter: ['class'] });
+
+    return () => observer.disconnect();
   }, []);
 
   const toggleTheme = () => {
-    const newTheme = theme === 'dark' ? 'light' : 'dark';
-    setTheme(newTheme);
-    localStorage.setItem('theme', newTheme);
-    document.documentElement.classList.toggle('dark', newTheme === 'dark');
+    const next = isDark ? 'light' : 'dark';
+    localStorage.setItem('theme', next);
+    document.documentElement.classList.toggle('dark', next === 'dark');
   };
 
   return (
     <button
       onClick={toggleTheme}
       className="p-2 rounded-md text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors"
-      aria-label={theme === 'dark' ? t.switchToLight : t.switchToDark}
-      title={theme === 'dark' ? t.switchToLight : t.switchToDark}
+      aria-label={isDark ? t.switchToLight : t.switchToDark}
+      title={isDark ? t.switchToLight : t.switchToDark}
     >
-      {theme === 'dark' ? (
+      {isDark ? (
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"

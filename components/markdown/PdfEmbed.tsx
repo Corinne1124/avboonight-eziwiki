@@ -361,12 +361,16 @@ function PdfViewer({ src, name, size, pages: hinted }: PdfViewerProps) {
   }, []);
 
   const goTo = useCallback((target: number) => {
-    const element = scroller.current?.querySelector(`[data-page="${target}"]`);
-    if (!element) return;
+    const box = scroller.current;
+    const element = box?.querySelector(`[data-page="${target}"]`);
+    if (!box || !element) return;
 
-    element.scrollIntoView({
+    // Scrolled by hand rather than with `scrollIntoView`, which scrolls every
+    // ancestor as well — the window included, lifting the page so the
+    // toolbar the reader just pressed slides out of the viewport.
+    box.scrollTo({
+      top: element.getBoundingClientRect().top - box.getBoundingClientRect().top + box.scrollTop,
       behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
-      block: 'start',
     });
   }, []);
 

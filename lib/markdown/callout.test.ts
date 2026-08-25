@@ -84,4 +84,22 @@ describe('callouts', () => {
     expect(html).toContain('First line.');
     expect(html).toContain('Second line.');
   });
+
+  it('keeps a title that carries inline code together', async () => {
+    // The title used to end at the first inline node: this one read "Use",
+    // and the code and the words after it fell into the body.
+    const { html } = await render('> [!TIP] Use `npm ci` instead\n> Body text.');
+
+    expect(html).toMatch(/ezw-callout__title">Use <code>npm ci<\/code> instead</);
+    expect(html).toMatch(/<p>Body text\.<\/p>/);
+  });
+
+  it('converts a callout nested inside another', async () => {
+    const { html } = await render('> [!NOTE] Outer\n> > [!TIP] Inner\n> > Inner body.');
+
+    expect(html).toContain('ezw-callout--note');
+    expect(html).toContain('ezw-callout--tip');
+    expect(html).toContain('ezw-callout__title">Inner<');
+    expect(html).not.toContain('[!TIP]');
+  });
 });

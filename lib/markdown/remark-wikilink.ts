@@ -9,6 +9,7 @@ import type {
   BlockContent,
 } from 'mdast';
 import { WIKILINK_PATTERN, parseWikiLink, type WikiLink } from './wikilink';
+import { remarkCallouts } from './remark-callout';
 import { getStrings } from '../site';
 import { format, formatBytes } from '../i18n/format';
 
@@ -318,6 +319,10 @@ function transclude(tree: Root, resolvers: WikiLinkResolvers, stack: string[]): 
 
     const inner: Root = { type: 'root', children: target.nodes };
     transclude(inner, resolvers, [...stack, target.path]);
+    // The included page was parsed by itself, and the callout pass over the
+    // host page ran before this one — so without this its `> [!note]` blocks
+    // arrived as plain quotes with the marker still in the text.
+    remarkCallouts()(inner);
     markTranscludedHeadings(inner);
 
     parent.children.splice(index, 1, wrapTranscluded(target, inner.children));

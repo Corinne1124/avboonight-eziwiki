@@ -86,15 +86,51 @@ function readMarker(node: Blockquote): Marker | null {
   const kind = KINDS[match[1].toLowerCase()];
   if (!kind) return null;
 
-  const rest = newline === -1 ? '' : lead.value.slice(newline + 1);
-  const heading = match[3].trim();
+  const title: PhrasingContent[] = [];
+  const body: PhrasingContent[] = [];
 
-  // Everything after the marker line stays in the body, including any inline
-  // nodes that followed the opening text.
-  const body: PhrasingContent[] = [
-    ...(rest ? [{ type: 'text' as const, value: rest }] : []),
-    ...first.children.slice(1),
-  ];
+  if (newline !== -1) {
+    // The marker line ends inside the leading text: the title is the rest of
+    // that line, and everything after is body.
+    const heading = match[3].trim();
+    if (heading) title.push({ type: 'text', value: heading });
+
+    const rest = lead.value.slice(newline + 1);
+    if (rest) body.push({ type: 'text', value: rest });
+    body.push(...first.children.slice(1));
+  } else {
+    // The title runs on into the inline nodes that follow — `Use \`npm ci\`
+    // instead` is a text node, a code node and a text node — up to the first
+    // newline in any of them. Reading only the leading text made the title
+    // "Use" and moved the rest into the body.
+    // The marker was matched against the trimmed line, so the space before
+    // the next node has to be put back or "Use" and the code run together.
+    const continues = first.children.length > 1;
+    const heading = continues
+      ? `${match[3].trimStart()}${/\s$/.test(head) ? ' ' : ''}`
+      : match[3].trim();
+    if (heading.trim()) title.push({ type: 'text', value: heading });
+
+    let i = 1;
+    for (; i < first.children.length; i++) {
+      const child = first.children[i];
+
+      if (child.type === 'text' && child.value.includes('\n')) {
+        const at = child.value.indexOf('\n');
+        const before = child.value.slice(0, at).trimEnd();
+        const after = child.value.slice(at + 1);
+
+        if (before) title.push({ type: 'text', value: before });
+        if (after) body.push({ type: 'text', value: after });
+        i += 1;
+        break;
+      }
+
+      title.push(child);
+    }
+
+    body.push(...first.children.slice(i));
+  }
 
   node.children = [
     ...(body.length ? [{ type: 'paragraph' as const, children: body }] : []),
@@ -103,7 +139,7 @@ function readMarker(node: Blockquote): Marker | null {
 
   return {
     kind,
-    title: [{ type: 'text', value: heading || titleFor(kind) }],
+    title: title.length ? title : [{ type: 'text', value: titleFor(kind) }],
     fold: match[2] === '-' ? 'closed' : match[2] === '+' ? 'open' : 'none',
   };
 }
@@ -114,13 +150,18 @@ function titleFor(kind: string): string {
 }
 
 /**
- * Builds the callout node.
+ * Turns the blockquote into the callout, in place.
  *
  * A foldable callout becomes `<details>`, which opens and closes without any
  * script — the browser already knows how to do this, and a disclosure that
  * depends on JavaScript is one that fails with it disabled.
+ *
+ * In place rather than as a fresh node, because the visitor goes on into the
+ * children of the node it was handed: a callout nested inside this one is
+ * written back into *that* node's children, and when those were a copy the
+ * nested callout was lost with it — its marker stripped, its title gone.
  */
-function toCallout(node: Blockquote, marker: Marker): Blockquote {
+function toCallout(node: Blockquote, marker: Marker): void {
   const foldable = marker.fold !== 'none';
 
   const heading: BlockContent = {
@@ -132,17 +173,14 @@ function toCallout(node: Blockquote, marker: Marker): Blockquote {
     children: marker.title,
   };
 
-  return {
-    type: 'blockquote',
-    data: {
-      hName: foldable ? 'details' : 'div',
-      hProperties: {
-        className: ['ezw-callout', `ezw-callout--${marker.kind}`],
-        ...(marker.fold === 'open' ? { open: true } : {}),
-      },
+  node.data = {
+    hName: foldable ? 'details' : 'div',
+    hProperties: {
+      className: ['ezw-callout', `ezw-callout--${marker.kind}`],
+      ...(marker.fold === 'open' ? { open: true } : {}),
     },
-    children: [heading, ...node.children],
   };
+  node.children = [heading, ...node.children];
 }
 
 /**
@@ -157,17 +195,12 @@ function toCallout(node: Blockquote, marker: Marker): Blockquote {
  */
 export function remarkCallouts() {
   return (tree: Root) => {
-    visit(tree, 'blockquote', (node: Blockquote, index, parent) => {
-      if (!parent || index === undefined) return;
-
+    visit(tree, 'blockquote', (node: Blockquote) => {
       const marker = readMarker(node);
-      if (!marker) return;
+      if (marker) toCallout(node, marker);
 
-      parent.children[index] = toCallout(node, marker);
-
-      // Skip the node just written: its children have already been read, and
-      // revisiting would look at a blockquote that is now a callout.
-      return index + 1;
+      // Nothing returned: the visitor continues into the children, which is
+      // where a nested callout is found and converted in turn.
     });
   };
 }

@@ -259,7 +259,11 @@ function readDoc(filePath: string): ContentDoc | null {
   const { data, content } = matter(raw);
   const frontmatter = data as Record<string, unknown>;
 
-  const relative = path.relative(CONTENT_DIR, filePath).replace(/\\/g, '/');
+  // Composed form throughout. A macOS volume hands back decomposed names —
+  // 한글 as its jamo — while a keyboard, git, and a Linux checkout all produce
+  // the composed form; without this a link typed to such a page resolved on
+  // CI and not locally, and the page's URL differed between the two.
+  const relative = path.relative(CONTENT_DIR, filePath).replace(/\\/g, '/').normalize('NFC');
   const docPath = relative.replace(/\.md$/, '');
   const segments = docPath.split('/');
   const fileName = segments[segments.length - 1];

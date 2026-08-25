@@ -10,6 +10,13 @@ describe('normalizeSlug', () => {
     expect(normalizeSlug('guides/quick-start')).toBe('guides/quick-start');
     expect(normalizeSlug('/')).toBe('');
   });
+
+  it('composes a decomposed name, as a macOS volume hands them back', () => {
+    const decomposed = '한글'.normalize('NFD');
+
+    expect(decomposed).not.toBe('한글');
+    expect(normalizeSlug(`/${decomposed}/`)).toBe('한글');
+  });
 });
 
 describe('buildUrlMap', () => {

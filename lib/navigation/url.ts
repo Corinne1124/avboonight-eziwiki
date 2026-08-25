@@ -51,7 +51,7 @@ export const EMPTY_URL_MAP: UrlMap = {
  * ```
  */
 export function normalizeSlug(value: string): string {
-  return value.replace(/^\/+/, '').replace(/\/+$/, '');
+  return value.normalize('NFC').replace(/^\/+/, '').replace(/\/+$/, '');
 }
 
 /**

@@ -43,7 +43,13 @@ const memoStamp = stamp();
  * @returns The comparison key
  */
 export function normalizeTarget(target: string): string {
-  return target.trim().replace(/^\/+/, '').replace(/\/+$/, '').replace(/\.md$/i, '').toLowerCase();
+  return target
+    .normalize('NFC')
+    .trim()
+    .replace(/^\/+/, '')
+    .replace(/\/+$/, '')
+    .replace(/\.md$/i, '')
+    .toLowerCase();
 }
 
 /**

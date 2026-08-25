@@ -260,6 +260,15 @@ function main() {
     if (lock.packages?.['']) {
       lock.packages[''].name = 'my-wiki';
       lock.packages[''].version = '0.1.0';
+
+      // The manifest above dropped `@napi-rs/canvas`; the lockfile has to
+      // agree, or the first `npm install` in a new project rewrites it — the
+      // spurious first diff the scaffolder exists to prevent — and an older
+      // npm refuses `npm ci` outright.
+      delete lock.packages[''].devDependencies?.['@napi-rs/canvas'];
+      for (const key of Object.keys(lock.packages)) {
+        if (key.startsWith('node_modules/@napi-rs/canvas')) delete lock.packages[key];
+      }
     }
 
     fs.writeFileSync(lockPath, `${JSON.stringify(lock, null, 2)}\n`, 'utf-8');

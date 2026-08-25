@@ -21,8 +21,11 @@ jobs:
     steps:
       # Full history, not the single commit a checkout fetches by default: a
       # page with no `updated` in its frontmatter is dated from the last commit
-      # that touched it, and a shallow clone has no such commit for anything
-      # older than the tip. Those pages would simply carry no date.
+      # that touched it. In a shallow clone the oldest commit has no parent,
+      # so git lists every file that existed then as if that commit had
+      # written it — a page from years ago would be dated today. The build
+      # notices a shallow clone and dates nothing rather than that, so without
+      # this the site would simply carry no dates.
       - name: Checkout
         uses: actions/checkout@v4
         with:

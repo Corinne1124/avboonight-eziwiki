@@ -574,8 +574,10 @@ updated: 2026-03-14
 
 A page not yet committed carries no date rather than the build time, which
 would claim every page was revised the moment the site was published. Since the
-history is what supplies the dates, a shallow clone leaves most pages undated —
-on GitHub Actions, check out with `fetch-depth: 0`.
+history is what supplies the dates, a shallow clone can only date the pages
+touched within the commits it has; older ones are left undated rather than
+dated wrongly. On GitHub Actions, check out with `fetch-depth: 0`; on Vercel,
+set the `VERCEL_DEEP_CLONE` environment variable to `true`.
 
 The same date reaches structured data as `dateModified`, so a reader and a
 crawler are never told different things.

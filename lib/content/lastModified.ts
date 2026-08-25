@@ -77,9 +77,6 @@ let gitTimes: Map<string, string> | null = null;
 function readGitTimes(): Map<string, string> {
   const times = new Map<string, string>();
 
-  let root: string;
-  let log: string;
-
   try {
     const run = (args: string[]) =>
       execFileSync('git', args, {
@@ -89,30 +86,55 @@ function readGitTimes(): Map<string, string> {
         stdio: ['ignore', 'pipe', 'ignore'],
       });
 
-    root = run(['rev-parse', '--show-toplevel']).trim();
+    const root = run(['rev-parse', '--show-toplevel']).trim();
+
+    // In a shallow clone the oldest commit has had its parents cut off, so
+    // git lists every file that existed then as if that commit had written
+    // it — and a page from years ago is dated with whatever was checked out
+    // last. Hosts clone shallowly by default. The parents are printed with
+    // each date so that such a commit can be recognised and its files left
+    // undated, which is the honest answer for them.
+    const shallow = run(['rev-parse', '--is-shallow-repository']).trim() === 'true';
+
     // `@` prefixes the date lines: a path never starts with one, so the two
     // kinds of line in the output stay tellable apart without a second pass.
-    log = run(['log', '--format=@%cI', '--name-only', '--', CONTENT_DIR]);
+    // `core.quotePath=false` because git otherwise prints any path with a
+    // character outside ASCII as a quoted, octal-escaped string — so every
+    // page with a Korean file name failed the `.md` test below and had no
+    // date at all.
+    const log = run([
+      '-c',
+      'core.quotePath=false',
+      'log',
+      '--format=@%cI %P',
+      '--name-only',
+      '--',
+      CONTENT_DIR,
+    ]);
+
+    let stamp: string | null = null;
+
+    for (const line of log.split('\n')) {
+      if (line.startsWith('@')) {
+        const [iso, ...parents] = line.slice(1).split(' ').filter(Boolean);
+        stamp = shallow && parents.length === 0 ? null : iso;
+        continue;
+      }
+
+      if (!line || !stamp) continue;
+
+      // Composed, as the registry keys its documents: git stores the composed
+      // form, but a name read off a macOS volume arrives decomposed, and the
+      // two never meet in a map.
+      const relative = path.relative(CONTENT_DIR, path.resolve(root, line.normalize('NFC')));
+      if (relative.startsWith('..') || !relative.endsWith('.md')) continue;
+
+      const docPath = relative.slice(0, -'.md'.length).split(path.sep).join('/');
+      // Newest first, so an entry already present is the more recent one.
+      if (!times.has(docPath)) times.set(docPath, stamp);
+    }
   } catch {
     return times;
-  }
-
-  let stamp: string | null = null;
-
-  for (const line of log.split('\n')) {
-    if (line.startsWith('@')) {
-      stamp = line.slice(1);
-      continue;
-    }
-
-    if (!line || !stamp) continue;
-
-    const relative = path.relative(CONTENT_DIR, path.resolve(root, line));
-    if (relative.startsWith('..') || !relative.endsWith('.md')) continue;
-
-    const docPath = relative.slice(0, -'.md'.length).split(path.sep).join('/');
-    // Newest first, so an entry already present is the more recent one.
-    if (!times.has(docPath)) times.set(docPath, stamp);
   }
 
   return times;

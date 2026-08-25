@@ -92,4 +92,12 @@ describe('hrefFor', () => {
     const empty: UrlMap = { strategy: 'path', toUrl: {}, toPath: {} };
     expect(hrefFor(empty, 'anything')).toBe('/');
   });
+
+  it('passes a route through untouched', () => {
+    // The tab store records the graph and tag views as their routes, which
+    // no content path can be mistaken for: content paths never start with a
+    // slash.
+    expect(hrefFor(map, '/graph/')).toBe('/graph/');
+    expect(hrefFor(map, '/tags/deployment/')).toBe('/tags/deployment/');
+  });
 });

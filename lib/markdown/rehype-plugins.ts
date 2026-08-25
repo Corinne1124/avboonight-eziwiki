@@ -233,7 +233,17 @@ export function rehypeCodeShell() {
       const className = code?.properties?.className;
       const classes = Array.isArray(className) ? className.map(String) : [];
       const languageClass = classes.find((cls) => cls.startsWith('language-'));
-      const language = languageClass ? languageClass.slice('language-'.length) : 'text';
+      // Lower-cased here, before Shiki reads it: grammars are registered in
+      // lower case, so ```TypeScript otherwise fell back to plain text.
+      const language = languageClass
+        ? languageClass.slice('language-'.length).toLowerCase()
+        : 'text';
+
+      if (code?.properties && languageClass && languageClass !== `language-${language}`) {
+        code.properties.className = classes.map((cls) =>
+          cls === languageClass ? `language-${language}` : cls,
+        );
+      }
 
       // `metastring` rather than `data.meta`: see rehypeCodeMetastring above.
       const metastring = code?.properties?.metastring;

@@ -249,6 +249,11 @@ function createProcessor(): Processor {
       defaultColor: false,
       cssVariablePrefix: '--shiki-',
       fallbackLanguage: 'text',
+      // A fence with no language at all is otherwise skipped rather than
+      // fallen back on: it left the pipeline as a bare `<pre>`, without the
+      // classes and theme variables every other block carries, and in dark
+      // mode drew its background from a variable nothing had set.
+      defaultLanguage: 'text',
       // Without this Shiki loads every bundled grammar, which costs tens of
       // seconds before the first page renders.
       langs: getUsedLanguages(),

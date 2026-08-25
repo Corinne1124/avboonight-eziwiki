@@ -15,7 +15,7 @@ import { getUrlMap } from '../lib/navigation/urlMap';
 
 const { docs } = getContentRegistry();
 const urlMap = getUrlMap();
-const baseUrl = payload.global.baseUrl || 'http://localhost:3000';
+const baseUrl = (payload.global.baseUrl || 'http://localhost:3000').replace(/\/+$/, '');
 
 console.log(`\n📋 Page URLs  (strategy: ${urlMap.strategy})\n`);
 console.log('='.repeat(80));

@@ -9,6 +9,7 @@ import { SearchDialog } from '@/components/search/SearchDialog';
 import { payload } from '@/payload/config';
 import { validatePayload } from '@/lib/payload/validator';
 import { getSite } from '@/lib/site';
+import { themeCss } from '@/lib/theme';
 import { asset, fileUrl, pageUrl } from '@/lib/basePath';
 
 // Validate payload at build time
@@ -155,6 +156,7 @@ const themeScript =
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const site = getSite();
   const homeUrl = pageUrl('', site.global.baseUrl);
+  const theme = themeCss(site.theme);
 
   return (
     // The class the script above adds is not in the server markup, and React
@@ -173,6 +175,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           />
         ))}
         <style dangerouslySetInnerHTML={{ __html: fontFaceCss }} />
+        {theme && <style dangerouslySetInnerHTML={{ __html: theme }} />}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

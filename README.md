@@ -135,7 +135,8 @@ export const payload: Payload = {
     raster: ['scans/**'],
   },
   theme: {
-    // Optional - uses defaults if omitted
+    // Optional - uses defaults if omitted. These set the light palette;
+    // dark mode keeps its own. Also: background, text, sidebarBg, codeBg.
     primary: '#2563eb',
     secondary: '#7c3aed',
   },

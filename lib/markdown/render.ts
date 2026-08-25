@@ -151,7 +151,9 @@ const transclusionParser = unified().use(remarkParse).use(remarkGfm).use(remarkM
  */
 function sliceSection(nodes: RootContent[], anchor: string): RootContent[] | null {
   const slugger = new GithubSlugger();
-  const wanted = anchor.toLowerCase();
+  // Slugged so that the heading may be named as written — `#설치 방법` — as
+  // well as by its id; slugging an id again leaves it unchanged.
+  const wanted = new GithubSlugger().slug(anchor);
 
   let start = -1;
   let depth = 0;

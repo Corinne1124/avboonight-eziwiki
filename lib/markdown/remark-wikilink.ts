@@ -8,10 +8,23 @@ import type {
   RootContent,
   BlockContent,
 } from 'mdast';
+import GithubSlugger from 'github-slugger';
 import { WIKILINK_PATTERN, parseWikiLink, type WikiLink } from './wikilink';
 import { remarkCallouts } from './remark-callout';
 import { getStrings } from '../site';
 import { format, formatBytes } from '../i18n/format';
+
+/**
+ * Slugs a heading anchor the way rehype-slug ids the heading.
+ *
+ * Authors coming from Obsidian write `[[page#Heading text]]`, and until now
+ * that shipped as `#Heading%20text` — a dead link, since the id is
+ * `heading-text`. An id written as such passes through unchanged, so both
+ * spellings reach the same place.
+ */
+function slugAnchor(anchor: string): string {
+  return new GithubSlugger().slug(anchor);
+}
 
 /**
  * Turns `[[wiki links]]` into ordinary Markdown links.
@@ -142,7 +155,7 @@ function toNode(link: WikiLink, resolvers: WikiLinkResolvers): PhrasingContent {
   if (!link.target && link.anchor) {
     return {
       type: 'link',
-      url: `#${link.anchor}`,
+      url: `#${slugAnchor(link.anchor)}`,
       children: [{ type: 'text', value: link.label ?? link.anchor }],
     };
   }
@@ -167,7 +180,7 @@ function toNode(link: WikiLink, resolvers: WikiLinkResolvers): PhrasingContent {
 
   return {
     type: 'link',
-    url: link.anchor ? `${resolved.url}#${link.anchor}` : resolved.url,
+    url: link.anchor ? `${resolved.url}#${slugAnchor(link.anchor)}` : resolved.url,
     data: {
       hProperties: {
         className: ['ezw-wikilink'],

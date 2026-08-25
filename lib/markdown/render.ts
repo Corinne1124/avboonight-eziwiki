@@ -240,7 +240,7 @@ function createProcessor(): Processor {
     .use(rehypeCollectHeadings)
     .use(rehypeHeadingAnchors)
     .use(rehypeKatex)
-    .use(rehypeInternalLinks, getUrlMap())
+    .use(rehypeInternalLinks, getUrlMap)
     .use(rehypeImages)
     .use(rehypeMermaid)
     .use(rehypeCodeShell)

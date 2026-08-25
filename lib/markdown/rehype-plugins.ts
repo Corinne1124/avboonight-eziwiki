@@ -133,8 +133,14 @@ function isExternal(href: string): boolean {
  *
  * @param urlMap - Precomputed mapping from content paths to URL segments
  */
-export function rehypeInternalLinks(urlMap: UrlMap) {
+export function rehypeInternalLinks(source: UrlMap | (() => UrlMap)) {
   return (tree: Root) => {
+    // Read per document rather than captured when the processor was built:
+    // the processor outlives many edits in development, and a page added
+    // after it was created stayed unresolved in ordinary links — though not
+    // in wiki links, which look their targets up as they go — until restart.
+    const urlMap = typeof source === 'function' ? source() : source;
+
     visit(tree, 'element', (node: Element) => {
       if (node.tagName !== 'a') return;
 

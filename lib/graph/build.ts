@@ -196,6 +196,13 @@ export function getLinkGraph(): LinkGraph {
   const backlinks = new Map<string, string[]>();
   const outbound = new Map<string, string[]>();
 
+  // Hidden pages are scanned for broken links too. They render like any
+  // other page, so a dangling link on one is just as dead for the reader who
+  // reaches it — it only stays out of the nodes and edges below.
+  for (const doc of docs) {
+    if (!visiblePaths.has(doc.path)) broken.push(...scanDoc(doc).broken);
+  }
+
   for (const doc of visible) {
     const scan = scanDoc(doc);
     broken.push(...scan.broken);

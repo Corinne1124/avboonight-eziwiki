@@ -47,14 +47,21 @@ function isTitleHeading(node: RootContent): boolean {
  */
 function flatten(node: RootContent): string {
   // An image alt is not prose; strip it so a paragraph that is only a figure
-  // does not preview as its alt text.
+  // does not preview as its alt text. Inline HTML is markup, not prose, and
+  // came through as tag soup in the card.
   const clone: Root = { type: 'root', children: [structuredClone(node)] };
-  visit(clone, 'image', (_image, index, parent) => {
+  visit(clone, ['image', 'html'], (_node, index, parent) => {
     if (parent && index !== undefined) parent.children.splice(index, 1);
     return index;
   });
 
-  return mdastToString(clone).replace(/\s+/g, ' ').trim();
+  return (
+    mdastToString(clone)
+      .replace(/\s+/g, ' ')
+      // A callout's marker is an instruction to the renderer, not a sentence.
+      .replace(/^\[!\w+\][-+]?\s*/, '')
+      .trim()
+  );
 }
 
 /**
@@ -133,9 +140,12 @@ export function getExcerpt(docPath: string): string {
  * @returns The text, with an ellipsis when it was cut
  */
 function truncate(text: string): string {
-  if (text.length <= MAX_LENGTH) return text;
+  // Counted in code points: cutting UTF-16 units can split an emoji or a
+  // supplementary character in two and leave a broken glyph at the end.
+  const chars = Array.from(text);
+  if (chars.length <= MAX_LENGTH) return text;
 
-  const cut = text.slice(0, MAX_LENGTH);
+  const cut = chars.slice(0, MAX_LENGTH).join('');
   const lastSpace = cut.lastIndexOf(' ');
 
   return `${(lastSpace > MAX_LENGTH / 2 ? cut.slice(0, lastSpace) : cut).trimEnd()}…`;

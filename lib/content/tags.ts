@@ -118,25 +118,3 @@ export function getTag(slug: string): Tag | null {
 export function getTagsFor(path: string): Tag[] {
   return getTags().filter((tag) => tag.pages.some((page) => page.path === path));
 }
-
-/**
- * Reports a content page whose URL the tag routes would shadow.
- *
- * `/tags/…` is a route of its own, and Next resolves it before the catch-all
- * that serves content, so a page published at that address would become
- * unreachable. Surfacing it is better than letting a page quietly disappear;
- * the fix is to rename the file or the directory.
- *
- * @returns Paths that collide, empty when none do
- */
-export function findTagRouteCollisions(): string[] {
-  const { docs } = getContentRegistry();
-  const { urlMap } = getSite();
-
-  return docs
-    .filter((doc) => {
-      const url = docPathToUrl(urlMap, doc.path);
-      return url === TAGS_SEGMENT || url?.startsWith(`${TAGS_SEGMENT}/`);
-    })
-    .map((doc) => doc.path);
-}

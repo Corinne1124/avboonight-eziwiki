@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getTags, getTag, getTagsFor, findTagRouteCollisions } from './tags';
+import { getTags, getTag, getTagsFor } from './tags';
 import { getContentRegistry } from './registry';
 import { getSite } from '../site';
 
@@ -81,13 +81,5 @@ describe('getTagsFor', () => {
 
   it('returns nothing for an untagged page', () => {
     expect(getTagsFor('no/such/page')).toEqual([]);
-  });
-});
-
-// `/tags/…` is a route of its own and Next resolves it before the catch-all,
-// so a page published there would be unreachable.
-describe('findTagRouteCollisions', () => {
-  it('reports no collision in this wiki', () => {
-    expect(findTagRouteCollisions()).toEqual([]);
   });
 });

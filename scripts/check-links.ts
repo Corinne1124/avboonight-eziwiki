@@ -17,10 +17,29 @@
 
 import { getLinkGraph } from '../lib/graph/build';
 import { getWantedPages, getWikiHealth } from '../lib/graph/health';
+import { findRouteCollisions, RESERVED_SEGMENTS } from '../lib/navigation/routes';
 import type { GraphNode } from '../lib/graph/build';
 
 const strict = process.argv.includes('--strict');
 const { broken, nodes, edges } = getLinkGraph();
+
+// Checked here rather than in its own step because it is the same kind of
+// finding: a reference the site cannot honour. A page at one of these
+// addresses builds, is listed everywhere, and is answered by the app's own
+// view — the one failure a reader cannot see from any page.
+const collisions = findRouteCollisions();
+
+if (collisions.length > 0) {
+  const routes = RESERVED_SEGMENTS.map((segment) => `/${segment}/`).join(' and ');
+  console.log(
+    `\n🚧 ${collisions.length} page${collisions.length === 1 ? '' : 's'} at a reserved address\n`,
+  );
+  console.log(
+    `  ${routes} are views of their own, served before any page. Rename the file or folder:\n`,
+  );
+  for (const path of collisions) console.log(`    content/${path}.md`);
+  console.log();
+}
 
 /**
  * Prints a list of pages under a heading, or nothing when there are none.
@@ -96,7 +115,7 @@ report(
   deadEnds,
 );
 
-if (broken.length > 0 && strict) {
+if ((broken.length > 0 || collisions.length > 0) && strict) {
   console.error('❌ Failing because --strict was passed.\n');
   process.exit(1);
 }

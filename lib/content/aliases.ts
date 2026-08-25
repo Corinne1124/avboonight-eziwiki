@@ -42,15 +42,22 @@ export function getAliasMap(): AliasMap {
   const hit = cached(memo, memoStamp);
   if (hit) return hit;
 
-  const { docs, byPath } = getContentRegistry();
+  const { docs } = getContentRegistry();
   const map: AliasMap = new Map();
+
+  // Compared case-insensitively: on macOS and Windows `out/Guides/Setup/` and
+  // `out/guides/setup/` are the same directory, and whichever the export
+  // writes second replaces the first — the live page becoming a redirect to
+  // itself, or the alias vanishing, depending on the order.
+  const pagesByFold = new Map(docs.map((doc) => [doc.path.toLowerCase(), doc.path]));
 
   for (const doc of docs) {
     for (const alias of doc.aliases) {
-      if (byPath.has(alias)) {
+      const page = pagesByFold.get(alias.toLowerCase());
+      if (page) {
         throw new Error(
           `Alias collision: '${alias}' in content/${doc.path}.md is also a page ` +
-            `(content/${alias}.md). An alias may only name a path no page occupies.`,
+            `(content/${page}.md). An alias may only name a path no page occupies.`,
         );
       }
 

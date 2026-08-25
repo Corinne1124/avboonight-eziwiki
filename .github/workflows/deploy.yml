@@ -43,9 +43,19 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # GitHub Pages serves this project site from /eziwiki, so every emitted
-      # path needs that prefix. Set here rather than inferred from CI, so that
-      # test and lint jobs — and forks deploying elsewhere — are unaffected.
+      # GitHub Pages serves a project site from /<repository>, so every emitted
+      # path needs that prefix — and a user site (<user>.github.io) from the
+      # root, so it needs none. Taken from the repository's name rather than
+      # written in, so a fork deploys under its own. Set here rather than
+      # inferred from CI, so that test and lint jobs are unaffected.
+      - name: Resolve base path
+        id: base
+        run: |
+          case "${{ github.event.repository.name }}" in
+            *.github.io) echo "path=" >> "$GITHUB_OUTPUT" ;;
+            *) echo "path=/${{ github.event.repository.name }}" >> "$GITHUB_OUTPUT" ;;
+          esac
+
       #
       # `NEXT_PUBLIC_SITE_URL` is deliberately not set. This deployment is a
       # mirror of the production site on Vercel, so it keeps the payload's
@@ -56,7 +66,7 @@ jobs:
         run: npm run build
         env:
           NODE_ENV: production
-          NEXT_PUBLIC_BASE_PATH: /eziwiki
+          NEXT_PUBLIC_BASE_PATH: ${{ steps.base.outputs.path }}
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

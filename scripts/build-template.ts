@@ -179,6 +179,7 @@ function buildTemplateManifest(): Record<string, unknown> {
     scripts,
     dependencies: pkg.dependencies,
     devDependencies,
+    engines: pkg.engines,
   };
 }
 

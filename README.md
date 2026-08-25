@@ -22,7 +22,7 @@ Write Markdown, get a fast static wiki.
 
 ## Requirements
 
-- Node.js 18.0 or higher
+- Node.js 20 or higher
 - npm (comes with Node.js)
 
 ## Quick Start

@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "description": "An easy-to-use wiki and documentation site generator built with Next.js",
   "private": true,
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "npm run build:search && npm run build:pdfjs && npm run build:pdf-images && next dev",
     "build": "npm run validate:payload && npm run check:links && npm run build:search && npm run build:pdfjs && npm run build:pdf-images && next build",

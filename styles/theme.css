@@ -4,6 +4,11 @@
  */
 
 :root {
+  /* Declared so the browser draws its own parts — scrollbars, form controls,
+     the canvas behind an unstyled element — in the same scheme as the page.
+     Without it they stayed light on a dark page. */
+  color-scheme: light;
+
   /* Primary colors - Blue accent for links and interactive elements */
   --color-primary: #2563eb;
   --color-primary-hover: #1d4ed8;
@@ -40,6 +45,8 @@
 
 /* Dark mode color scheme - using .dark class */
 .dark {
+  color-scheme: dark;
+
   /* Primary colors - Lighter blue for better contrast */
   --color-primary: #3b82f6;
   --color-primary-hover: #60a5fa;

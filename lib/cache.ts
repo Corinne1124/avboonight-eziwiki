@@ -126,9 +126,20 @@ export function contentGeneration(): number {
   if (now - checkedAt < RECHECK_MS) return generation;
   checkedAt = now;
 
-  const next = SOURCE_DIRS.flatMap((dir) => scan(dir, []))
-    .sort()
-    .join('\n');
+  const parts = SOURCE_DIRS.flatMap((dir) => scan(dir, []));
+
+  // The one file under a skipped directory that a memo does read: the page
+  // manifest the PDF step writes. Rerunning that step mid-session has to
+  // move the generation, or the embeds keep describing the old pages.
+  try {
+    const manifest = path.join(PUBLIC_DIR, 'pdf-images', 'index.json');
+    const stat = fs.statSync(manifest);
+    parts.push(`${manifest}:${stat.size}:${stat.mtimeMs}`);
+  } catch {
+    // No manifest yet; its arrival will change the signature.
+  }
+
+  const next = parts.sort().join('\n');
   if (next !== signature) {
     signature = next;
     generation += 1;

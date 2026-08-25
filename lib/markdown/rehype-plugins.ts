@@ -295,22 +295,58 @@ export function rehypeCodeShell() {
  * @param basePath - Deployment base path, or '' when served from the root
  */
 export function rehypeBasePath(basePath: string) {
+  const prefix = (url: string): string => {
+    if (!url.startsWith('/') || url.startsWith('//')) return url;
+    if (url.startsWith(`${basePath}/`)) return url;
+    return `${basePath}${url}`;
+  };
+
+  // A srcset is a comma-separated list of candidates, each a URL followed by
+  // a descriptor.
+  const prefixSrcset = (candidate: string): string =>
+    candidate.replace(/^(\s*)(\S+)/, (_, space: string, url: string) => `${space}${prefix(url)}`);
+
   return (tree: Root) => {
     if (!basePath) return;
 
     visit(tree, 'element', (node: Element) => {
-      const attr = node.tagName === 'a' ? 'href' : node.tagName === 'img' ? 'src' : null;
-      if (!attr) return;
+      const attrs = URL_ATTRIBUTES[node.tagName];
+      if (!attrs || !node.properties) return;
 
-      const value = node.properties?.[attr];
-      if (typeof value !== 'string') return;
-      if (!value.startsWith('/') || value.startsWith('//')) return;
-      if (value.startsWith(`${basePath}/`)) return;
+      for (const attr of attrs) {
+        const value = node.properties[attr];
 
-      node.properties[attr] = `${basePath}${value}`;
+        if (attr === 'srcSet') {
+          if (typeof value === 'string') {
+            node.properties.srcSet = value.split(',').map(prefixSrcset).join(',');
+          }
+          continue;
+        }
+
+        if (typeof value === 'string') node.properties[attr] = prefix(value);
+      }
     });
   };
 }
+
+/**
+ * Where an element names a URL, by tag.
+ *
+ * Only links and images were rewritten, which is what Markdown itself can
+ * produce; but raw HTML is the one way to embed a video or a frame, and its
+ * `src`, `poster` and `srcset` were left pointing at the domain root.
+ */
+const URL_ATTRIBUTES: Record<string, string[]> = {
+  a: ['href'],
+  img: ['src', 'srcSet'],
+  source: ['src', 'srcSet'],
+  video: ['src', 'poster'],
+  audio: ['src'],
+  track: ['src'],
+  iframe: ['src'],
+  embed: ['src'],
+  object: ['data'],
+};
 
 /**
  * Adds loading hints and consistent styling hooks to content images.

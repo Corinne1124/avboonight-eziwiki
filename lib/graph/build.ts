@@ -7,6 +7,8 @@ import { getContentRegistry, type ContentDoc } from '../content/registry';
 import { resolveTarget } from '../content/resolver';
 import { findWikiLinks } from '../markdown/wikilink';
 import { resolveAsset } from '../content/assets';
+import { getAliasMap } from '../content/aliases';
+import { isReservedUrl } from '../navigation/routes';
 import { getSite } from '../site';
 import { cached, contentGeneration, stamp } from '../cache';
 
@@ -70,24 +72,42 @@ export interface LinkGraph {
 /** Parser used for scanning; no rendering plugins, so it stays fast. */
 const parser = unified().use(remarkParse).use(remarkGfm);
 
+/** What an ordinary Markdown link refers to, as far as the graph is concerned. */
+type MarkdownRef =
+  /** External, an anchor, a file, a route of the app's own, or relative */
+  | { kind: 'other' }
+  /** A page reference in the form the renderer resolves */
+  | { kind: 'page'; path: string; exists: boolean };
+
 /**
- * Extracts the document path an ordinary Markdown link points at.
+ * Classifies an ordinary Markdown link.
  *
- * External links, anchors, and links to files that are not pages all yield
- * null, so only real page-to-page references become edges.
+ * Only page references become edges. A reference to a page that does not
+ * exist is reported rather than dropped: the renderer leaves such an href as
+ * written, so it ships as a link that 404s, and until now it did so past
+ * `check:links --strict` — only the wiki-link spelling of the same typo was
+ * caught.
  *
  * @param url - The link's href as authored
- * @returns The referenced content path, or null
+ * @returns What it refers to
  */
-function resolveMarkdownLink(url: string): string | null {
-  if (!url || url.startsWith('#')) return null;
-  if (/^[a-z][a-z0-9+.-]*:/i.test(url) || url.startsWith('//')) return null;
+function classifyMarkdownLink(url: string): MarkdownRef {
+  if (!url || url.startsWith('#')) return { kind: 'other' };
+  if (/^[a-z][a-z0-9+.-]*:/i.test(url) || url.startsWith('//')) return { kind: 'other' };
 
   const path = url.split(/[#?]/)[0].replace(/^\/+/, '').replace(/\.md$/i, '').replace(/\/+$/, '');
+  if (!path) return { kind: 'other' };
 
-  if (!path) return null;
+  const { byPath } = getContentRegistry();
+  if (byPath.has(path) || getAliasMap().has(path)) return { kind: 'page', path, exists: true };
 
-  return getContentRegistry().byPath.has(path) ? path : null;
+  // Not a page reference in the renderer's sense: a file keeps its extension,
+  // `../` is left to the browser, and a reserved segment is the app's own view.
+  if (path.startsWith('..') || /\.[a-z0-9]+$/i.test(path) || isReservedUrl(path)) {
+    return { kind: 'other' };
+  }
+
+  return { kind: 'page', path, exists: false };
 }
 
 /**
@@ -107,8 +127,14 @@ function scanDoc(doc: ContentDoc): { targets: Set<string>; broken: BrokenLink[] 
 
   visit(tree, (node) => {
     if (node.type === 'link') {
-      const path = resolveMarkdownLink((node as Link).url);
-      if (path && path !== doc.path) targets.add(path);
+      const ref = classifyMarkdownLink((node as Link).url);
+      if (ref.kind !== 'page') return;
+
+      if (!ref.exists) {
+        broken.push({ from: doc.path, target: ref.path, reason: 'missing' });
+      } else if (ref.path !== doc.path) {
+        targets.add(ref.path);
+      }
       return;
     }
 

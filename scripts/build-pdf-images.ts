@@ -112,6 +112,32 @@ async function findPdfs(dir: string, found: string[] = []): Promise<string[]> {
 }
 
 /**
+ * The slice of `@napi-rs/canvas` this script touches.
+ *
+ * Declared here rather than taken from the package's own types, because the
+ * package is not a dependency of a scaffolded wiki — `build:template` drops
+ * it, and says how to add it — and `typeof import(...)` made TypeScript
+ * resolve a module every new project was never meant to have. `npm run
+ * type-check` failed in each one, and the scaffold job in CI with it.
+ */
+interface CanvasModule {
+  createCanvas(width: number, height: number): NativeCanvas;
+  Path2D: unknown;
+  DOMMatrix: unknown;
+  ImageData: unknown;
+}
+
+interface NativeCanvas {
+  width: number;
+  height: number;
+  getContext(kind: '2d'): {
+    fillStyle: string;
+    fillRect(x: number, y: number, width: number, height: number): void;
+  };
+  encode(format: 'webp', quality: number): Promise<Buffer>;
+}
+
+/**
  * Loads the canvas implementation, or reports that there is none.
  *
  * `@napi-rs/canvas` is a development dependency rather than a required one: it
@@ -120,9 +146,13 @@ async function findPdfs(dir: string, found: string[] = []): Promise<string[]> {
  *
  * @returns The module, or null when it is not installed
  */
-async function loadCanvas(): Promise<typeof import('@napi-rs/canvas') | null> {
+async function loadCanvas(): Promise<CanvasModule | null> {
+  // Named through a variable so the import is resolved when it runs, not
+  // when the script is type-checked.
+  const specifier = '@napi-rs/canvas';
+
   try {
-    return await import('@napi-rs/canvas');
+    return (await import(specifier)) as CanvasModule;
   } catch {
     return null;
   }

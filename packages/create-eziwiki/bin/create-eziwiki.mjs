@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { scaffold, validateProjectName } from '../lib/scaffold.mjs';
@@ -42,7 +43,11 @@ function main() {
   }
 
   if (args.includes('-v') || args.includes('--version')) {
-    console.log(process.env.npm_package_version ?? 'unknown');
+    // Read from this package's own manifest: `npm_package_version` names the
+    // package npm was run from, which under `npx` is the user's project — or
+    // nothing at all.
+    const manifest = JSON.parse(fs.readFileSync(path.join(HERE, '..', 'package.json'), 'utf-8'));
+    console.log(manifest.version);
     process.exit(0);
   }
 

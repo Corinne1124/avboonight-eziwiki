@@ -50,6 +50,20 @@ export const payloadSchema = {
                 },
               },
             },
+            twitter: {
+              type: 'object',
+              properties: {
+                card: {
+                  type: 'string',
+                  enum: ['summary', 'summary_large_image', 'app', 'player'],
+                },
+                site: { type: 'string' },
+                creator: { type: 'string' },
+                title: { type: 'string' },
+                description: { type: 'string' },
+                images: { type: 'array', items: { type: 'string' } },
+              },
+            },
           },
         },
       },

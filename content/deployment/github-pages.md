@@ -308,10 +308,9 @@ Check the Actions tab regularly for failed deployments.
 - **Bandwidth**: 100 GB/month soft limit
 - **Builds**: 10 per hour
 
-For larger sites, consider [Vercel](/deployment/vercel) or [Netlify](/deployment/netlify).
+For larger sites, consider [Vercel](/deployment/vercel) or Netlify.
 
 ## Next Steps
 
-- [Configure Custom Domain](/deployment/custom-domain)
 - [Deploy to Vercel](/deployment/vercel)
-- [Optimize Performance](/guides/performance)
+- [Static Export](/deployment/static-export)

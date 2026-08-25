@@ -265,4 +265,3 @@ npm run build
 
 - [Deploy to GitHub Pages](/deployment/github-pages)
 - [Deploy to Vercel](/deployment/vercel)
-- [Configure Custom Domain](/deployment/custom-domain)

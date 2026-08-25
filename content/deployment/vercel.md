@@ -357,6 +357,5 @@ Keep sensitive data out of your code.
 
 ## Next Steps
 
-- [Configure Custom Domain](/deployment/custom-domain)
-- [Set Up Analytics](/guides/analytics)
-- [Optimize Performance](/guides/performance)
+- [Deploy to GitHub Pages](/deployment/github-pages)
+- [Static Export](/deployment/static-export)

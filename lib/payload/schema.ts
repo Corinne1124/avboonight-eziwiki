@@ -21,7 +21,10 @@ export const payloadSchema = {
         baseUrl: { type: 'string', format: 'uri' },
         repoUrl: { type: 'string', format: 'uri' },
         editBranch: { type: 'string', minLength: 1 },
-        editUrl: { type: 'string', format: 'uri', pattern: '\\{path\\}' },
+        // Not `format: 'uri'`: the braces in the `{path}` placeholder are not
+        // valid in a URI, so the documented value failed validation and no
+        // wiki that set this could build.
+        editUrl: { type: 'string', pattern: '^https?://\\S*\\{path\\}\\S*$' },
         urlStrategy: { type: 'string', enum: ['path', 'hash'] },
         autoNavigation: { type: 'boolean' },
         seo: {

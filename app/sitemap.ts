@@ -92,7 +92,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.4,
     },
     ...tags.map((tag) => ({
-      url: pageUrl(`tags/${tag.slug}`, global.baseUrl),
+      url: pageUrl(`tags/${encodeURIComponent(tag.slug)}`, global.baseUrl),
       lastModified: newestOf(tag.pages.map((page) => page.path)),
       changeFrequency: 'weekly' as const,
       priority: 0.4,

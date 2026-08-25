@@ -45,7 +45,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: tag.name,
     description: `Pages about ${tag.name}`,
-    alternates: { canonical: pageUrl(`tags/${tag.slug}`, global.baseUrl) },
+    // Encoded as the listing links it: a slug such as `c#` or `ci/cd` is
+    // otherwise a fragment or a second path segment.
+    alternates: { canonical: pageUrl(`tags/${encodeURIComponent(tag.slug)}`, global.baseUrl) },
   };
 }
 

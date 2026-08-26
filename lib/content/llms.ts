@@ -1,5 +1,5 @@
 import { getSite } from '../site';
-import { getDoc } from './registry';
+import { getContentRegistry, getDoc } from './registry';
 import { getReadingOrder } from '../navigation/sequence';
 import { getExcerpt } from './excerpt';
 import { docPathToUrl } from '../navigation/url';
@@ -90,13 +90,16 @@ export function renderLlmsTxt(): string {
   const { global, urlMap, hiddenPaths } = getSite();
 
   const lines = [`# ${global.title}`, '', `> ${global.description}`, '', '## Pages', ''];
+  const listed = new Set<string>();
 
-  for (const path of getReadingOrder()) {
-    if (hiddenPaths.has(path)) continue;
+  const list = (path: string) => {
+    if (listed.has(path) || hiddenPaths.has(path)) return;
 
     const doc = getDoc(path);
     const url = docPathToUrl(urlMap, path);
-    if (!doc || !url) continue;
+    if (!doc || !url) return;
+
+    listed.add(path);
 
     // The author's own description first: it was written to say what the page
     // is, which is exactly what this file is for. The excerpt is the fallback.
@@ -104,7 +107,14 @@ export function renderLlmsTxt(): string {
     const href = pageUrl(url, global.baseUrl);
 
     lines.push(summary ? `- [${doc.title}](${href}): ${summary}` : `- [${doc.title}](${href})`);
-  }
+  };
+
+  for (const path of getReadingOrder()) list(path);
+
+  // With `autoNavigation` off, a page the navigation does not mention is still
+  // built, indexed and in the sitemap; this file promises every page, so those
+  // follow the ordered ones.
+  for (const doc of getContentRegistry().docs) list(doc.path);
 
   lines.push('');
   memo = lines.join('\n');

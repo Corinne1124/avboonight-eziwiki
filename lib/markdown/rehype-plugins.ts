@@ -3,6 +3,7 @@ import { toString } from 'hast-util-to-string';
 import type { Element, Root } from 'hast';
 import { docPathToUrl, type UrlMap } from '../navigation/url';
 import { getStrings } from '../site';
+import { format } from '../i18n/format';
 import { parseCodeMeta } from './codeMeta';
 
 /**
@@ -107,7 +108,7 @@ export function rehypeHeadingAnchors() {
           className: ['ezw-heading__anchor'],
           // The heading's own text already names the destination; without this
           // a screen reader hears every heading followed by a stray "#".
-          'aria-label': `Link to this section: ${toString(node)}`,
+          'aria-label': format(getStrings().linkToSection, { title: toString(node) }),
         },
         children: [{ type: 'text', value: '#' }],
       });

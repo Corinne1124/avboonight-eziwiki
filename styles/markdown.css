@@ -746,7 +746,7 @@ html.dark .ezw-pdf--raster {
 }
 
 .ezw-transclusion__source::before {
-  content: 'From ';
+  content: attr(data-label);
 }
 
 /* Card shown when a reader hovers or focuses a wiki link. Its contents are

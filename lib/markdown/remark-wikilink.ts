@@ -277,7 +277,14 @@ function wrapTranscluded(target: TranscludeTarget, nodes: RootContent[]): RootCo
       ...(nodes as BlockContent[]),
       {
         type: 'paragraph',
-        data: { hProperties: { className: ['ezw-transclusion__source'] } },
+        data: {
+          hProperties: {
+            className: ['ezw-transclusion__source'],
+            // The stylesheet writes this before the link; a stylesheet cannot
+            // be translated, so the word comes from here.
+            'data-label': getStrings().includedFrom,
+          },
+        },
         children: [
           {
             type: 'link',

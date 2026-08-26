@@ -24,6 +24,16 @@ export interface Strings {
   searchHint: string;
   /** Shown when a query matches nothing. `{query}` */
   searchEmpty: string;
+  /** Shown when the index could not be fetched */
+  searchError: string;
+  /** Read out when results arrive. `{count}` */
+  searchResults: string;
+  /** Footer hint after the arrow keys */
+  searchNavigateHint: string;
+  /** Footer hint after the enter key */
+  searchSelectHint: string;
+  /** Footer hint after the escape key */
+  searchCloseHint: string;
 
   /** Link to the repository the wiki is kept in */
   sourceRepository: string;
@@ -41,6 +51,10 @@ export interface Strings {
   closeMenu: string;
   /** Jumps past the navigation to the article */
   skipToContent: string;
+  /** Accessible name of the site navigation */
+  navigation: string;
+  /** Accessible name of the breadcrumb trail */
+  breadcrumb: string;
   /** Steps back through visited pages */
   goBack: string;
   /** Steps forward again */
@@ -56,6 +70,14 @@ export interface Strings {
   newTabTitle: string;
   /** Closes a tab */
   closeTab: string;
+  /** Accessible name of the tab strip */
+  tabs: string;
+  /** Accessible name of a tab's context menu */
+  tabActions: string;
+  /** Closes every tab but this one */
+  closeOtherTabs: string;
+  /** Closes every tab after this one */
+  closeTabsToRight: string;
 
   /** Heading above the contents rail */
   onThisPage: string;
@@ -83,6 +105,12 @@ export interface Strings {
   copy: string;
   /** Confirmation shown after copying */
   copied: string;
+  /** Accessible name of a heading's own link. `{title}` */
+  linkToSection: string;
+  /** Precedes the source of included content */
+  includedFrom: string;
+  /** Accessible name of a diagram drawn from a fence */
+  diagram: string;
 
   /** Opens the viewer from the first-page preview. `{name}` */
   pdfOpen: string;
@@ -142,6 +170,8 @@ export interface Strings {
   graph: string;
   /** What the whole-site graph shows */
   graphDescription: string;
+  /** Accessible name of the drawn graph. `{pages}`, `{links}` */
+  graphLabel: string;
   /** Shown in place of a graph with nothing in it */
   graphEmpty: string;
   /** Sizes up the graph. `{pages}`, `{links}`, `{connected}` */
@@ -174,6 +204,11 @@ const EN: Strings = {
   searchQuery: 'Search query',
   searchHint: 'Search titles, headings, and page contents.',
   searchEmpty: 'No results for “{query}”',
+  searchError: 'Search is unavailable. Try reloading the page.',
+  searchResults: '{count} results',
+  searchNavigateHint: 'to navigate',
+  searchSelectHint: 'to select',
+  searchCloseHint: 'to close',
 
   sourceRepository: 'Source repository',
   collapseSidebar: 'Collapse sidebar',
@@ -183,6 +218,8 @@ const EN: Strings = {
   toggleMenu: 'Toggle menu',
   closeMenu: 'Close menu',
   skipToContent: 'Skip to content',
+  navigation: 'Navigation',
+  breadcrumb: 'Breadcrumb',
   goBack: 'Go back',
   goForward: 'Go forward',
   switchToLight: 'Switch to light mode',
@@ -191,6 +228,10 @@ const EN: Strings = {
   newTab: 'New tab',
   newTabTitle: 'New Tab',
   closeTab: 'Close tab',
+  tabs: 'Tabs',
+  tabActions: 'Tab actions',
+  closeOtherTabs: 'Close others',
+  closeTabsToRight: 'Close to the right',
 
   onThisPage: 'On this page',
   pageNavigation: 'Page navigation',
@@ -205,6 +246,9 @@ const EN: Strings = {
   editThisPage: 'Edit this page',
   copy: 'Copy',
   copied: 'Copied',
+  linkToSection: 'Link to this section: {title}',
+  includedFrom: 'From ',
+  diagram: 'Diagram',
 
   pdfOpen: 'Open {name}',
   pdfOpenShort: 'Open',
@@ -237,6 +281,7 @@ const EN: Strings = {
 
   graph: 'Graph',
   graphDescription: 'How the pages in this wiki link to one another.',
+  graphLabel: 'Link graph of {pages} pages and {links} links',
   graphEmpty: 'No pages to graph yet.',
   graphSummary:
     '{pages} pages, {links} links. {connected} pages are connected to at least one other.',
@@ -255,6 +300,11 @@ const KO: Strings = {
   searchQuery: '검색어',
   searchHint: '제목, 소제목, 본문에서 찾습니다.',
   searchEmpty: '“{query}” 검색 결과가 없습니다',
+  searchError: '검색을 사용할 수 없습니다. 페이지를 새로고침해 보세요.',
+  searchResults: '검색 결과 {count}개',
+  searchNavigateHint: '이동',
+  searchSelectHint: '선택',
+  searchCloseHint: '닫기',
 
   sourceRepository: '소스 저장소',
   collapseSidebar: '사이드바 접기',
@@ -264,6 +314,8 @@ const KO: Strings = {
   toggleMenu: '메뉴 열고 닫기',
   closeMenu: '메뉴 닫기',
   skipToContent: '본문으로 건너뛰기',
+  navigation: '탐색',
+  breadcrumb: '현재 위치',
   goBack: '뒤로 가기',
   goForward: '앞으로 가기',
   switchToLight: '밝은 화면으로 전환',
@@ -272,6 +324,10 @@ const KO: Strings = {
   newTab: '새 탭',
   newTabTitle: '새 탭',
   closeTab: '탭 닫기',
+  tabs: '탭',
+  tabActions: '탭 메뉴',
+  closeOtherTabs: '다른 탭 닫기',
+  closeTabsToRight: '오른쪽 탭 닫기',
 
   onThisPage: '이 페이지의 목차',
   pageNavigation: '페이지 이동',
@@ -287,6 +343,9 @@ const KO: Strings = {
   editThisPage: '이 페이지 편집',
   copy: '복사',
   copied: '복사됨',
+  linkToSection: '이 절로 가는 링크: {title}',
+  includedFrom: '출처: ',
+  diagram: '다이어그램',
 
   pdfOpen: '{name} 열기',
   pdfOpenShort: '열기',
@@ -319,6 +378,7 @@ const KO: Strings = {
 
   graph: '그래프',
   graphDescription: '이 위키의 문서들이 서로 어떻게 이어져 있는지 보여줍니다.',
+  graphLabel: '문서 {pages}개와 링크 {links}개의 연결 그래프',
   graphEmpty: '아직 그릴 문서가 없습니다.',
   graphSummary: '문서 {pages}개, 링크 {links}개. 그중 {connected}개가 다른 문서와 이어져 있습니다.',
   graphHint: '노드에 마우스를 올리면 이웃만 남고, 클릭하면 해당 문서로 이동합니다.',

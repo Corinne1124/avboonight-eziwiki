@@ -390,7 +390,7 @@ export function Sidebar({ navigation, repoUrl }: SidebarProps) {
             className="mt-2 flex items-center gap-2 rounded-md px-2 py-1 text-sm text-gray-600 transition-colors hover:bg-black/5 dark:text-gray-400 dark:hover:bg-white/10"
           >
             <Share2 className="h-4 w-4 flex-shrink-0" />
-            Graph
+            {t.graph}
           </Link>
         </nav>
       )}

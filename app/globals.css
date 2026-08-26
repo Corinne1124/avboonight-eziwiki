@@ -91,3 +91,20 @@ html {
  * What it was protecting is now stated where the target is, which is also the
  * only place that can tell a chip from a paragraph link.
  */
+
+/*
+ * Every transition and animation, not only the ones named above. Tailwind's
+ * `transition-*` utilities do not gate themselves on the preference, and the
+ * drawer, the sidebar, the section folds, the chevrons and the spinner all
+ * kept moving for a reader who had asked them not to.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+

@@ -1,6 +1,7 @@
 import { visit } from 'unist-util-visit';
 import { toString } from 'hast-util-to-string';
 import type { Element, Root } from 'hast';
+import { getStrings } from '../site';
 
 /**
  * Renders ```mermaid fences to SVG during the build.
@@ -120,7 +121,9 @@ export function rehypeMermaid() {
       fence.parent.children[fence.index] = {
         type: 'element',
         tagName: 'figure',
-        properties: { className: ['ezw-mermaid'] },
+        // Named, so assistive technology frames what follows as one drawing
+        // rather than reading its labels as loose text.
+        properties: { className: ['ezw-mermaid'], role: 'img', 'aria-label': getStrings().diagram },
         children: [
           // Serialised verbatim: `rehype-stringify` is configured to pass raw
           // through, and parsing the SVG back into a tree only to print it

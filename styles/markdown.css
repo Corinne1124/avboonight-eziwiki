@@ -989,3 +989,7 @@ html.dark .ezw-prose a code {
   color: var(--color-primary-hover);
 }
 
+/* The diagram's own stylesheet names a font this site does not load. */
+.ezw-mermaid svg text {
+  font-family: inherit;
+}

@@ -2,10 +2,12 @@ import { unified } from 'unified';
 import remarkParse from 'remark-parse';
 import remarkGfm from 'remark-gfm';
 import { visit } from 'unist-util-visit';
+import GithubSlugger from 'github-slugger';
 import type { Root, Link, Text } from 'mdast';
 import { getContentRegistry, type ContentDoc } from '../content/registry';
 import { resolveTarget } from '../content/resolver';
 import { findWikiLinks } from '../markdown/wikilink';
+import { headingSlugs } from '../markdown/headings';
 import { resolveAsset } from '../content/assets';
 import { getAliasMap } from '../content/aliases';
 import { isReservedUrl } from '../navigation/routes';
@@ -37,8 +39,11 @@ export interface BrokenLink {
   from: string;
   /** The target as written */
   target: string;
-  /** Why it failed: nothing matched, or the shorthand matched several pages */
-  reason: 'missing' | 'ambiguous';
+  /**
+   * Why it failed: nothing matched, the shorthand matched several pages, or
+   * the page exists and the heading named after `#` does not
+   */
+  reason: 'missing' | 'ambiguous' | 'anchor';
   /** Matching paths, when the target was ambiguous */
   candidates?: string[];
 }
@@ -110,6 +115,33 @@ function classifyMarkdownLink(url: string): MarkdownRef {
   return { kind: 'page', path, exists: false };
 }
 
+/** Heading ids per document, for the build in progress. */
+const headingMemo = new Map<string, Set<string> | null>();
+
+/**
+ * Whether a document has a heading with the id an anchor names.
+ *
+ * A page that includes another, or writes a heading in HTML, carries ids
+ * this cannot see from its source; it is answered for rather than reported,
+ * since a link that works is worse to list than one that does not is to miss.
+ *
+ * @param doc - Document the link points into
+ * @param anchor - The anchor as written, text or id
+ * @returns true when the heading exists or cannot be ruled out
+ */
+function hasHeading(doc: ContentDoc, anchor: string): boolean {
+  let ids = headingMemo.get(doc.path);
+
+  if (ids === undefined) {
+    ids = /!\[\[|<h[1-6][\s>]/i.test(doc.content)
+      ? null
+      : new Set(headingSlugs((parser.parse(doc.content) as Root).children).map((h) => h.slug));
+    headingMemo.set(doc.path, ids);
+  }
+
+  return ids === null || ids.has(new GithubSlugger().slug(anchor));
+}
+
 /**
  * Collects every outbound reference in one document.
  *
@@ -141,8 +173,14 @@ function scanDoc(doc: ContentDoc): { targets: Set<string>; broken: BrokenLink[] 
     if (node.type !== 'text') return;
 
     for (const link of findWikiLinks((node as Text).value)) {
-      // An anchor-only link stays within the page and is not an edge.
-      if (!link.target) continue;
+      // An anchor-only link stays within the page and is not an edge — but
+      // it can still name a heading the page does not have.
+      if (!link.target) {
+        if (link.anchor && !hasHeading(doc, link.anchor)) {
+          broken.push({ from: doc.path, target: `#${link.anchor}`, reason: 'anchor' });
+        }
+        continue;
+      }
 
       // `![[diagram.png]]` embeds a file. It is neither an edge between pages
       // nor a broken reference, so it leaves the graph here. An embed that
@@ -154,6 +192,17 @@ function scanDoc(doc: ContentDoc): { targets: Set<string>; broken: BrokenLink[] 
 
       if (resolution.doc) {
         if (resolution.doc.path !== doc.path) targets.add(resolution.doc.path);
+
+        // The page is there; the heading may not be. Such a link shipped as
+        // a dead anchor and passed the strict check, since only the page was
+        // ever looked for.
+        if (link.anchor && !hasHeading(resolution.doc, link.anchor)) {
+          broken.push({
+            from: doc.path,
+            target: `${link.target}#${link.anchor}`,
+            reason: 'anchor',
+          });
+        }
         continue;
       }
 
@@ -187,6 +236,8 @@ export function getLinkGraph(): LinkGraph {
 
   const { docs } = getContentRegistry();
   const { urlMap, hiddenPaths } = getSite();
+
+  headingMemo.clear();
 
   const visible = docs.filter((doc) => !hiddenPaths.has(doc.path));
   const visiblePaths = new Set(visible.map((doc) => doc.path));

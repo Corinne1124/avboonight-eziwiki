@@ -63,6 +63,7 @@ function report(
 }
 
 const ambiguous = broken.filter((link) => link.reason === 'ambiguous');
+const anchors = broken.filter((link) => link.reason === 'anchor');
 
 if (broken.length > 0) {
   console.log(`\n🔗 ${broken.length} unresolved link${broken.length === 1 ? '' : 's'}\n`);
@@ -75,6 +76,19 @@ if (broken.length > 0) {
     for (const link of ambiguous) {
       console.log(`    content/${link.from}.md`);
       console.log(`      [[${link.target}]] matches ${link.candidates?.join(', ')}`);
+    }
+
+    console.log();
+  }
+
+  // An anchor to a heading the page does not have is a fault in the link too,
+  // and is listed where it is written.
+  if (anchors.length > 0) {
+    console.log('  Anchors — the page exists, the heading does not:\n');
+
+    for (const link of anchors) {
+      console.log(`    content/${link.from}.md`);
+      console.log(`      [[${link.target}]]`);
     }
 
     console.log();

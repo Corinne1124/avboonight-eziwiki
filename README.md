@@ -265,7 +265,11 @@ Link to a page by name, without knowing where it lives:
 
 A shorthand matching several pages is refused rather than guessed at, and a
 target matching nothing renders as visibly broken text instead of a dead link.
-`npm run check:links` lists them all.
+`npm run check:links` lists them all — along with an anchor naming a heading
+the page does not have, an ordinary `[link](/page)` to a page that does not
+exist, and a page published at an address the site keeps for itself
+(`/graph/`, `/tags/…`). With `--strict`, as CI runs it, any of these fails the
+build.
 
 Rest on any wiki link and a card shows the target's title and opening lines.
 Both are written onto the link during the build, so the card costs no request —

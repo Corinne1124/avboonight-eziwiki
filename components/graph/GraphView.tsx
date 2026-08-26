@@ -4,6 +4,7 @@ import React, { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { bounds, layout, type LayoutEdge } from '@/lib/graph/layout';
 import { useStrings } from '@/components/providers/StringsProvider';
+import { format } from '@/lib/i18n/format';
 
 /**
  * Renders the document link graph as an interactive SVG.
@@ -80,8 +81,11 @@ export function GraphView({ nodes, edges, activePath, heightClass = 'h-[70vh]' }
       <svg
         viewBox={`${box.x} ${box.y} ${box.width} ${box.height}`}
         className={`${heightClass} w-full`}
-        role="img"
-        aria-label={`Link graph of ${nodes.length} pages and ${edges.length} links`}
+        // `group`, not `img`: an image's children are presentational, so the
+        // focusable nodes inside were pruned from the accessibility tree and
+        // a keyboard reader tabbed through stops that announced nothing.
+        role="group"
+        aria-label={format(t.graphLabel, { pages: nodes.length, links: edges.length })}
       >
         <g>
           {edges.map((edge, index) => {
@@ -124,6 +128,8 @@ export function GraphView({ nodes, edges, activePath, heightClass = 'h-[70vh]' }
                 className="cursor-pointer"
                 onMouseEnter={() => setHovered(node.path)}
                 onMouseLeave={() => setHovered(null)}
+                onFocus={() => setHovered(node.path)}
+                onBlur={() => setHovered(null)}
                 onClick={() => router.push(node.url)}
                 onKeyDown={(event) => {
                   if (event.key === 'Enter' || event.key === ' ') {

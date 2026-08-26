@@ -18,6 +18,28 @@ import { cached, contentGeneration, stamp } from '../cache';
 /** Route segment the tag pages live under. */
 export const TAGS_SEGMENT = 'tags';
 
+/**
+ * The URL segment a tag name becomes.
+ *
+ * Lower-cased, with every run of anything but letters and digits folded to a
+ * hyphen. The name itself used to be the slug, and a name such as `CI/CD` or
+ * `C#` then made a page nothing could reach: the export wrote the delimiter
+ * into the directory name percent-encoded, and the host decoded the request
+ * before looking, so the two never met.
+ *
+ * @param name - Tag as written in the frontmatter
+ * @returns The slug, `tag` when nothing of the name survives
+ */
+export function tagSlug(name: string): string {
+  return (
+    name
+      .normalize('NFC')
+      .toLowerCase()
+      .replace(/[^\p{L}\p{N}]+/gu, '-')
+      .replace(/^-+|-+$/g, '') || 'tag'
+  );
+}
+
 /** A page carrying a tag. */
 export interface TaggedPage {
   /** Content path */
@@ -82,7 +104,7 @@ export function getTags(): Tag[] {
     if (!page) continue;
 
     for (const name of doc.tags) {
-      const slug = name.toLowerCase();
+      const slug = tagSlug(name);
       const existing = bySlug.get(slug);
 
       // The first spelling wins, so a wiki that writes `Setup` once and `setup`

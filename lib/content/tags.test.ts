@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getTags, getTag, getTagsFor } from './tags';
+import { getTags, getTag, getTagsFor, tagSlug } from './tags';
 import { getContentRegistry } from './registry';
 import { getSite } from '../site';
 
@@ -7,7 +7,7 @@ describe('getTags', () => {
   it('gathers pages by subject across the folder tree', () => {
     for (const tag of getTags()) {
       expect(tag.pages.length).toBeGreaterThan(0);
-      expect(tag.slug).toBe(tag.name.toLowerCase());
+      expect(tag.slug).toBe(tagSlug(tag.name));
     }
   });
 
@@ -81,5 +81,27 @@ describe('getTagsFor', () => {
 
   it('returns nothing for an untagged page', () => {
     expect(getTagsFor('no/such/page')).toEqual([]);
+  });
+});
+
+// The slug is a path segment, so it has to survive the export writing it as a
+// directory and the host decoding the request that asks for it.
+describe('tagSlug', () => {
+  it('lower-cases a plain name', () => {
+    expect(tagSlug('Deployment')).toBe('deployment');
+  });
+
+  it('folds delimiters and punctuation to hyphens', () => {
+    expect(tagSlug('CI/CD')).toBe('ci-cd');
+    expect(tagSlug('C#')).toBe('c');
+    expect(tagSlug('getting started')).toBe('getting-started');
+  });
+
+  it('keeps letters of any script', () => {
+    expect(tagSlug('배포 가이드')).toBe('배포-가이드');
+  });
+
+  it('never comes back empty', () => {
+    expect(tagSlug('#')).toBe('tag');
   });
 });

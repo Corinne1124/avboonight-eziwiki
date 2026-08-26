@@ -68,6 +68,7 @@ export function SearchDialog() {
 
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
 
   // Global shortcut. Bound on the document so it works regardless of focus.
   useEffect(() => {
@@ -80,9 +81,8 @@ export function SearchDialog() {
         return;
       }
 
-      // Escape is bound here as well as on the dialog: nothing contains
-      // focus, so Tab can carry it out behind the backdrop, from where a
-      // keydown never reaches the dialog's own handler.
+      // Escape is bound here as well as on the dialog, for the moment focus
+      // is somewhere the dialog's own handler cannot hear.
       if (event.key === 'Escape' && useSearchStore.getState().isOpen) {
         close();
       }
@@ -151,7 +151,7 @@ export function SearchDialog() {
         setError(null);
       } catch {
         if (cancelled) return;
-        setError('Search is unavailable. Try reloading the page.');
+        setError(t.searchError);
         setResults([]);
       } finally {
         if (!cancelled) setIsLoading(false);
@@ -162,7 +162,7 @@ export function SearchDialog() {
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [query, isOpen]);
+  }, [query, isOpen, t.searchError]);
 
   const go = useCallback(
     (result: SearchResult) => {
@@ -181,6 +181,30 @@ export function SearchDialog() {
     if (event.key === 'Escape') {
       event.preventDefault();
       close();
+      return;
+    }
+
+    // Focus stays inside. The dialog says `aria-modal`, which tells assistive
+    // technology the page behind is inert; letting Tab walk out onto it put
+    // the reader on content they had been told was not there.
+    if (event.key === 'Tab' && dialogRef.current) {
+      const focusable = Array.from(
+        dialogRef.current.querySelectorAll<HTMLElement>(
+          'input, button, [href], [tabindex]:not([tabindex="-1"])',
+        ),
+      );
+      if (focusable.length === 0) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
       return;
     }
 
@@ -204,6 +228,17 @@ export function SearchDialog() {
 
   if (!isOpen) return null;
 
+  const trimmed = query.trim();
+  // What a screen reader is told as the list changes: the arrows move the
+  // selection without moving focus, so nothing else would announce it.
+  const status = error
+    ? error
+    : trimmed && !isLoading
+      ? results.length > 0
+        ? format(t.searchResults, { count: results.length })
+        : format(t.searchEmpty, { query: trimmed })
+      : '';
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-start justify-center px-4 pt-[10vh]"
@@ -213,6 +248,7 @@ export function SearchDialog() {
       <div className="fixed inset-0 bg-black/40 backdrop-blur-[2px]" aria-hidden="true" />
 
       <div
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-label={t.searchDialog}
@@ -229,8 +265,12 @@ export function SearchDialog() {
             onChange={(event) => setQuery(event.target.value)}
             placeholder={t.searchPlaceholder}
             aria-label={t.searchQuery}
+            role="combobox"
+            aria-expanded={results.length > 0}
+            aria-autocomplete="list"
             aria-controls="search-results"
-            className="flex-1 bg-transparent py-3.5 text-sm text-gray-900 outline-none placeholder:text-gray-400 dark:text-gray-100"
+            aria-activedescendant={results.length > 0 ? `search-result-${selected}` : undefined}
+            className="flex-1 bg-transparent py-3.5 text-sm text-gray-900 outline-none placeholder:text-gray-500 dark:text-gray-100 dark:placeholder:text-gray-400"
           />
           {isLoading && <Loader2 className="h-4 w-4 flex-shrink-0 animate-spin text-gray-400" />}
           <kbd className="hidden flex-shrink-0 rounded border border-gray-300 px-1.5 py-0.5 text-[10px] text-gray-500 sm:block dark:border-gray-700 dark:text-gray-400">
@@ -238,8 +278,14 @@ export function SearchDialog() {
           </kbd>
         </div>
 
+        <div aria-live="polite" className="sr-only">
+          {status}
+        </div>
+
         <div className="max-h-[60vh] overflow-y-auto">
-          {error && <p className="px-4 py-8 text-center text-sm text-red-600">{error}</p>}
+          {error && (
+            <p className="px-4 py-8 text-center text-sm text-red-600 dark:text-red-400">{error}</p>
+          )}
 
           {!error && query.trim() && !isLoading && results.length === 0 && (
             <p className="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
@@ -256,39 +302,43 @@ export function SearchDialog() {
           {results.length > 0 && (
             <ul ref={listRef} id="search-results" role="listbox" className="py-2">
               {results.map((result, index) => (
-                <li key={result.id} role="option" aria-selected={index === selected}>
-                  <button
-                    type="button"
-                    onClick={() => go(result)}
-                    onMouseEnter={() => setSelected(index)}
-                    className={`flex w-full items-start gap-3 px-4 py-2.5 text-left transition-colors ${
-                      index === selected ? 'bg-blue-50 dark:bg-blue-950/40' : ''
-                    }`}
-                  >
-                    {result.section ? (
-                      <Hash className="mt-0.5 h-4 w-4 flex-shrink-0 text-gray-400" />
-                    ) : (
-                      <FileText className="mt-0.5 h-4 w-4 flex-shrink-0 text-gray-400" />
+                // The option is the row itself rather than a button inside it:
+                // an option may not contain a control, and the input's
+                // `aria-activedescendant` has to name the row.
+                <li
+                  key={result.id}
+                  id={`search-result-${index}`}
+                  role="option"
+                  aria-selected={index === selected}
+                  onClick={() => go(result)}
+                  onMouseEnter={() => setSelected(index)}
+                  className={`flex w-full cursor-pointer items-start gap-3 px-4 py-2.5 text-left transition-colors ${
+                    index === selected ? 'bg-blue-50 dark:bg-blue-950/40' : ''
+                  }`}
+                >
+                  {result.section ? (
+                    <Hash className="mt-0.5 h-4 w-4 flex-shrink-0 text-gray-400" />
+                  ) : (
+                    <FileText className="mt-0.5 h-4 w-4 flex-shrink-0 text-gray-400" />
+                  )}
+
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-sm font-medium text-gray-900 dark:text-gray-100">
+                      <Highlighted text={result.section ?? result.title} query={query} />
+                    </span>
+
+                    {result.section && (
+                      <span className="block truncate text-xs text-gray-500 dark:text-gray-400">
+                        {result.title}
+                      </span>
                     )}
 
-                    <span className="min-w-0 flex-1">
-                      <span className="block truncate text-sm font-medium text-gray-900 dark:text-gray-100">
-                        <Highlighted text={result.section ?? result.title} query={query} />
+                    {result.excerpt && (
+                      <span className="mt-0.5 block line-clamp-2 text-xs text-gray-600 dark:text-gray-400">
+                        <Highlighted text={result.excerpt} query={query} />
                       </span>
-
-                      {result.section && (
-                        <span className="block truncate text-xs text-gray-500 dark:text-gray-400">
-                          {result.title}
-                        </span>
-                      )}
-
-                      {result.excerpt && (
-                        <span className="mt-0.5 block line-clamp-2 text-xs text-gray-600 dark:text-gray-400">
-                          <Highlighted text={result.excerpt} query={query} />
-                        </span>
-                      )}
-                    </span>
-                  </button>
+                    )}
+                  </span>
                 </li>
               ))}
             </ul>
@@ -297,13 +347,13 @@ export function SearchDialog() {
 
         <div className="hidden items-center gap-4 border-t border-gray-200 px-4 py-2 text-[11px] text-gray-500 sm:flex dark:border-gray-800 dark:text-gray-400">
           <span>
-            <kbd className="font-sans">↑↓</kbd> to navigate
+            <kbd className="font-sans">↑↓</kbd> {t.searchNavigateHint}
           </span>
           <span>
-            <kbd className="font-sans">↵</kbd> to select
+            <kbd className="font-sans">↵</kbd> {t.searchSelectHint}
           </span>
           <span>
-            <kbd className="font-sans">esc</kbd> to close
+            <kbd className="font-sans">esc</kbd> {t.searchCloseHint}
           </span>
         </div>
       </div>

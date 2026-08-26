@@ -18,6 +18,7 @@ import {
   rehypeHeadingAnchors,
   rehypeImages,
   rehypeInternalLinks,
+  rehypeTables,
   type Heading,
 } from './rehype-plugins';
 import {
@@ -227,6 +228,7 @@ function createProcessor(): Processor {
     .use(rehypeKatex)
     .use(rehypeInternalLinks, getUrlMap)
     .use(rehypeImages)
+    .use(rehypeTables)
     .use(rehypeMermaid)
     .use(rehypeCodeShell)
     .use(rehypeShiki, {

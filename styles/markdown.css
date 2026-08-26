@@ -714,16 +714,21 @@ html.dark .ezw-pdf--raster {
 
 /* --------------------------------------------------------------- misc ----- */
 
-.ezw-prose table {
-  display: block;
+/* The wrapper scrolls, so the table can stay a table: made `display: block`
+   to scroll on its own it lost its rows and cells to Safari's accessibility
+   tree. */
+.ezw-table {
   overflow-x: auto;
-  white-space: nowrap;
+  margin: 1.5rem 0;
 }
 
-@media (min-width: 640px) {
-  .ezw-prose table {
-    display: table;
-    white-space: normal;
+.ezw-table > table {
+  margin: 0;
+}
+
+@media (max-width: 639px) {
+  .ezw-table > table {
+    white-space: nowrap;
   }
 }
 

@@ -400,3 +400,30 @@ export function rehypeImages() {
     });
   };
 }
+
+/**
+ * Wraps each table in a box that scrolls sideways.
+ *
+ * The table itself used to be made `display: block` on a phone so it could
+ * scroll, which costs it its table semantics in Safari — VoiceOver read a
+ * comparison table as a run of unrelated text. The scrolling belongs to a
+ * wrapper, and the table stays a table.
+ */
+export function rehypeTables() {
+  return (tree: Root) => {
+    visit(tree, 'element', (node: Element, index, parent) => {
+      if (node.tagName !== 'table' || !parent || index === undefined) return;
+      if (parent.type === 'element' && (parent as Element).properties?.className) {
+        const classes = (parent as Element).properties.className;
+        if (Array.isArray(classes) && classes.includes('ezw-table')) return;
+      }
+
+      parent.children[index] = {
+        type: 'element',
+        tagName: 'div',
+        properties: { className: ['ezw-table'] },
+        children: [node],
+      };
+    });
+  };
+}

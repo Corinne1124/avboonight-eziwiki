@@ -41,3 +41,15 @@ describe('isLightColor', () => {
     expect(isLightColor('')).toBe(false);
   });
 });
+
+// Mid-tones are where a brightness midpoint went wrong: on #808080 dark ink
+// reaches 2.6:1 and light ink 3.6:1.
+describe('isLightColor on mid-tones', () => {
+  it('puts light ink on a mid grey', () => {
+    expect(isLightColor('#808080')).toBe(false);
+  });
+
+  it('puts dark ink on a bright orange', () => {
+    expect(isLightColor('#f97316')).toBe(true);
+  });
+});

@@ -33,7 +33,29 @@ export function isLightColor(color: string): boolean {
   return isLightRgb(r, g, b);
 }
 
-/** Perceived luminance over the 0.5 midpoint, per ITU-R BT.601 weights. */
+/**
+ * Whether dark ink reads better on this colour than light ink.
+ *
+ * Decided by WCAG contrast against the two inks the menus actually use —
+ * gray-700 and gray-100 — rather than a brightness midpoint, which put dark
+ * ink on mid-greys and oranges where it reached 2.6:1.
+ */
 function isLightRgb(r: number, g: number, b: number): boolean {
-  return (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.5;
+  const l = luminance(r, g, b);
+  const onDark = (l + 0.05) / (DARK_INK + 0.05);
+  const onLight = (LIGHT_INK + 0.05) / (l + 0.05);
+  return onDark >= onLight;
+}
+
+/** Relative luminance of gray-700 (#374151) and gray-100 (#f3f4f6). */
+const DARK_INK = luminance(55, 65, 81);
+const LIGHT_INK = luminance(243, 244, 246);
+
+/** Relative luminance as WCAG defines it. */
+function luminance(r: number, g: number, b: number): number {
+  const channel = (value: number) => {
+    const c = value / 255;
+    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  };
+  return 0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b);
 }

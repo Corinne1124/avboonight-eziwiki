@@ -13,6 +13,8 @@ import { getAliasMap, aliasUrl, resolveAliasUrl } from '@/lib/content/aliases';
 import { getTagsFor } from '@/lib/content/tags';
 import { getLastModified, getPublished } from '@/lib/content/lastModified';
 import { getEditUrl } from '@/lib/content/editUrl';
+import { getExcerpt } from '@/lib/content/excerpt';
+import { oneLine } from '@/lib/content/llms';
 import { getBreadcrumbTrail } from '@/lib/navigation/breadcrumb';
 import { renderDoc } from '@/lib/markdown/render';
 import { getDoc, type ContentDoc } from '@/lib/content/registry';
@@ -83,7 +85,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     if (moved && target) {
       return {
         title: target.title,
-        description: target.description || global.description,
+        description: describe(target, moved.path),
         alternates: { canonical: pageUrl(moved.url, global.baseUrl) },
         robots: { index: false, follow: true },
       };
@@ -93,10 +95,25 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   const title = doc.title;
-  const description = doc.description || global.description;
+  const description = describe(doc, resolved.path);
   const rawOgImage = doc.frontmatter.ogImage as string | undefined;
   const ogImage = rawOgImage ? fileUrl(rawOgImage, global.baseUrl) : undefined;
   const canonicalUrl = pageUrl(resolved.url, global.baseUrl);
+
+  // The site's own images when the page names none. Next replaces the
+  // layout's Open Graph block with this one rather than merging them, so
+  // without the fallback every content page was shared as a text-only card
+  // while the home page had its picture.
+  const { seo } = global;
+  const siteImages = seo?.openGraph?.images?.map((image) => ({
+    ...image,
+    url: fileUrl(image.url, global.baseUrl),
+  }));
+  const images = ogImage ? [ogImage] : siteImages;
+  const twitterImages = ogImage
+    ? [ogImage]
+    : (seo?.twitter?.images?.map((image) => fileUrl(image, global.baseUrl)) ??
+      siteImages?.map((image) => image.url));
 
   const published = getPublished(resolved.path);
   const modified = getLastModified(resolved.path)?.iso ?? published;
@@ -124,15 +141,33 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       title,
       description,
       url: canonicalUrl,
-      images: ogImage ? [ogImage] : undefined,
+      images,
     },
     twitter: {
-      card: 'summary_large_image',
+      card: seo?.twitter?.card ?? 'summary_large_image',
+      site: seo?.twitter?.site,
+      creator: seo?.twitter?.creator,
       title,
       description,
-      images: ogImage ? [ogImage] : undefined,
+      images: twitterImages,
     },
   };
+}
+
+/**
+ * The description a page is announced with.
+ *
+ * The author's own first; otherwise the page's opening lines, as `llms.txt`
+ * already summarises it. Falling straight through to the site description
+ * gave every undescribed page the same one, so a search result for "Code
+ * Blocks" read as a pitch for the wiki.
+ *
+ * @param doc - The document
+ * @param path - Its content path
+ * @returns One line of description
+ */
+function describe(doc: ContentDoc, path: string): string {
+  return doc.description || oneLine(getExcerpt(path)) || getSite().global.description;
 }
 
 /**
@@ -164,7 +199,6 @@ export async function generateStaticParams() {
  */
 function ArticleSchema({ doc, url }: { doc: ContentDoc; url: string }) {
   const { global } = getSite();
-  const baseUrl = global.baseUrl || 'https://example.com';
   const published = getPublished(doc.path);
   // The same resolution the footer shows, so a crawler and a reader are never
   // told different things about when the page last changed.
@@ -178,8 +212,11 @@ function ArticleSchema({ doc, url }: { doc: ContentDoc; url: string }) {
           '@context': 'https://schema.org',
           '@type': 'Article',
           headline: doc.title,
-          description: doc.description || global.description,
-          url: `${baseUrl}/${url}`,
+          description: describe(doc, doc.path),
+          // Through `pageUrl`, as the canonical is: built by hand it lacked
+          // the trailing slash every page is served with and ignored the
+          // site URL override, so the two named different addresses.
+          url: pageUrl(url, global.baseUrl),
           // Dates are omitted when absent rather than stamped with the build
           // time: a fabricated date misleads both readers and crawlers.
           ...(published ? { datePublished: published } : {}),

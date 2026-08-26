@@ -288,6 +288,9 @@ export function rehypeCodeShell() {
                   type: 'button',
                   className: ['ezw-code__copy'],
                   'data-ezw-copy': '',
+                  // The label changes to confirm the copy, and a change on
+                  // the focused control is not reliably read out otherwise.
+                  'aria-live': 'polite',
                 },
                 children: [{ type: 'text', value: getStrings().copy }],
               },

@@ -58,6 +58,7 @@ export function PageLayout({ navigation, repoUrl, children }: PageLayoutProps) {
             className="p-2 -ml-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md transition-colors active:bg-gray-200 dark:active:bg-gray-700 touch-manipulation"
             aria-label={t.toggleMenu}
             aria-expanded={isMobileMenuOpen}
+            aria-controls="mobile-menu"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path

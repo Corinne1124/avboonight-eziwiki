@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { NavigationItem } from '@/lib/payload/types';
@@ -242,6 +242,32 @@ export function MobileMenu({ navigation, isOpen, onClose, repoUrl }: MobileMenuP
     };
   }, [isOpen]);
 
+  const drawerRef = useRef<HTMLDivElement>(null);
+
+  // Focus follows the drawer: into it when it opens, back to whatever opened
+  // it when it closes, and Escape closes it. Without this a keyboard or
+  // screen-reader user opened the menu and was left where they were, with
+  // the menu somewhere behind them in the tab order.
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const raf = requestAnimationFrame(() => {
+      drawerRef.current?.querySelector<HTMLElement>('button, a')?.focus();
+    });
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', onKeyDown);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      document.removeEventListener('keydown', onKeyDown);
+      opener?.focus();
+    };
+  }, [isOpen, onClose]);
+
   return (
     <>
       {isOpen && (
@@ -250,13 +276,23 @@ export function MobileMenu({ navigation, isOpen, onClose, repoUrl }: MobileMenuP
           onClick={onClose}
           onTouchEnd={onClose}
           aria-hidden="true"
-          role="button"
-          tabIndex={-1}
         />
       )}
 
       <div
-        className={`fixed top-0 left-0 h-full w-80 max-w-[85vw] bg-white dark:bg-gray-900 z-50 transform transition-transform duration-300 ease-in-out md:hidden ${
+        ref={drawerRef}
+        id="mobile-menu"
+        role="dialog"
+        aria-modal={isOpen}
+        aria-label={t.navigation}
+        // Slid off-screen is not gone: closed, the drawer stayed in the tab
+        // order, and focus walked through every link off the left edge of
+        // the screen before reaching the article. `inert` takes it out of
+        // both the tab order and the accessibility tree. React 18 knows the
+        // attribute only as a string — `true` would be dropped with a warning
+        // — while its types know it only as a boolean, hence the cast.
+        {...((isOpen ? {} : { inert: '' }) as React.HTMLAttributes<HTMLDivElement>)}
+        className={`fixed top-0 left-0 h-full w-80 max-w-[85vw] bg-white dark:bg-gray-900 z-50 transform transition-transform duration-300 ease-in-out md:hidden print:hidden ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         } overflow-y-auto`}
       >

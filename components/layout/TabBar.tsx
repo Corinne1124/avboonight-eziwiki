@@ -30,6 +30,8 @@ export function TabBar() {
   const [dropPosition, setDropPosition] = useState<'before' | 'after' | null>(null);
   const [dragPosition, setDragPosition] = useState<{ x: number; y: number } | null>(null);
   const tabBarRef = useRef<HTMLDivElement>(null);
+  const tabRefs = useRef(new Map<string, HTMLDivElement>());
+  const menuRef = useRef<HTMLDivElement>(null);
 
   const handleNewTab = () => {
     addTab({ title: t.newTabTitle, path: '' });
@@ -90,6 +92,58 @@ export function TabBar() {
 
   const handleCloseContextMenu = () => {
     setContextMenu(null);
+  };
+
+  /**
+   * Keyboard handling for a tab, on the roving-tabindex pattern: the active
+   * tab is the one stop in the strip, and the arrows move between tabs and
+   * switch to them as they go. Until this the tabs were plain divs — a
+   * keyboard reader could close the active tab and open a new one, and
+   * nothing else.
+   */
+  const handleTabKeyDown = (event: React.KeyboardEvent, index: number) => {
+    const tab = tabs[index];
+    let target: number | null = null;
+
+    switch (event.key) {
+      case 'ArrowRight':
+        target = (index + 1) % tabs.length;
+        break;
+      case 'ArrowLeft':
+        target = (index - 1 + tabs.length) % tabs.length;
+        break;
+      case 'Home':
+        target = 0;
+        break;
+      case 'End':
+        target = tabs.length - 1;
+        break;
+      case 'Enter':
+      case ' ':
+        event.preventDefault();
+        handleTabClick(tab.id, tab.path);
+        return;
+      case 'Delete':
+      case 'Backspace':
+        event.preventDefault();
+        closeTab(tab.id);
+        return;
+      case 'ContextMenu':
+      case 'F10': {
+        if (event.key === 'F10' && !event.shiftKey) return;
+        event.preventDefault();
+        const rect = event.currentTarget.getBoundingClientRect();
+        setContextMenu({ x: rect.left, y: rect.bottom, tabId: tab.id });
+        return;
+      }
+      default:
+        return;
+    }
+
+    event.preventDefault();
+    const next = tabs[target];
+    handleTabClick(next.id, next.path);
+    tabRefs.current.get(next.id)?.focus();
   };
 
   const handleDragStart = (e: React.DragEvent, index: number) => {
@@ -173,6 +227,20 @@ export function TabBar() {
     }
   }, [contextMenu]);
 
+  // The menu takes focus while it is up and gives it back to the tab after,
+  // so a keyboard reader who opened it is not left on the body.
+  React.useEffect(() => {
+    if (!contextMenu) return;
+
+    const { tabId } = contextMenu;
+    const refs = tabRefs.current;
+    menuRef.current?.querySelector('button')?.focus();
+
+    return () => {
+      refs.get(tabId)?.focus();
+    };
+  }, [contextMenu]);
+
   // Show skeleton while hydrating, and through the empty frame right after:
   // hydration can finish with no stored tabs, and the first tab only arrives
   // once TabInitializer's effect runs. Rendering the bar in between paints it
@@ -189,6 +257,8 @@ export function TabBar() {
       ref={tabBarRef}
       className="flex items-center gap-1 bg-gray-100 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 overflow-x-auto px-2 py-1 h-9 md:h-auto"
       style={{ scrollbarWidth: 'thin' }}
+      role="tablist"
+      aria-label={t.tabs}
     >
       {tabs.map((tab, index) => {
         const isActive = tab.id === activeTabId;
@@ -202,6 +272,14 @@ export function TabBar() {
             )}
 
             <div
+              ref={(element) => {
+                if (element) tabRefs.current.set(tab.id, element);
+                else tabRefs.current.delete(tab.id);
+              }}
+              role="tab"
+              aria-selected={isActive}
+              tabIndex={isActive ? 0 : -1}
+              onKeyDown={(e) => handleTabKeyDown(e, index)}
               draggable
               onDragStart={(e) => handleDragStart(e, index)}
               onDrag={handleDrag}
@@ -233,8 +311,9 @@ export function TabBar() {
                 className={`
                   flex-shrink-0 w-5 h-5 min-w-[20px] min-h-[20px] max-md:w-6 max-md:h-6 max-md:min-w-[24px] max-md:min-h-[24px] flex items-center justify-center rounded hover:bg-gray-200 dark:hover:bg-gray-600
                   transition-opacity
-                  ${isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}
+                  ${isActive ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 focus-visible:opacity-100'}
                 `}
+                tabIndex={-1}
                 aria-label={t.closeTab}
               >
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -296,35 +375,47 @@ export function TabBar() {
 
       {contextMenu && (
         <div
+          ref={menuRef}
+          role="menu"
+          aria-label={t.tabActions}
           className="fixed z-50 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg py-1 min-w-[160px]"
           style={{ left: contextMenu.x, top: contextMenu.y }}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') {
+              e.stopPropagation();
+              handleCloseContextMenu();
+            }
+          }}
         >
           <button
             onClick={() => {
               closeTab(contextMenu.tabId);
               handleCloseContextMenu();
             }}
+            role="menuitem"
             className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
           >
-            Close
+            {t.closeTab}
           </button>
           <button
             onClick={() => {
               closeFromMenu(closeOtherTabs, contextMenu.tabId);
               handleCloseContextMenu();
             }}
+            role="menuitem"
             className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
           >
-            Close Others
+            {t.closeOtherTabs}
           </button>
           <button
             onClick={() => {
               closeFromMenu(closeTabsToRight, contextMenu.tabId);
               handleCloseContextMenu();
             }}
+            role="menuitem"
             className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
           >
-            Close to the Right
+            {t.closeTabsToRight}
           </button>
         </div>
       )}

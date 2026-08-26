@@ -39,7 +39,7 @@ import { resolveAsset } from '../content/assets';
 import { getPdfImages } from '../content/pdfImages';
 import { getExcerpt } from '../content/excerpt';
 import GithubSlugger from 'github-slugger';
-import { toString as mdastToString } from 'mdast-util-to-string';
+import { headingSlugs } from './headings';
 import { docPathToUrl } from '../navigation/url';
 
 /**
@@ -150,33 +150,18 @@ const transclusionParser = unified().use(remarkParse).use(remarkGfm).use(remarkM
  * @returns The section's nodes, or null when no heading matches
  */
 function sliceSection(nodes: RootContent[], anchor: string): RootContent[] | null {
-  const slugger = new GithubSlugger();
   // Slugged so that the heading may be named as written — `#설치 방법` — as
   // well as by its id; slugging an id again leaves it unchanged.
   const wanted = new GithubSlugger().slug(anchor);
+  const headings = headingSlugs(nodes);
 
-  let start = -1;
-  let depth = 0;
+  const at = headings.findIndex((heading) => heading.slug === wanted);
+  if (at === -1) return null;
 
-  for (let i = 0; i < nodes.length; i++) {
-    const node = nodes[i];
-    if (node.type !== 'heading') continue;
+  const start = headings[at];
+  const end = headings.slice(at + 1).find((heading) => heading.depth <= start.depth);
 
-    // Slugs are assigned in document order, and repeats are numbered, so every
-    // heading has to pass through the slugger even before the match is found.
-    const slug = slugger.slug(mdastToString(node));
-
-    if (start === -1) {
-      if (slug !== wanted) continue;
-      start = i;
-      depth = node.depth;
-      continue;
-    }
-
-    if (node.depth <= depth) return nodes.slice(start, i);
-  }
-
-  return start === -1 ? null : nodes.slice(start);
+  return nodes.slice(start.index, end?.index);
 }
 
 /**

@@ -26,3 +26,21 @@ describe('wiki link anchors', () => {
     expect(decodeURIComponent(href)).toBe('#설치-방법');
   });
 });
+
+// A section include names a heading, and the heading's id is the one the
+// rendered page carries — which is not the slug of the raw source when the
+// heading holds a wiki link or HTML.
+describe('section includes', () => {
+  it('finds a section by the heading text as written', async () => {
+    const { html } = await renderMarkdown('![[intro#Start here]]\n');
+
+    expect(html).toContain('Start here');
+    expect(html).not.toContain('What you get');
+  });
+
+  it('finds the same section by its id', async () => {
+    const { html } = await renderMarkdown('![[intro#start-here]]\n');
+
+    expect(html).toContain('Start here');
+  });
+});

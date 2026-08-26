@@ -63,7 +63,13 @@
 }
 
 .ezw-code__copy[data-copied] {
-  color: #16a34a;
+  /* The greens that read as "success" at body size fall short at this one:
+     #16a34a on the code surface is 3:1. These reach 6.4:1 and 7.9:1. */
+  color: #166534;
+}
+
+html.dark .ezw-code__copy[data-copied] {
+  color: #4ade80;
 }
 
 /* Shiki emits its own background and padding; strip the prose defaults so the
@@ -925,7 +931,8 @@ details.ezw-callout:not([open]) > summary.ezw-callout__title {
    finger can hit — the glyph stays the same size, the area around it grows. */
 @media (hover: none) {
   .ezw-heading__anchor {
-    opacity: 0.5;
+    /* Shown whole: at half opacity the glyph was 2:1 against the page. */
+    opacity: 1;
     padding: 0 0.3em;
     margin-left: 0.1em;
   }
@@ -966,5 +973,14 @@ details.ezw-callout:not([open]) > summary.ezw-callout__title {
   overflow-x: auto;
   overflow-y: hidden;
   padding-block: 0.25rem;
+}
+
+/* The primary blue falls to 4:1 on the tinted surfaces callouts and included
+   content sit on, and to 2.8:1 through inline code. The hover shade clears
+   both. */
+html.dark .ezw-callout a,
+html.dark .ezw-transclusion a,
+html.dark .ezw-prose a code {
+  color: var(--color-primary-hover);
 }
 

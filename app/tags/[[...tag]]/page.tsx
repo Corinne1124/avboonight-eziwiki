@@ -32,22 +32,30 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const [slug] = params.tag ?? [];
 
   if (!slug) {
+    const canonical = pageUrl('tags', global.baseUrl);
+
     return {
       title: 'Tags',
       description: 'Subjects across the wiki',
-      alternates: { canonical: pageUrl('tags', global.baseUrl) },
+      alternates: { canonical },
+      openGraph: { title: 'Tags', description: 'Subjects across the wiki', url: canonical },
     };
   }
 
   const tag = getTag(slug);
   if (!tag) return { title: 'Tag', description: global.description };
 
+  const title = tag.name;
+  const description = `Pages about ${tag.name}`;
+  const canonical = pageUrl(`tags/${encodeURIComponent(tag.slug)}`, global.baseUrl);
+
   return {
-    title: tag.name,
-    description: `Pages about ${tag.name}`,
-    // Encoded as the listing links it: a slug such as `c#` or `ci/cd` is
-    // otherwise a fragment or a second path segment.
-    alternates: { canonical: pageUrl(`tags/${encodeURIComponent(tag.slug)}`, global.baseUrl) },
+    title,
+    description,
+    alternates: { canonical },
+    // Stated here as well: the layout's Open Graph block names the home page,
+    // and a route that sets none of its own is shared as the home page.
+    openGraph: { title, description, url: canonical },
   };
 }
 

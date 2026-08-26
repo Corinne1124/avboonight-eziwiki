@@ -48,14 +48,17 @@ function absoluteImages<T>(images: T): T {
 // Generate metadata from payload
 export const metadata: Metadata = {
   metadataBase: new URL(pageUrl('', payload.global.baseUrl)),
-  title: payload.global.title,
+  // A template, so every route's tab and search result carries the site's
+  // name once: the graph route used to append it by hand and the others not
+  // at all. The home route opts out with an absolute title.
+  title: { default: payload.global.title, template: `%s · ${payload.global.title}` },
   description: payload.global.description,
   icons: {
     icon: asset(payload.global.favicon || '/favicon.ico'),
   },
-  alternates: {
-    canonical: pageUrl('', payload.global.baseUrl),
-  },
+  // No canonical here: one on the layout is inherited by every route that
+  // sets none of its own, and the graph, the tag index and the 404 page were
+  // all claiming to be the home page. Each route states its own.
   openGraph: payload.global.seo?.openGraph
     ? {
         title: payload.global.seo.openGraph.title || payload.global.title,

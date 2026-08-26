@@ -1,4 +1,12 @@
+import type { Metadata } from 'next';
 import { PageTransition } from '@/components/markdown/PageTransition';
+import { pageUrl } from '@/lib/basePath';
+import { payload } from '@/payload/config';
+
+export const metadata: Metadata = {
+  title: { absolute: payload.global.title },
+  alternates: { canonical: pageUrl('', payload.global.baseUrl) },
+};
 
 /**
  * Home page - shows empty state for New Tab

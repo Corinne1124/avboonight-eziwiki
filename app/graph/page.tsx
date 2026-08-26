@@ -6,6 +6,7 @@ import { format } from '@/lib/i18n/strings';
 import { formatNodes } from '@/lib/i18n/nodes';
 import { getStrings } from '@/lib/site';
 import { getSite } from '@/lib/site';
+import { pageUrl } from '@/lib/basePath';
 import type { Metadata } from 'next';
 
 /**
@@ -18,9 +19,13 @@ import type { Metadata } from 'next';
 export function generateMetadata(): Metadata {
   const { global, strings } = getSite();
 
+  const canonical = pageUrl('graph', global.baseUrl);
+
   return {
-    title: `${strings.graph} · ${global.title}`,
+    title: strings.graph,
     description: strings.graphDescription,
+    alternates: { canonical },
+    openGraph: { title: strings.graph, description: strings.graphDescription, url: canonical },
     // The graph is navigation, not content; there is nothing here for a search
     // engine to index that the pages themselves do not already provide.
     robots: { index: false, follow: true },

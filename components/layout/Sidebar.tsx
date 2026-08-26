@@ -187,6 +187,7 @@ function NavigationItemComponent({
             <Link
               href={urlFor(item.path)}
               onClick={handleLinkClick}
+              aria-current={isActive ? 'page' : undefined}
               // The page you are on is marked by lifting it off the section
               // rather than by colouring it. A fixed blue used to do the job,
               // which worked until a section carried a colour of its own —
@@ -378,7 +379,7 @@ export function Sidebar({ navigation, repoUrl }: SidebarProps) {
       </div>
 
       {!sidebarCollapsed && (
-        <nav className="p-2 space-y-1">
+        <nav className="p-2 space-y-1" aria-label={t.navigation}>
           {visibleNavigation.map((item, index) => (
             <div key={`${item.name}-${index}`} className="rounded-md overflow-hidden">
               <NavigationItemComponent item={item} level={0} parentLines={[]} />

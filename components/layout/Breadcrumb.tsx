@@ -6,12 +6,14 @@ import Link from 'next/link';
 import { NavigationItem } from '@/lib/payload/types';
 import { useUrlMap } from '@/components/providers/UrlMapProvider';
 import { getBreadcrumbTrail } from '@/lib/navigation/breadcrumb';
+import { useStrings } from '@/components/providers/StringsProvider';
 
 interface BreadcrumbProps {
   navigation: NavigationItem[];
 }
 
 export function Breadcrumb({ navigation }: BreadcrumbProps) {
+  const t = useStrings();
   const pathname = usePathname();
   const { href: urlFor, toPath } = useUrlMap();
 
@@ -33,7 +35,10 @@ export function Breadcrumb({ navigation }: BreadcrumbProps) {
   }
 
   return (
-    <nav className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+    <nav
+      aria-label={t.breadcrumb}
+      className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"
+    >
       {trail.map((item, index) => (
         <React.Fragment key={index}>
           {index > 0 && (
@@ -48,7 +53,12 @@ export function Breadcrumb({ navigation }: BreadcrumbProps) {
           )}
 
           {index === trail.length - 1 || !item.path ? (
-            <span className="font-medium text-gray-900 dark:text-gray-100">{item.name}</span>
+            <span
+              aria-current={index === trail.length - 1 ? 'page' : undefined}
+              className="font-medium text-gray-900 dark:text-gray-100"
+            >
+              {item.name}
+            </span>
           ) : (
             <Link
               href={urlFor(item.path)}

@@ -108,3 +108,16 @@ html {
   }
 }
 
+/*
+ * Windows High Contrast removes backgrounds, shadows and rings — which is
+ * everything that marked the current page, the active tab and the selected
+ * search result. An outline survives, drawn in the theme's highlight colour.
+ */
+@media (forced-colors: active) {
+  [aria-current='page'],
+  [aria-selected='true'] {
+    outline: 2px solid Highlight;
+    outline-offset: -2px;
+  }
+}
+

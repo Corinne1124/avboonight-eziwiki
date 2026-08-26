@@ -148,6 +148,7 @@ function MobileNavigationItem({
           <Link
             href={urlFor(item.path)}
             onClick={handleLinkClick}
+            aria-current={isActive ? 'page' : undefined}
             // Over a coloured section the active page is lifted off on a
             // white surface, as the desktop sidebar does: the fixed blue
             // clashes with whatever colour the section's `_meta.json` names,

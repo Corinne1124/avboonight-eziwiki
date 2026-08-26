@@ -154,7 +154,13 @@ const DEFAULT_LANG = 'en';
 const themeScript =
   "try{var t=localStorage.getItem('theme');" +
   "if(t==='dark'||(!t&&matchMedia('(prefers-color-scheme: dark)').matches))" +
-  "document.documentElement.classList.add('dark')}catch(e){}";
+  "document.documentElement.classList.add('dark')}catch(e){}" +
+  // Paper is white whatever the theme. Printed as it stood, a dark page put
+  // near-white text on it; the class comes off for the print and goes back.
+  "addEventListener('beforeprint',function(){var c=document.documentElement.classList;" +
+  "if(c.contains('dark')){c.remove('dark');document.documentElement.dataset.ezwPrintDark='1'}});" +
+  "addEventListener('afterprint',function(){var d=document.documentElement;" +
+  "if(d.dataset.ezwPrintDark){d.classList.add('dark');delete d.dataset.ezwPrintDark}});";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const site = getSite();

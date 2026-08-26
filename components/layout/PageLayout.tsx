@@ -51,7 +51,7 @@ export function PageLayout({ navigation, repoUrl, children }: PageLayoutProps) {
         has to stick underneath this one, and it can only be told where to stop
         by a height that is decided here rather than measured.
       */}
-      <header className="md:hidden sticky top-0 z-30 h-16 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-4">
+      <header className="md:hidden print:hidden sticky top-0 z-30 h-16 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-4">
         <div className="flex h-full items-center justify-between">
           <button
             onClick={toggleMobileMenu}
@@ -92,7 +92,7 @@ export function PageLayout({ navigation, repoUrl, children }: PageLayoutProps) {
             is, out of view the moment they started reading. There is no header
             from `md` up, so it sticks to the top there.
           */}
-          <div className="sticky top-16 z-20 bg-white md:top-0 dark:bg-gray-950">
+          <div className="sticky top-16 z-20 bg-white md:top-0 dark:bg-gray-950 print:hidden">
             <TabBar />
             <NavigationButtons navigation={navigation} />
           </div>

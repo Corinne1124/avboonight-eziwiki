@@ -121,3 +121,37 @@ html {
   }
 }
 
+/*
+ * Print. The chrome around the article is hidden by `print:hidden` where it
+ * is rendered; what remains is the article's own furniture, and the theme is
+ * switched to light by a script in the head, since the dark text colours
+ * come from utility classes no stylesheet can take back.
+ */
+@media print {
+  .ezw-code__copy,
+  .ezw-heading__anchor,
+  .ezw-pdf__controls {
+    display: none !important;
+  }
+
+  .ezw-code pre {
+    white-space: pre-wrap;
+    overflow: visible;
+  }
+
+  .ezw-pdf__scroll {
+    max-height: none;
+    height: auto;
+    overflow: visible;
+  }
+
+  .ezw-table {
+    overflow: visible;
+  }
+
+  a[href^='http']::after {
+    content: ' (' attr(href) ')';
+    font-size: 0.8em;
+    color: var(--color-text-muted);
+  }
+}

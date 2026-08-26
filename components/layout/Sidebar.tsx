@@ -334,7 +334,7 @@ export function Sidebar({ navigation, repoUrl }: SidebarProps) {
   return (
     <aside
       ref={sidebarRef}
-      className="hidden md:block h-screen sticky top-0 bg-gray-50 dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 overflow-y-auto relative"
+      className="hidden md:block print:hidden h-screen sticky top-0 bg-gray-50 dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 overflow-y-auto relative"
       style={{
         width: sidebarCollapsed ? '64px' : `${sidebarWidth}px`,
         transition: isResizing ? 'none' : 'width 0.3s ease',

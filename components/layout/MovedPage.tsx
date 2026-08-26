@@ -24,6 +24,14 @@ export function MovedPage({ url, title }: { url: string; title: string }) {
 
   return (
     <>
+      {/* A meta refresh cannot carry the fragment or the query the reader
+          arrived with, so `…/old/#install` landed at the top of the new page.
+          Script forwards both; the meta refresh stays as the fallback. */}
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `location.replace(${JSON.stringify(asset(url))}+location.search+location.hash)`,
+        }}
+      />
       <meta httpEquiv="refresh" content={`0; url=${asset(url)}`} />
 
       <div className="mx-auto max-w-lg px-6 py-24 text-center">

@@ -9,10 +9,11 @@ import { Payload } from '@/lib/payload/types';
  */
 export const payload: Payload = {
   global: {
-    title: 'eziwiki',
+    title: '忌地之夜 - 设定，角色与世界观',
     description:
-      'A beautiful, minimal wiki and documentation site generator inspired by Notion and Obsidian',
+      '忌夜设定集',
     favicon: '/favicon.svg',
+
     /**
      * Where this site is published.
      *
@@ -22,9 +23,9 @@ export const payload: Payload = {
      * engines the real page is somewhere unreachable. A deployment can
      * override it by setting `NEXT_PUBLIC_SITE_URL`.
      */
-    baseUrl: 'https://eziwiki.vercel.app',
+    baseUrl: 'https://corinne1124.github.io/avboonight-eziwiki',
     /** Linked from the sidebar. Omit it and the link is not rendered. */
-    repoUrl: 'https://github.com/i3months/eziwiki',
+    repoUrl: 'https://github.com/Corinne1124/avboonight-eziwiki',
     /**
      * URL form for content pages.
      *

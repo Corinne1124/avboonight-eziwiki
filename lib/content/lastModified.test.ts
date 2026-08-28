@@ -1,10 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { 
-  resolveLastModified, 
-  getLastModified, 
-  getPublished, 
-  getLastModified } 
-  from './lastModified';
+import { resolveLastModified, getLastModified, getPublished } from './lastModified';
 
 jest.mock('@/lib/content/lastModified', () => ({
   getLastModified: jest.fn().mockReturnValue({ date: '2026-08-28', source: 'git' }),

@@ -9,10 +9,10 @@ import { Payload } from '@/lib/payload/types';
  */
 export const payload: Payload = {
   global: {
-    title: '忌地之夜 - 设定，角色与世界观',
-    description:
-      '忌夜设定集',
+    title: '忌地之夜 - 设定，故事与世界观',
+    description: '忌夜设定集',
     favicon: '/favicon.svg',
+    lang: 'zh-CN',
 
     /**
      * Where this site is published.
@@ -46,23 +46,21 @@ export const payload: Payload = {
     autoNavigation: true,
     seo: {
       openGraph: {
-        title: 'eziwiki - Beautiful Documentation Made Easy',
-        description:
-          'A beautiful, minimal wiki and documentation site generator inspired by Notion and Obsidian',
+        title: '忌夜设定集',
+        description: '忌地之夜世界观 - 角色，故事与设定集',
         images: [
           {
             url: '/og-image.svg',
             width: 1200,
             height: 630,
-            alt: 'eziwiki',
+            alt: '忌夜！',
           },
         ],
       },
       twitter: {
         card: 'summary_large_image',
-        title: 'eziwiki - Beautiful Documentation Made Easy',
-        description:
-          'A beautiful, minimal wiki and documentation site generator inspired by Notion and Obsidian',
+        title: '忌地之夜世界观 - 角色，故事与设定集',
+        description: '忌地之夜世界观 - 角色，故事与设定集',
         images: ['/og-image.svg'],
       },
     },

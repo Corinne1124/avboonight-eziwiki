@@ -1,3 +1,4 @@
+import { jest, describe, it, expect } from '@jest/globals';
 import { describe, it, expect } from 'vitest';
 import { resolveLastModified, getLastModified, getPublished } from './lastModified';
 

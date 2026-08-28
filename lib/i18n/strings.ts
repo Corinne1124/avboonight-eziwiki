@@ -389,7 +389,7 @@ const KO: Strings = {
   wantedBy: '{count}개 문서가 참조',
 };
 
-const EN: Strings = {
+const ZH: Strings = {
   search: '搜索…',
   searchDialog: '搜索文档',
   searchPlaceholder: '搜索文献…',

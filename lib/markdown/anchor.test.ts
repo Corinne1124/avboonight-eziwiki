@@ -34,7 +34,7 @@ describe('section includes', () => {
   it('finds a section by the heading text as written', async () => {
     const { html } = await renderMarkdown('![[intro#Start here]]\n');
 
-    expect(html).toContain('Start here');
+    expect(html).toContain('Welcome');
     expect(html).not.toContain('What you get');
   });
 

@@ -389,6 +389,103 @@ const KO: Strings = {
   wantedBy: '{count}개 문서가 참조',
 };
 
+const EN: Strings = {
+  search: '搜索…',
+  searchDialog: '搜索文档',
+  searchPlaceholder: '搜索文献…',
+  searchQuery: '搜索词',
+  searchHint: '可搜索标题、章节和页面内容。',
+  searchEmpty: '未找到“{query}”的相关内容',
+  searchError: '搜索服务暂时不可用，请刷新页面后重试。',
+  searchResults: '共 {count} 个结果',
+  searchNavigateHint: '上下导航',
+  searchSelectHint: '确认选择',
+  searchCloseHint: '关闭',
+
+  sourceRepository: '源代码仓库',
+  collapseSidebar: '收起侧边栏',
+  expandSidebar: '展开侧边栏',
+  collapseSection: '收起 {name}',
+  expandSection: '展开 {name}',
+  toggleMenu: '切换菜单',
+  closeMenu: '关闭菜单',
+  skipToContent: '跳至正文',
+  navigation: '导航',
+  breadcrumb: '面包屑',
+  goBack: '后退',
+  goForward: '前进',
+  switchToLight: '切换至浅色模式',
+  switchToDark: '切换至深色模式',
+
+  newTab: '新建标签',
+  newTabTitle: '新标签页',
+  closeTab: '关闭标签',
+  tabs: '标签栏',
+  tabActions: '标签操作',
+  closeOtherTabs: '关闭其他标签',
+  closeTabsToRight: '关闭右侧标签',
+
+  onThisPage: '本页目录',
+  pageNavigation: '页面导航',
+  previous: '上一页',
+  next: '下一页',
+  tags: '标签',
+  linkedFromOne: '被 {count} 个页面引用',
+  linkedFromMany: '被 {count} 个页面引用',
+  connectedToOne: '与 {count} 个页面关联',
+  connectedToMany: '与 {count} 个页面关联',
+  lastUpdated: '最后更新于 {date}',
+  editThisPage: '编辑本页',
+  copy: '复制',
+  copied: '已复制',
+  linkToSection: '复制章节链接：{title}',
+  includedFrom: '引用自 ',
+  diagram: '图表',
+
+  pdfOpen: '打开 {name}',
+  pdfOpenShort: '打开',
+  pdfLoading: '正在打开文档…',
+  pdfError: '无法显示该文档。',
+  pdfDocument: '{name} — 文档查看器',
+  pdfPageOf: '第 {page} 页 / 共 {pages} 页',
+  pdfPrevious: '上一页',
+  pdfNext: '下一页',
+  pdfZoomIn: '放大',
+  pdfZoomOut: '缩小',
+  pdfDownload: '下载',
+  pdfFullscreen: '全屏',
+  pdfExitFullscreen: '退出全屏',
+
+  pageMoved: '页面已迁移',
+  pageMovedBody: '正在将您跳转到新位置。若未自动跳转，请点击下方链接。',
+  continueTo: '继续前往 {title}',
+
+  notFound: '找不到页面',
+  notFoundBody: '您访问的页面不存在或已被移走。',
+  notFoundHint: '请尝试使用侧边栏导航查找所需内容。',
+  goHome: '返回首页',
+
+  error: '出错了',
+  errorBody: '页面加载失败，刷新一下或许能解决。',
+  criticalError: '严重错误',
+  criticalErrorBody: '页面完全无法加载，请尝试刷新。',
+  tryAgain: '重试',
+
+  graph: '页面关系图',
+  graphDescription: '展示本维基中各页面之间的链接结构。',
+  graphLabel: '{pages} 个页面，{links} 条链接的关系图',
+  graphEmpty: '暂无页面可绘制关系图。',
+  graphSummary:
+    '共 {pages} 个页面，{links} 条链接，其中 {connected} 个页面至少与其他页面相连。',
+  graphHint: '悬停节点可高亮其相邻节点，点击节点可打开对应页面。',
+  unresolvedLinks: '断链（{count}）',
+  unresolvedLink: '{page} 中的 {target}',
+  unresolvedAmbiguous: '匹配到 {candidates} 个候选',
+  wantedPages: '待建页面（{count}）',
+  wantedBy: '被 {count} 个页面引用',
+};
+
+
 /**
  * Every language the interface is translated into.
  *
@@ -396,7 +493,11 @@ const KO: Strings = {
  * words through `global.strings` rather than waiting for a translation to be
  * contributed — see {@link resolveStrings}.
  */
-const TABLES: Record<string, Strings> = { en: EN, ko: KO };
+const TABLES: Record<string, Strings> = {
+  en: EN,
+  ko: KO,
+  zh: ZH, 
+};
 
 /**
  * Chooses the interface language and applies any per-wiki wording.

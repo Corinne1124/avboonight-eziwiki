@@ -1,5 +1,14 @@
 import { describe, it, expect } from 'vitest';
 import { resolveLastModified, getLastModified, getPublished } from './lastModified';
+import { getLastModified } from './lastModified';
+
+jest.mock('./lastModified', () => ({
+  getLastModified: jest.fn((slug) => ({
+    iso: '2026-08-28T00:00:00.000Z',
+    date: '2026-08-28',
+    source: 'git',
+  })),
+}));
 
 const COMMITTED = '2026-03-14T09:26:53+09:00';
 

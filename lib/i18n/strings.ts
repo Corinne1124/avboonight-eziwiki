@@ -475,8 +475,7 @@ const ZH: Strings = {
   graphDescription: '展示本维基中各页面之间的链接结构。',
   graphLabel: '{pages} 个页面，{links} 条链接的关系图',
   graphEmpty: '暂无页面可绘制关系图。',
-  graphSummary:
-    '共 {pages} 个页面，{links} 条链接，其中 {connected} 个页面至少与其他页面相连。',
+  graphSummary: '共 {pages} 个页面，{links} 条链接，其中 {connected} 个页面至少与其他页面相连。',
   graphHint: '悬停节点可高亮其相邻节点，点击节点可打开对应页面。',
   unresolvedLinks: '断链（{count}）',
   unresolvedLink: '{page} 中的 {target}',
@@ -484,7 +483,6 @@ const ZH: Strings = {
   wantedPages: '待建页面（{count}）',
   wantedBy: '被 {count} 个页面引用',
 };
-
 
 /**
  * Every language the interface is translated into.
@@ -496,7 +494,7 @@ const ZH: Strings = {
 const TABLES: Record<string, Strings> = {
   en: EN,
   ko: KO,
-  zh: ZH, 
+  zh: ZH,
 };
 
 /**

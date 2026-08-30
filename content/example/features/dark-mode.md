@@ -236,14 +236,12 @@ npm run dev
 使用 CSS 变量而不是写死的颜色：
 
 ```css
-✅ 好：
-.button {
+✅ 好： .button {
   background: var(--color-primary);
   color: var(--color-text);
 }
 
-❌ 差：
-.button {
+❌ 差： .button {
   background: #2563eb;
   color: #1f2937;
 }

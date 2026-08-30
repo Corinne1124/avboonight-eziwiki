@@ -60,13 +60,13 @@ Authorization: Bearer YOUR_API_KEY
 
 ## 查询参数
 
-| 参数    | 类型    | 是否必填 | 说明                                        |
-| ------- | ------- | -------- | ------------------------------------------- |
-| `page`  | integer | 否       | 页码（默认：1）                             |
-| `limit` | integer | 否       | 每页条目数（默认：20，最大：100）           |
-| `sort`  | string  | 否       | 排序字段（默认：`created_at`）              |
-| `order` | string  | 否       | 排序方式：`asc` 或 `desc`（默认：`desc`）   |
-| `status`| string  | 否       | 按状态筛选：`active`、`inactive`            |
+| 参数     | 类型    | 是否必填 | 说明                                      |
+| -------- | ------- | -------- | ----------------------------------------- |
+| `page`   | integer | 否       | 页码（默认：1）                           |
+| `limit`  | integer | 否       | 每页条目数（默认：20，最大：100）         |
+| `sort`   | string  | 否       | 排序字段（默认：`created_at`）            |
+| `order`  | string  | 否       | 排序方式：`asc` 或 `desc`（默认：`desc`） |
+| `status` | string  | 否       | 按状态筛选：`active`、`inactive`          |
 
 ## 请求示例
 
@@ -132,20 +132,20 @@ data = response.json()
 
 ### 响应字段
 
-| 字段                | 类型    | 说明                               |
-| ------------------- | ------- | ---------------------------------- |
-| `data`              | array   | 用户对象数组                       |
-| `data[].id`         | string  | 用户唯一标识                       |
-| `data[].email`      | string  | 用户邮箱地址                       |
-| `data[].name`       | string  | 用户全名                           |
-| `data[].status`     | string  | 用户状态：`active` 或 `inactive`   |
-| `data[].created_at` | string  | ISO 8601 时间戳                    |
-| `data[].updated_at` | string  | ISO 8601 时间戳                    |
-| `pagination`        | object  | 分页元数据                         |
-| `pagination.page`   | integer | 当前页码                           |
-| `pagination.limit`  | integer | 每页条目数                         |
-| `pagination.total`  | integer | 条目总数                           |
-| `pagination.pages`  | integer | 总页数                             |
+| 字段                | 类型    | 说明                             |
+| ------------------- | ------- | -------------------------------- |
+| `data`              | array   | 用户对象数组                     |
+| `data[].id`         | string  | 用户唯一标识                     |
+| `data[].email`      | string  | 用户邮箱地址                     |
+| `data[].name`       | string  | 用户全名                         |
+| `data[].status`     | string  | 用户状态：`active` 或 `inactive` |
+| `data[].created_at` | string  | ISO 8601 时间戳                  |
+| `data[].updated_at` | string  | ISO 8601 时间戳                  |
+| `pagination`        | object  | 分页元数据                       |
+| `pagination.page`   | integer | 当前页码                         |
+| `pagination.limit`  | integer | 每页条目数                       |
+| `pagination.total`  | integer | 条目总数                         |
+| `pagination.pages`  | integer | 总页数                           |
 
 ## 错误响应
 

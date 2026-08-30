@@ -1,9 +1,11 @@
 ---
 title: Dilora Veyra 迪洛拉·薇拉
-tags: [ 鬼 ]
+tags: [鬼]
 order: 24
 ---
+
 ## Dilora Veyra 迪洛拉·薇拉
+
 词根拆解：Dilora 取自双脊龙学名 Dilophosaurus，Veyra 对应魏氏双脊龙的“魏”音译
 
 迪洛拉

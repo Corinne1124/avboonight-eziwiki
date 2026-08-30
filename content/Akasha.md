@@ -1,9 +1,11 @@
 ---
 title: The Final Draft of Akasha（阿卡夏终稿） - Akasha(阿卡夏)
-tags: [ 鬼 ]
+tags: [鬼]
 order: 18
 ---
+
 ## The Final Draft of Akasha（阿卡夏终稿） - Akasha(阿卡夏)
+
 克苏鲁宇宙中的旧日支配者本体为一本半透明的书
 
 阿卡夏（Akasha）

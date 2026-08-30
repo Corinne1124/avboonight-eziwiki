@@ -31,7 +31,7 @@ afterEach(() => {
 describe('hash URL strategy', () => {
   it('addresses pages by digest rather than by content path', async () => {
     const { renderMarkdown } = await import('./render');
-    const { html } = await renderMarkdown('[Quick Start](getting-started/quick-start)\n');
+    const { html } = await renderMarkdown('[快速入门](example/getting-started/quick-start)\n');
 
     const href = html.match(/href="([^"]*)"/)?.[1] ?? '';
 
@@ -54,10 +54,10 @@ describe('hash URL strategy', () => {
 
   it('keeps the anchor when a wiki link carries one', async () => {
     const { renderMarkdown } = await import('./render');
-    const { html } = await renderMarkdown('[[quick-start#prerequisites]]\n');
+    const { html } = await renderMarkdown('[[quick-start#前置要求]]\n');
 
-    const href = html.match(/href="([^"]*)"/)?.[1] ?? '';
+    const href = decodeURIComponent(html.match(/href="([^"]*)"/)?.[1] ?? '');
 
-    expect(href).toMatch(/^\/[0-9a-f-]+\/#prerequisites$/);
+    expect(href).toMatch(/^\/[0-9a-f-]+\/#前置要求$/);
   });
 });

@@ -91,33 +91,35 @@ describe('renderMarkdown', () => {
   });
 
   it('rewrites internal links to site URLs', async () => {
-    const { html } = await renderMarkdown('[Quick Start](getting-started/quick-start)\n');
+    const { html } = await renderMarkdown('[快速入门](example/getting-started/quick-start)\n');
 
-    expect(html).toContain('href="/getting-started/quick-start/"');
+    expect(html).toContain('href="/example/getting-started/quick-start/"');
   });
 
   it('resolves internal links written with a .md extension or leading slash', async () => {
     const { html } = await renderMarkdown(
-      '[a](/getting-started/quick-start) [b](getting-started/quick-start.md)\n',
+      '[a](/example/getting-started/quick-start) [b](example/getting-started/quick-start.md)\n',
     );
 
-    expect(html.match(/href="\/getting-started\/quick-start\/"/g)).toHaveLength(2);
+    expect(html.match(/href="\/example\/getting-started\/quick-start\/"/g)).toHaveLength(2);
   });
 
   // `trailingSlash` is on, so this is the form the page is exported under. A
   // slashless link is a redirect on hosts that add the slash, and a 404 on
   // hosts that do not.
   it('emits internal links in the trailing-slash form the export uses', async () => {
-    const { html } = await renderMarkdown('[a](getting-started/quick-start)\n');
+    const { html } = await renderMarkdown('[a](example/getting-started/quick-start)\n');
 
-    expect(html).toContain('href="/getting-started/quick-start/"');
-    expect(html).not.toMatch(/href="\/getting-started\/quick-start"/);
+    expect(html).toContain('href="/example/getting-started/quick-start/"');
+    expect(html).not.toMatch(/href="\/example\/getting-started\/quick-start"/);
   });
 
   it('preserves the anchor when resolving an internal link', async () => {
-    const { html } = await renderMarkdown('[Step](getting-started/quick-start#step-two)\n');
+    const { html } = await renderMarkdown(
+      '[步骤](example/getting-started/quick-start#step-two)\n',
+    );
 
-    expect(html).toContain('href="/getting-started/quick-start/#step-two"');
+    expect(html).toContain('href="/example/getting-started/quick-start/#step-two"');
   });
 
   it('leaves in-page anchors alone', async () => {
@@ -181,14 +183,14 @@ describe('renderMarkdown', () => {
 
 describe('renderDoc', () => {
   it('renders a document from the content registry', async () => {
-    const rendered = await renderDoc('intro');
+    const rendered = await renderDoc('example/intro');
 
     expect(rendered).not.toBeNull();
     expect(rendered!.html.length).toBeGreaterThan(0);
   });
 
   it('memoises repeated renders of the same document', async () => {
-    expect(await renderDoc('intro')).toBe(await renderDoc('intro'));
+    expect(await renderDoc('example/intro')).toBe(await renderDoc('example/intro'));
   });
 
   it('returns null for a document that does not exist', async () => {
@@ -198,36 +200,37 @@ describe('renderDoc', () => {
 
 describe('wiki links', () => {
   it('resolves a full path', async () => {
-    const { html } = await renderMarkdown('[[getting-started/quick-start]]\n');
+    const { html } = await renderMarkdown('[[example/getting-started/quick-start]]\n');
 
-    expect(html).toContain('href="/getting-started/quick-start/"');
+    expect(html).toContain('href="/example/getting-started/quick-start/"');
     expect(html).toContain('ezw-wikilink');
     // With no label, the target's own title is used as the link text.
-    expect(html).toContain('>Quick Start<');
+    expect(html).toContain('>快速入门<');
   });
 
   it('resolves a bare file name', async () => {
     const { html } = await renderMarkdown('[[quick-start]]\n');
 
-    expect(html).toContain('href="/getting-started/quick-start/"');
+    expect(html).toContain('href="/example/getting-started/quick-start/"');
   });
 
   it('resolves a page title', async () => {
-    const { html } = await renderMarkdown('[[Quick Start]]\n');
+    const { html } = await renderMarkdown('[[快速入门]]\n');
 
-    expect(html).toContain('href="/getting-started/quick-start/"');
+    expect(html).toContain('href="/example/getting-started/quick-start/"');
   });
 
   it('uses an explicit label', async () => {
-    const { html } = await renderMarkdown('[[quick-start|start here]]\n');
+    const { html } = await renderMarkdown('[[quick-start|从这里开始]]\n');
 
-    expect(html).toContain('>start here<');
+    expect(html).toContain('>从这里开始<');
   });
 
   it('appends an anchor', async () => {
-    const { html } = await renderMarkdown('[[quick-start#prerequisites]]\n');
+    const { html } = await renderMarkdown('[[quick-start#前置要求]]\n');
+    const href = decodeURIComponent(/href="([^"]*)"/.exec(html)?.[1] ?? '');
 
-    expect(html).toContain('href="/getting-started/quick-start/#prerequisites"');
+    expect(href).toBe('/example/getting-started/quick-start/#前置要求');
   });
 
   it('links an anchor-only reference within the page', async () => {
@@ -254,13 +257,13 @@ describe('wiki links', () => {
   });
 
   it('handles several links in one paragraph with text between them', async () => {
-    const { html } = await renderMarkdown('See [[intro]] and then [[quick-start]] next.\n');
+    const { html } = await renderMarkdown('看看 [[intro]]，然后是 [[quick-start]]。\n');
 
-    expect(html).toContain('href="/intro/"');
-    expect(html).toContain('href="/getting-started/quick-start/"');
-    expect(html).toContain('See ');
-    expect(html).toContain(' and then ');
-    expect(html).toContain(' next.');
+    expect(html).toContain('href="/example/intro/"');
+    expect(html).toContain('href="/example/getting-started/quick-start/"');
+    expect(html).toContain('看看 ');
+    expect(html).toContain('，然后是 ');
+    expect(html).toContain('。');
   });
 
   it('leaves unmatched brackets as literal text', async () => {
@@ -304,7 +307,7 @@ describe('embeds', () => {
   it('still links when the embed names a page rather than a file', async () => {
     const { html } = await renderMarkdown('![[quick-start]]\n');
 
-    expect(html).toContain('href="/getting-started/quick-start/"');
+    expect(html).toContain('href="/example/getting-started/quick-start/"');
   });
 
   it('marks an embed that matches nothing as broken', async () => {
@@ -436,31 +439,31 @@ describe('transclusion', () => {
     const { html } = await renderMarkdown('![[quick-start]]\n');
 
     expect(html).toContain('ezw-transclusion');
-    expect(html).toContain('Prerequisites');
+    expect(html).toContain('前置要求');
   });
 
   it('attributes the content to the page it came from', async () => {
     const { html } = await renderMarkdown('![[quick-start]]\n');
 
     expect(html).toContain('ezw-transclusion__source');
-    expect(html).toContain('href="/getting-started/quick-start/"');
+    expect(html).toContain('href="/example/getting-started/quick-start/"');
   });
 
   it('includes only the named section', async () => {
     const whole = await renderMarkdown('![[quick-start]]\n');
-    const section = await renderMarkdown('![[quick-start#prerequisites]]\n');
+    const section = await renderMarkdown('![[quick-start#前置要求]]\n');
 
     expect(section.html).toContain('ezw-transclusion');
-    expect(section.html).toContain('Prerequisites');
+    expect(section.html).toContain('前置要求');
     expect(section.html.length).toBeLessThan(whole.html.length / 2);
     // The section stops at the next heading of the same level.
-    expect(section.html).not.toContain('Step 1');
+    expect(section.html).not.toContain('第 1 步');
   });
 
   // Blocks cannot sit inside a paragraph, and an embed among prose is being
   // used as a reference rather than as an inclusion.
   it('stays a link when the embed shares its paragraph with text', async () => {
-    const { html } = await renderMarkdown('see ![[quick-start]] here\n');
+    const { html } = await renderMarkdown('参见 ![[quick-start]] 这里\n');
 
     expect(html).not.toContain('ezw-transclusion');
     expect(html).toContain('ezw-wikilink');
@@ -470,12 +473,15 @@ describe('transclusion', () => {
     const { html } = await renderMarkdown('![[quick-start#no-such-section]]\n');
 
     expect(html).not.toContain('ezw-transclusion');
-    expect(html).toContain('href="/getting-started/quick-start/#no-such-section"');
+    expect(html).toContain('href="/example/getting-started/quick-start/#no-such-section"');
   });
 
   // Rendering a copy of the page inside itself would not terminate.
   it('refuses a document that includes itself', async () => {
-    const { html } = await renderMarkdown('![[quick-start]]\n', 'getting-started/quick-start');
+    const { html } = await renderMarkdown(
+      '![[quick-start]]\n',
+      'example/getting-started/quick-start',
+    );
 
     expect(html).not.toContain('ezw-transclusion');
     expect(html).toContain('ezw-wikilink');
@@ -483,9 +489,9 @@ describe('transclusion', () => {
 
   // The contents describe the page a reader is on, not the pages it borrows.
   it('keeps transcluded headings out of the table of contents', async () => {
-    const { headings } = await renderMarkdown('## Mine\n\n![[quick-start]]\n');
+    const { headings } = await renderMarkdown('## 我的章节\n\n![[quick-start]]\n');
 
-    expect(headings.map((heading) => heading.text)).toEqual(['Mine']);
+    expect(headings.map((heading) => heading.text)).toEqual(['我的章节']);
   });
 });
 
@@ -494,7 +500,7 @@ describe('link previews', () => {
   it('carries the target title and summary on the link', async () => {
     const { html } = await renderMarkdown('[[quick-start]]\n');
 
-    expect(html).toContain('data-preview-title="Quick Start"');
+    expect(html).toContain('data-preview-title="快速入门"');
     expect(html).toMatch(/data-preview="[^"]+"/);
   });
 
@@ -528,7 +534,7 @@ describe('heading anchors', () => {
   it('names the anchor after the section it links to', async () => {
     const { html } = await renderMarkdown('## Setup steps\n');
 
-    expect(html).toContain('aria-label="Link to this section: Setup steps"');
+    expect(html).toContain('aria-label="复制章节链接：Setup steps"');
   });
 
   // Collection runs first, so the anchor's own text never reaches the rail.

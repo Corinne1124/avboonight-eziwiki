@@ -16,6 +16,18 @@ function findByName(items: NavigationItem[], name: string): NavigationItem | nul
   return null;
 }
 
+/** Finds the section that holds a given page, at any depth. */
+function findSectionContaining(items: NavigationItem[], path: string): NavigationItem | null {
+  for (const item of items) {
+    if (item.children?.some((child) => child.path === path)) return item;
+    if (item.children) {
+      const found = findSectionContaining(item.children, path);
+      if (found) return found;
+    }
+  }
+  return null;
+}
+
 describe('mergeDiscoveredDocs', () => {
   it('builds the whole tree from content when nothing is curated', () => {
     const merged = mergeDiscoveredDocs([]);
@@ -43,7 +55,7 @@ describe('mergeDiscoveredDocs', () => {
     const curated: NavigationItem[] = [
       {
         name: '📚 Getting Started',
-        children: [{ name: 'Quick Start', path: 'getting-started/quick-start' }],
+        children: [{ name: 'Quick Start', path: 'example/getting-started/quick-start' }],
       },
     ];
 
@@ -52,19 +64,18 @@ describe('mergeDiscoveredDocs', () => {
 
     // 'installation' and 'first-wiki' live in the same directory and were not
     // curated, so they should land inside the existing section.
-    expect(childPaths).toContain('getting-started/quick-start');
-    expect(childPaths).toContain('getting-started/installation');
-    expect(childPaths).toContain('getting-started/first-wiki');
+    expect(childPaths).toContain('example/getting-started/quick-start');
+    expect(childPaths).toContain('example/getting-started/installation');
+    expect(childPaths).toContain('example/getting-started/first-wiki');
   });
 
   it('creates a section for a directory the curated tree does not cover', () => {
     const merged = mergeDiscoveredDocs([]);
 
-    // The section is named by content/getting-started/_meta.json, so match on
-    // the pages it holds rather than on a label that is content's to choose.
-    const section = merged.find((item) =>
-      item.children?.some((child) => child.path === 'getting-started/quick-start'),
-    );
+    // The section is named by content/example/getting-started/_meta.json, so
+    // match on the pages it holds rather than on a label that is content's to
+    // choose. It sits under the `example` section, hence the recursive search.
+    const section = findSectionContaining(merged, 'example/getting-started/quick-start');
 
     expect(section?.children?.length).toBeGreaterThan(0);
     expect(section?.path).toBeUndefined();
@@ -73,15 +84,15 @@ describe('mergeDiscoveredDocs', () => {
   it('takes a section name from the folder _meta.json', () => {
     const merged = mergeDiscoveredDocs([]);
 
-    expect(findByName(merged, '📚 Getting Started')).not.toBeNull();
+    expect(findByName(merged, '📚 快速入门')).not.toBeNull();
   });
 
   it('orders root pages and sections in one sequence', () => {
     const merged = mergeDiscoveredDocs([]);
 
-    // intro.md declares order: 1 and the sections start at 2, so the root page
+    // jiye.md declares order: 1 and the sections start at 2, so the root page
     // must come first rather than being pushed behind every folder.
-    expect(merged[0].path).toBe('intro');
+    expect(merged[0].path).toBe('jiye');
   });
 
   it('omits documents marked hidden in frontmatter', () => {
@@ -111,6 +122,6 @@ describe('mergeDiscoveredDocs', () => {
     const merged = mergeDiscoveredDocs([]);
     const rootPaths = merged.filter((item) => item.path).map((item) => item.path);
 
-    expect(rootPaths).toContain('intro');
+    expect(rootPaths).toContain('jiye');
   });
 });

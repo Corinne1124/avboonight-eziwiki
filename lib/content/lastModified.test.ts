@@ -1,9 +1,23 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { resolveLastModified, getLastModified, getPublished } from './lastModified';
 
-jest.mock('@/lib/content/lastModified', () => ({
-  getLastModified: jest.fn().mockReturnValue({ date: '2026-08-28', source: 'git' }),
-}));
+vi.mock('@/lib/content/lastModified', async () => {
+  const actual = await vi.importActual<typeof import('@/lib/content/lastModified')>(
+    '@/lib/content/lastModified',
+  );
+  const { getDoc } = await import('./registry');
+  return {
+    ...actual,
+    // The git log is not available in every environment the tests run in, so
+    // commit history is stubbed while the frontmatter half stays real; a path
+    // with no document still answers null, as the real function would.
+    getLastModified: vi.fn((docPath: string) =>
+      getDoc(docPath)
+        ? { iso: '2026-08-28T09:26:53+09:00', date: '2026-08-28', source: 'git' }
+        : null,
+    ),
+  };
+});
 
 const COMMITTED = '2026-03-14T09:26:53+09:00';
 
@@ -53,7 +67,7 @@ describe('resolveLastModified', () => {
 
 describe('getLastModified', () => {
   it('dates a committed page from its history', () => {
-    const resolved = getLastModified('intro');
+    const resolved = getLastModified('example/intro');
 
     expect(resolved?.source).toBe('git');
     expect(resolved?.date).toMatch(/^\d{4}-\d{2}-\d{2}$/);
@@ -69,6 +83,6 @@ describe('getPublished', () => {
   it('is absent unless the page declares it', () => {
     // The first commit is when a file entered the repository, which for an
     // imported vault is not when the page was written.
-    expect(getPublished('intro')).toBeNull();
+    expect(getPublished('example/intro')).toBeNull();
   });
 });

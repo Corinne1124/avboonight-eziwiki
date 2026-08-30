@@ -33,35 +33,35 @@ describe('getContentRegistry', () => {
   it('strips the extension and normalises the path', () => {
     const paths = getAllDocPaths();
 
-    expect(paths).toContain('intro');
-    expect(paths).toContain('getting-started/quick-start');
+    expect(paths).toContain('example/intro');
+    expect(paths).toContain('example/getting-started/quick-start');
     expect(paths.every((path) => !path.endsWith('.md'))).toBe(true);
     expect(paths.every((path) => !path.startsWith('/'))).toBe(true);
   });
 
   it('reads the title from frontmatter', () => {
-    expect(getDoc('getting-started/quick-start')?.title).toBe('Quick Start');
+    expect(getDoc('example/getting-started/quick-start')?.title).toBe('快速入门');
   });
 
   it('splits the path into segments and a directory', () => {
-    const doc = getDoc('getting-started/quick-start');
+    const doc = getDoc('example/getting-started/quick-start');
 
-    expect(doc?.segments).toEqual(['getting-started', 'quick-start']);
-    expect(doc?.dir).toBe('getting-started');
+    expect(doc?.segments).toEqual(['example', 'getting-started', 'quick-start']);
+    expect(doc?.dir).toBe('example/getting-started');
   });
 
   it('reports a root-level document as having no directory', () => {
-    expect(getDoc('intro')?.dir).toBe('');
+    expect(getDoc('jiye')?.dir).toBe('');
   });
 
   it('strips the frontmatter block from the body', () => {
-    const doc = getDoc('intro');
+    const doc = getDoc('example/intro');
 
     // A `---` rule may still appear mid-document; what must be gone is the
     // leading frontmatter block and the keys it declared.
     expect(doc?.content.trimStart().startsWith('---')).toBe(false);
-    expect(doc?.content).not.toContain('title: Welcome to eziwiki');
-    expect(doc?.frontmatter.title).toBe('Welcome to eziwiki');
+    expect(doc?.content).not.toContain('title: 欢迎使用 eziwiki');
+    expect(doc?.frontmatter.title).toBe('欢迎使用 eziwiki');
   });
 
   it('returns undefined for a path with no file', () => {

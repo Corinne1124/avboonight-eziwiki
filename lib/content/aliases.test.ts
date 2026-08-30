@@ -16,7 +16,7 @@ describe('alias parsing', () => {
   it('leaves documents without aliases empty', () => {
     const { byPath } = getContentRegistry();
 
-    expect(byPath.get('intro')?.aliases).toEqual([]);
+    expect(byPath.get('example/intro')?.aliases).toEqual([]);
   });
 });
 

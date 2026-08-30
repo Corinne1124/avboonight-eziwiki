@@ -65,22 +65,22 @@ describe('search', () => {
   });
 
   it('finds a page by its title', async () => {
-    const results = await search('quick start');
+    const results = await search('快速入门');
 
     expect(results.length).toBeGreaterThan(0);
-    expect(results.some((result) => result.url.startsWith('/getting-started/quick-start'))).toBe(
-      true,
-    );
+    expect(
+      results.some((result) => result.url.startsWith('/example/getting-started/quick-start')),
+    ).toBe(true);
   });
 
   it('finds a page by words in its body', async () => {
-    const results = await search('syntax highlighting');
+    const results = await search('语法高亮');
 
     expect(results.some((result) => result.url.includes('syntax-highlighting'))).toBe(true);
   });
 
   it('links a section hit to its anchor', async () => {
-    const results = await search('prerequisites');
+    const results = await search('前置要求');
     const hit = results.find((result) => result.section);
 
     expect(hit).toBeDefined();
@@ -88,16 +88,16 @@ describe('search', () => {
   });
 
   it('ranks a title match above an incidental body mention', async () => {
-    const results = await search('dark mode');
+    const results = await search('深色模式');
 
     expect(results[0].url).toContain('dark-mode');
   });
 
   it('ranks a page above its own subsections', async () => {
     // A section entry carries its page's title as well as its heading, so
-    // without a page boost "dark mode" surfaces "Disable Dark Mode" instead of
+    // without a page boost "深色模式" surfaces "深色模式支持" instead of
     // the Dark Mode page itself.
-    for (const query of ['dark mode', 'wiki links', 'hidden pages']) {
+    for (const query of ['深色模式', 'Wiki 链接', '隐藏页面']) {
       const top = (await search(query))[0];
 
       expect(top, query).toBeDefined();
@@ -106,9 +106,9 @@ describe('search', () => {
   });
 
   it('tolerates a typo', async () => {
-    const results = await search('instalation');
+    const results = await search('mardown');
 
-    expect(results.some((result) => result.url.includes('installation'))).toBe(true);
+    expect(results.some((result) => result.url.includes('markdown-basics'))).toBe(true);
   });
 
   it('matches on a prefix', async () => {

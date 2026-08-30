@@ -44,7 +44,9 @@ describe('getTags', () => {
       if (hiddenPaths.has(doc.path) || doc.tags.length === 0) continue;
 
       for (const name of doc.tags) {
-        const tag = getTag(name.toLowerCase());
+        // `getTag` matches on the slug, which folds punctuation the raw name
+        // keeps — `猫耳娘/魅魔` is stored under `猫耳娘-魅魔`.
+        const tag = getTag(tagSlug(name));
         expect(tag?.pages.some((page) => page.path === doc.path)).toBe(true);
       }
     }

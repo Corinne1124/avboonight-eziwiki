@@ -104,7 +104,7 @@ describe('buildSearchIndex', () => {
     const paths = new Set(index.docs.map((doc) => doc.path));
 
     expect(index.docs.length).toBeGreaterThan(paths.size);
-    expect(paths.has('getting-started/quick-start')).toBe(true);
+    expect(paths.has('example/getting-started/quick-start')).toBe(true);
   });
 
   it('excludes pages hidden by frontmatter or by navigation', async () => {

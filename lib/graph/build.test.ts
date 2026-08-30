@@ -112,35 +112,36 @@ describe('getBacklinks', () => {
 
 describe('getLocalGraph', () => {
   it('centres on the page and includes its neighbours', () => {
-    const { nodes } = getLocalGraph('features/wiki-links');
+    const { nodes } = getLocalGraph('example/features/wiki-links');
 
-    expect(nodes.some((node) => node.path === 'features/wiki-links')).toBe(true);
+    expect(nodes.some((node) => node.path === 'example/features/wiki-links')).toBe(true);
     expect(nodes.length).toBeGreaterThan(1);
   });
 
   // A fan of unconnected dots would say less than the backlinks list already
   // does; the point is seeing how the neighbours relate to each other.
   it('keeps links between neighbours, not only those touching the page', () => {
-    const { nodes, edges } = getLocalGraph('features/wiki-links');
+    const { nodes, edges } = getLocalGraph('example/features/wiki-links');
     const paths = new Set(nodes.map((node) => node.path));
 
     expect(edges.length).toBeGreaterThan(0);
     expect(edges.every((edge) => paths.has(edge.from) && paths.has(edge.to))).toBe(true);
     expect(
       edges.some(
-        (edge) => edge.from !== 'features/wiki-links' && edge.to !== 'features/wiki-links',
+        (edge) =>
+          edge.from !== 'example/features/wiki-links' && edge.to !== 'example/features/wiki-links',
       ),
     ).toBe(true);
   });
 
   it('stays within one link of the page', () => {
     const graph = getLinkGraph();
-    const local = getLocalGraph('features/wiki-links');
+    const local = getLocalGraph('example/features/wiki-links');
 
     const neighbours = new Set([
-      'features/wiki-links',
-      ...(graph.outbound.get('features/wiki-links') ?? []),
-      ...(graph.backlinks.get('features/wiki-links') ?? []),
+      'example/features/wiki-links',
+      ...(graph.outbound.get('example/features/wiki-links') ?? []),
+      ...(graph.backlinks.get('example/features/wiki-links') ?? []),
     ]);
 
     expect(local.nodes.every((node) => neighbours.has(node.path))).toBe(true);

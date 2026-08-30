@@ -19,9 +19,9 @@ describe('headingText', () => {
   });
 
   it('shows an unlabelled wiki link as the title of the page it reaches', () => {
-    // `intro` is the one page both this repository and a scaffolded project
-    // have, so the test travels with the engine.
-    expect(headingText(heading('## See [[intro]]'))).toBe(`See ${getDoc('intro')?.title}`);
+    // `example/intro` is a document both this repository's demo and a
+    // scaffolded project have, so the test travels with the engine.
+    expect(headingText(heading('## See [[intro]]'))).toBe(`See ${getDoc('example/intro')?.title}`);
   });
 
   it('shows a link to nowhere as written', () => {

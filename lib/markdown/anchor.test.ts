@@ -32,15 +32,15 @@ describe('wiki link anchors', () => {
 // heading holds a wiki link or HTML.
 describe('section includes', () => {
   it('finds a section by the heading text as written', async () => {
-    const { html } = await renderMarkdown('![[intro#Start here]]\n');
+    const { html } = await renderMarkdown('![[intro#从这里开始]]\n');
 
-    expect(html).toContain('Start here');
-    expect(html).not.toContain('What you get');
+    expect(html).toContain('从这里开始');
+    expect(html).not.toContain('功能一览');
   });
 
   it('finds the same section by its id', async () => {
-    const { html } = await renderMarkdown('![[intro#start-here]]\n');
+    const { html } = await renderMarkdown('![[intro#从这里开始]]\n');
 
-    expect(html).toContain('Start here');
+    expect(html).toContain('从这里开始');
   });
 });

@@ -2,175 +2,144 @@
 tags:
   - linking
   - markdown
-title: Wiki Links
-description: Link to any page by name with [[double bracket]] syntax
+title: Wiki 链接
+description: 用 [[双括号]] 语法按名称链接到任意页面
 order: 4
 ---
 
-# Wiki Links
+# Wiki 链接
 
-Write `[[page]]` to link to another page without knowing where it lives in the
-tree.
+写下 `[[page]]` 即可链接到另一个页面，无需知道它在树中的位置。
 
-## The four forms
-
-```markdown
-[[quick-start]] → links, labelled with the target's own title
-[[quick-start|start here]] → links, labelled "start here"
-[[quick-start#prerequisites]] → links to a section
-[[quick-start#prerequisites|Step one]] → both
-```
-
-An anchor with no target points within the current page:
+## 四种形式
 
 ```markdown
-[[#the-four-forms]]
+[[quick-start]] → 链接，标签为目标页面自己的标题
+[[quick-start|从这里开始]] → 链接，标签为“从这里开始”
+[[quick-start#前置要求]] → 链接到某个章节
+[[quick-start#前置要求|第一步]] → 两者皆是
 ```
 
-## Embedding an image
-
-A leading `!` shows the target instead of linking to it, the way a vault does:
+没有目标的锚点指向当前页面内部：
 
 ```markdown
-![[sample.jpg]] → embeds public/images/docs/sample.jpg
-![[sample.jpg|Architecture]] → the label becomes the alt text
-![[images/docs/sample.jpg]] → the full path, when the name is not unique
+[[#四种形式]]
 ```
 
-The file is looked up under `public/`, by bare filename or by the path
-relative to `public/`. A bare name is enough as long as only one file carries
-it; when several do, the embed resolves to nothing rather than picking one, and
-you write the path instead. The same rule the [[#ambiguity-is-refused-not-guessed|link resolver]] uses.
+## 嵌入图片
 
-Here is one, embedded by name:
-
-![[sample.jpg|A sample image embedded with a wiki link]]
-
-Embeds and links index differently. `[[a-page]]` is an edge in the
-[[graph-and-backlinks|graph]]; `![[a-file.png]]` is not, because a file is not
-a page.
-
-## Including another page
-
-The same `!` on a page rather than a file pulls that page's text in, so a
-passage lives in one document and appears wherever it is needed:
+开头的 `!` 会显示目标内容而不是链接到它，就像知识库那样：
 
 ```markdown
-![[quick-start]] → the whole page
-![[quick-start#prerequisites]] → just that section
+![[sample.jpg]] → 嵌入 public/images/docs/sample.jpg
+![[sample.jpg|Architecture]] → 标签成为替代文本
+![[images/docs/sample.jpg]] → 名称不唯一时使用完整路径
 ```
 
-A section runs from its heading to the next one at the same level or above.
-Included text is boxed and carries a link back to the page it is maintained on,
-so a reader can tell borrowed text from this page's own.
+文件会在 `public/` 下按裸文件名或相对于 `public/` 的路径查找。只要只有一个文件使用该名称，裸名称就足够了；当有多个文件时，嵌入会解析为无结果而不是任选一个，这时您需要写上完整路径。这与 [[#歧义被拒绝而非猜测|链接解析器]] 遵循的规则相同。
 
-Here is the Prerequisites section of [[quick-start]], included rather than
-copied:
+这里有一个按名称嵌入的示例：
 
-![[quick-start#prerequisites]]
+![[sample.jpg|用 Wiki 链接嵌入的示例图片]]
 
-Four rules keep this predictable:
+嵌入和链接的索引方式不同。`[[a-page]]` 是 [[graph-and-backlinks|关系图]] 中的一条边；`![[a-file.png]]` 不是，因为文件不是页面。
 
-- **The embed must be alone in its paragraph.** Headings and lists cannot sit
-  inside a sentence, so an embed with prose beside it stays a link.
-- **A page cannot include itself,** directly or through a chain. The reference
-  stays as a link.
-- **Nesting stops after three levels.** Deeper is more often a mistake than an
-  intent.
-- **Included headings stay out of the table of contents.** It describes the page
-  you are on, not the pages it borrows from.
+## 包含另一个页面
 
-An embed naming neither a file nor a page falls back to a link, so nothing you
-write disappears.
-
-## Seeing where a link goes
-
-Rest on any wiki link above and a card shows the target's title and opening
-lines. Keyboard users get the same card on focus, and `Esc` dismisses it.
-
-The card costs no network request. Both the title and the summary are written
-onto the link during the build, so there is nothing to fetch and nothing to
-wait for — the same reason [[search|search]] runs off a prebuilt index. The
-summary is the page's `description` when its frontmatter has one, and its
-opening prose otherwise, with headings, code and images skipped.
-
-## How a target is resolved
-
-Three lookups, in order. The first that matches wins:
-
-| Order | Matches on | Example                           |
-| ----- | ---------- | --------------------------------- |
-| 1     | Full path  | `[[getting-started/quick-start]]` |
-| 2     | File name  | `[[quick-start]]`                 |
-| 3     | Page title | `[[Quick Start]]`                 |
-
-Matching ignores case, a leading slash, and a trailing `.md`, so
-`[[/Getting-Started/Quick-Start.md]]` resolves the same as `[[quick-start]]`.
-
-### Ambiguity is refused, not guessed
-
-If a shorthand matches more than one page — say two folders both contain
-`overview.md` — the link is **not** resolved. Silently picking one would make
-the destination depend on the order files happen to be scanned in, which is the
-kind of bug nobody notices until the wrong page ships.
-
-Use the full path to disambiguate:
+对页面而不是文件使用同样的 `!` 会引入该页面的文本，因此一段文字只需存在于一个文档中，就能出现在任何需要它的地方：
 
 ```markdown
-[[api/overview]] instead of [[overview]]
+![[quick-start]] → 整个页面
+![[quick-start#前置要求]] → 仅该章节
 ```
 
-## Broken links are visible
+一个章节从它的标题开始，到下一个同级或更高级的标题结束。被引入的文本会被框起来，并带有一个返回其维护页面的链接，这样读者就能区分借用的文本和本页自己的文本。
 
-A target that resolves to nothing renders as marked-up text rather than an
-anchor. Writing `[[a page that does not exist]]` produces:
+以下是 [[quick-start]] 的前置要求章节，是引入而不是复制的：
 
-> A link to
-> <span class="ezw-broken-link" title="Unresolved link: a page that does not exist">a page that does not exist</span>
-> looks like this.
+![[quick-start#前置要求]]
 
-A link that goes nowhere is worse than visibly broken text, because it looks
-clickable and silently is not. Hover it to see the target that failed.
+四条规则让这一行为保持可预期：
 
-<!-- Rendered as HTML rather than as a real wiki link, so that this page can
-     demonstrate a dangling reference without contributing one to the site. -->
+- **嵌入必须独占一个段落。** 标题和列表不能出现在句子内部，因此旁边带有正文的嵌入会保持为链接。
+- **页面不能包含自身，** 无论是直接包含还是通过链条间接包含。该引用会保持为链接。
+- **嵌套在三级之后停止。** 更深的嵌套通常是失误而非本意。
+- **被引入的标题不会进入目录。** 目录描述的是您所在的页面，而不是它借用的页面。
 
-List every unresolved link across the whole site:
+既不是文件也不是页面的嵌入会退化为链接，因此您写下的任何内容都不会消失。
+
+## 查看链接指向哪里
+
+将鼠标悬停在上方任意 Wiki 链接上，会弹出一张卡片，显示目标的标题和开头几行。键盘用户在聚焦时也能看到同样的卡片，按 `Esc` 关闭它。
+
+这张卡片不需要任何网络请求。标题和摘要都在构建期间写入链接，因此无需获取任何内容，也无需等待——这与 [[search|搜索]] 使用预构建索引运行是同一个原因。摘要取页面的 `description`（如果其 frontmatter 中有的话），否则取开头正文，并跳过标题、代码和图片。
+
+## 目标如何被解析
+
+按顺序进行三种查找，第一个匹配的胜出：
+
+| 顺序 | 匹配依据 | 示例                               |
+| ---- | -------- | ---------------------------------- |
+| 1    | 完整路径 | `[[example/getting-started/quick-start]]` |
+| 2    | 文件名   | `[[quick-start]]`                        |
+| 3    | 页面标题 | `[[快速入门]]`                           |
+
+匹配会忽略大小写、开头的斜杠和结尾的 `.md`，因此 `[[/example/Getting-Started/Quick-Start.md]]` 与 `[[quick-start]]` 的解析结果相同。
+
+### 歧义被拒绝而非猜测
+
+如果某个简写匹配多个页面——例如两个文件夹都包含 `overview.md`——该链接**不会**被解析。静默地任选一个会让目标取决于文件恰好被扫描的顺序，这种 bug 往往直到错误的页面发布后才会被人注意到。
+
+使用完整路径来消除歧义：
+
+```markdown
+使用 [[api/overview]] 而不是 [[overview]]
+```
+
+## 失效链接可见
+
+解析不到任何内容的目标会渲染为标记文本而不是锚点。写下 `[[a page that does not exist]]` 会产生：
+
+> 一个指向
+> <span class="ezw-broken-link" title="无法解析的链接：a page that does not exist">a page that does not exist</span>
+> 的链接看起来是这样。
+
+一个哪儿也去不了的链接比明显失效的文本更糟糕，因为它看起来可以点击，实际上却不能。悬停它可以看到解析失败的目标。
+
+<!-- 以 HTML 而非真正的 Wiki 链接渲染，以便本页可以演示悬空引用而不为站点贡献一个失效链接。 -->
+
+列出整个站点中所有无法解析的链接：
 
 ```bash
 npm run check:links
 ```
 
-## Wiki links inside code are left alone
+## 代码中的 Wiki 链接保持原样
 
-Only prose is scanned, so documentation that explains the syntax — like this
-page — can show it literally:
-
-```markdown
-[[this stays as written]]
-```
-
-Inline code works the same way: `[[quick-start]]` here is untouched.
-
-## Ordinary Markdown links still work
-
-Wiki links are a convenience, not a replacement:
+只有正文会被扫描，因此讲解语法本身的文档——比如本页——可以按字面展示它：
 
 ```markdown
-[Quick Start](/getting-started/quick-start)
-[Quick Start](getting-started/quick-start.md)
+[[这段保持原样]]
 ```
 
-Both resolve to the same URL under either [[url-strategies|URL strategy]]. Use
-whichever reads better; both count toward [[graph-and-backlinks|backlinks]].
+行内代码同样如此：这里的 `[[quick-start]]` 不会被处理。
 
-## Why link by name
+## 普通 Markdown 链接仍然有效
 
-Wiki links survive reorganisation. Move `quick-start.md` into a different folder
-and every `[[quick-start]]` still resolves — only links written as full paths
-need updating.
+Wiki 链接是一种便利，而不是替代品：
 
-## Next
+```markdown
+[快速入门](/example/getting-started/quick-start)
+[快速入门](example/getting-started/quick-start.md)
+```
 
-- [[graph-and-backlinks]] — see what links where
-- [[validation-testing]] — catch broken links before you deploy
+在两种 [[url-strategies|URL 策略]] 下，两者都会解析为相同的 URL。选择读起来更好的那种即可；两者都会被计入 [[graph-and-backlinks|反向链接]]。
+
+## 为什么按名称链接
+
+Wiki 链接能经受住重组。把 `quick-start.md` 移到另一个文件夹，每个 `[[quick-start]]` 仍然可以解析——只有写成完整路径的链接才需要更新。
+
+## 下一步
+
+- [[graph-and-backlinks]] — 查看谁链接到哪里
+- [[validation-testing]] — 在部署前发现失效链接

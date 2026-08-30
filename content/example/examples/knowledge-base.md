@@ -1,341 +1,339 @@
 ---
-title: Knowledge Base Example
-description: Build a team knowledge base with eziwiki
+title: 知识库示例
+description: 用 eziwiki 构建团队知识库
 order: 2
 ---
 
-# Knowledge Base Example
+# 知识库示例
 
 ![eziwiki](/images/eziwiki.webp)
 
-Use eziwiki to create a comprehensive team knowledge base.
+使用 eziwiki 打造全面的团队知识库。
 
-## Use Cases
+## 适用场景
 
-- **Internal Documentation** - Company processes and policies
-- **Onboarding** - New employee resources
-- **Troubleshooting** - Common issues and solutions
-- **Best Practices** - Team standards and guidelines
-- **FAQs** - Frequently asked questions
+- **内部文档** - 公司流程与政策
+- **新员工入职** - 新员工资源
+- **故障排查** - 常见问题与解决方案
+- **最佳实践** - 团队标准与规范
+- **常见问题** - 常见问题解答
 
-## Example Structure
+## 示例结构
 
-Folders become sections, so the team's mental model and the sidebar stay in
-sync automatically:
+文件夹即章节，团队的心智模型与侧边栏会自动保持同步：
 
 ```
 content/
 ├── intro.md
 ├── onboarding/
-│   ├── _meta.json              → { "name": "🚀 Onboarding", "order": 1 }
+│   ├── _meta.json              → { "name": "🚀 新员工入职", "order": 1 }
 │   ├── first-week.md
 │   └── tools-and-access.md
 ├── engineering/
-│   ├── _meta.json              → { "name": "⚙️ Engineering", "order": 2 }
+│   ├── _meta.json              → { "name": "⚙️ 工程", "order": 2 }
 │   ├── architecture.md
 │   ├── deployment.md
 │   └── runbooks/
 │       ├── incident-response.md
 │       └── database-restore.md
 └── processes/
-    ├── _meta.json              → { "name": "📋 Processes", "order": 3 }
+    ├── _meta.json              → { "name": "📋 流程", "order": 3 }
     ├── code-review.md
     └── on-call.md
 ```
 
-Nobody has to edit a config file to publish a runbook, which is usually what
-stops team wikis from staying current.
+发布运维手册无需编辑任何配置文件——而这正是团队 Wiki 常常无法保持更新的原因。
 
-## Example Pages
+## 示例页面
 
-### Onboarding Page
+### 新员工入职页面
 
 ```markdown
 ---
-title: New Employee Onboarding
-description: Welcome to the team! Here's everything you need to get started.
+title: 新员工入职
+description: 欢迎加入团队！这里包含你上手所需的一切。
 ---
 
-# New Employee Onboarding
+# 新员工入职
 
-Welcome to the team! 🎉
+欢迎加入团队！🎉
 
-## First Day
+## 第一天
 
-### Morning
+### 上午
 
-- [ ] Meet with your manager
-- [ ] Get your laptop and equipment
-- [ ] Set up your workspace
-- [ ] Complete HR paperwork
+- [ ] 与你的经理见面
+- [ ] 领取笔记本电脑和设备
+- [ ] 布置你的工位
+- [ ] 完成人事（HR）手续
 
-### Afternoon
+### 下午
 
-- [ ] IT setup and account creation
-- [ ] Team introduction meeting
-- [ ] Office tour
-- [ ] Review this knowledge base
+- [ ] IT 配置与账号创建
+- [ ] 团队介绍会议
+- [ ] 参观办公室
+- [ ] 浏览本知识库
 
-## First Week
+## 第一周
 
-### Access & Tools
+### 权限与工具
 
-Get access to:
+申请开通以下权限：
 
-- [ ] GitHub organization
-- [ ] Slack workspace
-- [ ] Email account
-- [ ] Project management tool
-- [ ] Design tools (Figma)
-- [ ] Cloud services (AWS)
+- [ ] GitHub 组织
+- [ ] Slack 工作区
+- [ ] 邮箱账号
+- [ ] 项目管理工具
+- [ ] 设计工具（Figma）
+- [ ] 云服务（AWS）
 
-See [Tools & Access](/onboarding/tools-access) for detailed setup instructions.
+详细的配置说明请参阅[工具与权限](/onboarding/tools-access)。
 
-### Learning
+### 学习
 
-- [ ] Read [Coding Standards](/development/coding-standards)
-- [ ] Review [Git Workflow](/development/git-workflow)
-- [ ] Understand [Code Review Process](/processes/code-review)
-- [ ] Learn [Deployment Process](/processes/deployment)
+- [ ] 阅读[编码规范](/development/coding-standards)
+- [ ] 复习[Git 工作流](/development/git-workflow)
+- [ ] 了解[代码评审流程](/processes/code-review)
+- [ ] 学习[部署流程](/processes/deployment)
 
-### First Tasks
+### 初始任务
 
-Your manager will assign you some starter tasks:
+你的经理会为你安排一些入门任务：
 
-1. Set up local development environment
-2. Fix a small bug
-3. Add a small feature
-4. Submit your first pull request
+1. 配置本地开发环境
+2. 修复一个小 Bug
+3. 添加一个小功能
+4. 提交你的第一个拉取请求（PR）
 
-## Resources
+## 参考资料
 
-- [Team Structure](/onboarding/team-structure)
-- [Development Setup](/development/setup)
-- [FAQ](/faq/general)
+- [团队结构](/onboarding/team-structure)
+- [开发环境配置](/development/setup)
+- [常见问题](/faq/general)
 
-## Questions?
+## 有问题？
 
-Don't hesitate to ask! We're here to help.
+别犹豫，尽管提问！我们随时提供帮助。
 
-- **Slack**: #new-employees
-- **Email**: hr@company.com
-- **Manager**: Your manager's contact
+- **Slack**：#new-employees
+- **邮箱**：hr@company.com
+- **经理**：联系你的经理
 ```
 
-### Process Documentation
+### 流程文档
 
 ```markdown
 ---
-title: Code Review Process
-description: How we review code at our company
+title: 代码评审流程
+description: 我们公司如何评审代码
 ---
 
-# Code Review Process
+# 代码评审流程
 
-All code changes must be reviewed before merging to main.
+所有代码变更在合并到 main 分支之前都必须经过评审。
 
-## Creating a Pull Request
+## 创建拉取请求（PR）
 
-### 1. Create a Branch
+### 1. 创建分支
 
 \`\`\`bash
 git checkout -b feature/your-feature-name
 \`\`\`
 
-### 2. Make Your Changes
+### 2. 进行修改
 
-Write clean, tested code following our [Coding Standards](/development/coding-standards).
+请按照我们的[编码规范](/development/coding-standards)编写整洁、经过测试的代码。
 
-### 3. Commit Your Changes
+### 3. 提交你的更改
 
 \`\`\`bash
 git add .
 git commit -m "feat: add user authentication"
 \`\`\`
 
-Use [Conventional Commits](https://www.conventionalcommits.org/):
+使用[约定式提交](https://www.conventionalcommits.org/)：
 
-- `feat:` - New feature
-- `fix:` - Bug fix
-- `docs:` - Documentation
-- `refactor:` - Code refactoring
-- `test:` - Adding tests
+- `feat:` - 新功能
+- `fix:` - Bug 修复
+- `docs:` - 文档
+- `refactor:` - 代码重构
+- `test:` - 添加测试
 
-### 4. Push and Create PR
+### 4. 推送并创建 PR
 
 \`\`\`bash
 git push origin feature/your-feature-name
 \`\`\`
 
-Create a pull request on GitHub with:
+在 GitHub 上创建拉取请求（PR），包含：
 
-- **Title**: Clear, descriptive title
-- **Description**: What changed and why
-- **Screenshots**: For UI changes
-- **Testing**: How to test the changes
+- **标题**：清晰、描述性的标题
+- **描述**：改了什么以及为什么
+- **截图**：针对 UI 变更
+- **测试说明**：如何测试这些更改
 
-## PR Template
+## PR 模板
 
 \`\`\`markdown
 
-## What Changed
+## 改了什么
 
-Brief description of the changes.
+对更改的简要描述。
 
-## Why
+## 为什么
 
-Explanation of why this change is needed.
+说明为什么需要此项更改。
 
-## How to Test
+## 如何测试
 
-1. Step 1
-2. Step 2
-3. Expected result
+1. 第一步
+2. 第二步
+3. 预期结果
 
-## Screenshots
+## 截图
 
-(If applicable)
+（如适用）
 
-## Checklist
+## 检查清单
 
-- [ ] Tests added/updated
-- [ ] Documentation updated
-- [ ] No console errors
-- [ ] Follows coding standards
+- [ ] 已添加/更新测试
+- [ ] 已更新文档
+- [ ] 无控制台错误
+- [ ] 符合编码规范
       \`\`\`
 
-## Review Process
+## 评审流程
 
-### For Authors
+### 对作者
 
-- Respond to feedback promptly
-- Make requested changes
-- Re-request review after changes
-- Don't merge your own PRs
+- 及时回应反馈
+- 按要求进行修改
+- 修改后重新请求评审
+- 不要合并自己的 PR
 
-### For Reviewers
+### 对评审人
 
-- Review within 24 hours
-- Be constructive and kind
-- Test the changes locally
-- Approve when satisfied
+- 在 24 小时内完成评审
+- 提出建设性意见，保持友善
+- 在本地测试更改
+- 满意后批准
 
-## Review Checklist
+## 评审检查清单
 
-- [ ] Code follows our standards
-- [ ] Tests are included
-- [ ] No obvious bugs
-- [ ] Performance is acceptable
-- [ ] Security considerations addressed
-- [ ] Documentation updated
+- [ ] 代码符合我们的规范
+- [ ] 已包含测试
+- [ ] 无明显 Bug
+- [ ] 性能可接受
+- [ ] 已考虑安全问题
+- [ ] 已更新文档
 
-## Approval Requirements
+## 批准要求
 
-- **Small changes**: 1 approval
-- **Medium changes**: 2 approvals
-- **Large changes**: 2+ approvals + architect review
+- **小改动**：1 人批准
+- **中等改动**：2 人批准
+- **大改动**：2 人以上批准 + 架构师评审
 
-## After Approval
+## 批准之后
 
-1. Squash and merge
-2. Delete the branch
-3. Deploy to staging
-4. Test in staging
-5. Deploy to production
+1. 压缩合并（Squash and merge）
+2. 删除分支
+3. 部署到预发布环境（staging）
+4. 在预发布环境（staging）中测试
+5. 部署到生产环境
 
-## Related
+## 相关
 
-- [Git Workflow](/development/git-workflow)
-- [Deployment Process](/processes/deployment)
-- [Coding Standards](/development/coding-standards)
+- [Git 工作流](/development/git-workflow)
+- [部署流程](/processes/deployment)
+- [编码规范](/development/coding-standards)
 ```
 
-### Troubleshooting Guide
+### 故障排查指南
 
 ```markdown
 ---
-title: Common Issues
-description: Solutions to frequently encountered problems
+title: 常见问题
+description: 常见问题的解决方案
 ---
 
-# Common Issues
+# 常见问题
 
-Quick solutions to common problems.
+常见问题的快速解决方案。
 
-## Development Environment
+## 开发环境
 
-### Port Already in Use
+### 端口已被占用
 
-**Problem**: `Error: Port 3000 is already in use`
+**问题**：`Error: Port 3000 is already in use`
 
-**Solution**:
+**解决方案**：
 
 \`\`\`bash
 
-# Find process using port 3000
+# 查找占用端口 3000 的进程
 
 lsof -i :3000
 
-# Kill the process
+# 终止该进程
 
 kill -9 <PID>
 
-# Or use a different port
+# 或者改用其他端口
 
 PORT=3001 npm run dev
 \`\`\`
 
-### Module Not Found
+### 找不到模块
 
-**Problem**: `Error: Cannot find module 'xyz'`
+**问题**：`Error: Cannot find module 'xyz'`
 
-**Solution**:
+**解决方案**：
 
 \`\`\`bash
 
-# Clear cache and reinstall
+# 清除缓存并重新安装
 
 rm -rf node_modules package-lock.json
 npm install
 \`\`\`
 
-### Git Merge Conflicts
+### Git 合并冲突
 
-**Problem**: Merge conflicts when pulling
+**问题**：拉取时出现合并冲突
 
-**Solution**:
+**解决方案**：
 
 \`\`\`bash
 
-# Stash your changes
+# 暂存你的更改
 
 git stash
 
-# Pull latest changes
+# 拉取最新更改
 
 git pull origin main
 
-# Apply your changes
+# 应用你的更改
 
 git stash pop
 
-# Resolve conflicts manually
+# 手动解决冲突
 
-# Then commit
+# 然后提交
 
 git add .
 git commit -m "Resolve merge conflicts"
 \`\`\`
 
-## Database
+## 数据库
 
-### Connection Refused
+### 连接被拒绝
 
-**Problem**: `Error: Connection refused to database`
+**问题**：`Error: Connection refused to database`
 
-**Solution**:
+**解决方案**：
 
-1. Check if database is running:
+1. 检查数据库是否正在运行：
    \`\`\`bash
 
    # PostgreSQL
@@ -347,99 +345,99 @@ git commit -m "Resolve merge conflicts"
    mysqladmin ping
    \`\`\`
 
-2. Check connection string in `.env`
-3. Verify database credentials
-4. Check firewall settings
+2. 检查 `.env` 中的连接字符串
+3. 核对数据库凭据
+4. 检查防火墙设置
 
-### Migration Failed
+### 迁移失败
 
-**Problem**: Database migration fails
+**问题**：数据库迁移失败
 
-**Solution**:
+**解决方案**：
 
 \`\`\`bash
 
-# Rollback last migration
+# 回滚上一次迁移
 
 npm run migrate:rollback
 
-# Fix the migration file
+# 修复迁移文件
 
-# Run again
+# 重新运行
 
 npm run migrate
 \`\`\`
 
-## Build & Deployment
+## 构建与部署
 
-### Build Fails
+### 构建失败
 
-**Problem**: `npm run build` fails
+**问题**：`npm run build` 失败
 
-**Solution**:
+**解决方案**：
 
-1. Check for TypeScript errors:
+1. 检查 TypeScript 错误：
    \`\`\`bash
    npm run type-check
    \`\`\`
 
-2. Check for linting errors:
+2. 检查 lint 错误：
    \`\`\`bash
    npm run lint
    \`\`\`
 
-3. Clear build cache:
+3. 清除构建缓存：
    \`\`\`bash
    rm -rf .next out
    npm run build
    \`\`\`
 
-### Deployment Fails
+### 部署失败
 
-**Problem**: Deployment to production fails
+**问题**：部署到生产环境失败
 
-**Solution**:
+**解决方案**：
 
-1. Check deployment logs
-2. Verify environment variables
-3. Test build locally:
+1. 查看部署日志
+2. 核对环境变量
+3. 在本地测试构建：
    \`\`\`bash
    npm run build
    npm run start
    \`\`\`
-4. Contact DevOps team if issue persists
+4. 如果问题仍然存在，请联系 DevOps 团队
 
-## Still Stuck?
+## 仍然卡住了？
 
-- **Slack**: #engineering-help
-- **Email**: engineering@company.com
-- **Escalate**: Contact your team lead
+- **Slack**：#engineering-help
+- **邮箱**：engineering@company.com
+- **升级处理**：联系你的团队负责人
 ```
 
-## Benefits for Knowledge Bases
+## 对知识库的好处
 
-### Centralized Information
+### 信息集中
 
-All team knowledge in one place.
+所有团队知识集中在一处。
 
-### Easy to Update
+### 易于更新
 
-Anyone can contribute and update docs.
+任何人都可以贡献和更新文档。
 
-### Version Control
+### 版本控制
 
-Track changes and see who updated what.
+跟踪变更，查看谁更新了什么。
 
-### Searchable
+### 可搜索
 
-Find information quickly.
+快速查找信息。
 
-### Always Available
+### 随时可用
 
-Static site means no downtime.
+静态站点意味着零停机时间。
 
-## Next Steps
+## 下一步
 
-- [Create Your First Wiki](/getting-started/first-wiki)
-- [Configure Navigation](/configuration/navigation)
-- [Deploy Your Knowledge Base](/deployment/static-export)
+- [创建你的第一个 Wiki](/example/getting-started/first-wiki)
+- [配置导航](/example/configuration/navigation)
+- [部署你的知识库](/example/deployment/static-export)

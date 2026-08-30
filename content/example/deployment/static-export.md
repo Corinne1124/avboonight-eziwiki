@@ -1,28 +1,28 @@
 ---
 tags:
   - deployment
-title: Static Export
-description: Export your wiki as static HTML files
+title: 静态导出
+description: 将你的 Wiki 导出为静态 HTML 文件
 order: 1
 ---
 
-# Static Export
+# 静态导出
 
-eziwiki generates a fully static site that can be deployed anywhere.
+eziwiki 会生成一个完全静态的站点，可以部署到任何地方。
 
-## Build Your Site
+## 构建你的站点
 
 ```bash
 npm run build
 ```
 
-This creates an optimized static site in the `out/` directory.
+这会在 `out/` 目录中生成一个经过优化的静态站点。
 
-## What Gets Generated
+## 生成了什么
 
 ```
 out/
-├── index.html              # Home page
+├── index.html              # 首页
 ├── getting-started/
 │   ├── installation.html
 │   ├── quick-start.html
@@ -31,49 +31,49 @@ out/
 │   ├── payload.html
 │   ├── navigation.html
 │   └── theme.html
-├── _next/                  # Optimized assets
+├── _next/                  # 优化后的资源
 │   ├── static/
 │   └── ...
 └── ...
 ```
 
-## Preview Production Build
+## 预览生产构建
 
 ```bash
 npm run start
 ```
 
-This starts a local server to preview your production build.
+这会启动一个本地服务器来预览你的生产构建。
 
-## Deploy Anywhere
+## 随处部署
 
-The `out/` directory contains only static files (HTML, CSS, JS). You can deploy it to:
+`out/` 目录只包含静态文件（HTML、CSS、JS）。你可以将其部署到：
 
-- **Static Hosting**: Netlify, Vercel, GitHub Pages
-- **CDN**: Cloudflare Pages, AWS S3 + CloudFront
-- **Web Server**: Nginx, Apache
-- **Any HTTP Server**: Even a simple Python server
+- **静态托管**：Netlify、Vercel、GitHub Pages
+- **CDN**：Cloudflare Pages、AWS S3 + CloudFront
+- **Web 服务器**：Nginx、Apache
+- **任意 HTTP 服务器**：甚至一个简单的 Python 服务器
 
-## Simple HTTP Server
+## 简单的 HTTP 服务器
 
-Test your build locally:
+在本地测试你的构建：
 
 ```bash
-# Using Python
+# 使用 Python
 cd out
 python -m http.server 8000
 
-# Using Node.js
+# 使用 Node.js
 npx serve out
 
-# Using PHP
+# 使用 PHP
 cd out
 php -S localhost:8000
 ```
 
-Visit [http://localhost:8000](http://localhost:8000)
+访问 [http://localhost:8000](http://localhost:8000)
 
-## Nginx Configuration
+## Nginx 配置
 
 ```nginx
 server {
@@ -86,7 +86,7 @@ server {
         try_files $uri $uri.html $uri/ =404;
     }
 
-    # Cache static assets
+    # 缓存静态资源
     location /_next/static/ {
         expires 1y;
         add_header Cache-Control "public, immutable";
@@ -94,7 +94,7 @@ server {
 }
 ```
 
-## Apache Configuration
+## Apache 配置
 
 ```apache
 <VirtualHost *:80>
@@ -106,14 +106,14 @@ server {
         AllowOverride All
         Require all granted
 
-        # Rewrite rules
+        # 重写规则
         RewriteEngine On
         RewriteCond %{REQUEST_FILENAME} !-f
         RewriteCond %{REQUEST_FILENAME} !-d
         RewriteRule ^(.*)$ /$1.html [L]
     </Directory>
 
-    # Cache static assets
+    # 缓存静态资源
     <Directory /var/www/wiki/out/_next/static>
         Header set Cache-Control "public, max-age=31536000, immutable"
     </Directory>
@@ -122,19 +122,19 @@ server {
 
 ## AWS S3 + CloudFront
 
-### 1. Create S3 Bucket
+### 1. 创建 S3 存储桶
 
 ```bash
 aws s3 mb s3://my-wiki
 ```
 
-### 2. Upload Files
+### 2. 上传文件
 
 ```bash
 aws s3 sync out/ s3://my-wiki --delete
 ```
 
-### 3. Configure Static Website Hosting
+### 3. 配置静态网站托管
 
 ```bash
 aws s3 website s3://my-wiki \
@@ -142,35 +142,35 @@ aws s3 website s3://my-wiki \
   --error-document 404.html
 ```
 
-### 4. Set Up CloudFront
+### 4. 设置 CloudFront
 
-Create a CloudFront distribution pointing to your S3 bucket for global CDN delivery.
+创建指向你的 S3 存储桶的 CloudFront 分发，以实现全球 CDN 分发。
 
 ## Cloudflare Pages
 
-### Using Git
+### 使用 Git
 
-1. Push your code to GitHub
-2. Connect repository to Cloudflare Pages
-3. Set build command: `npm run build`
-4. Set output directory: `out`
-5. Deploy!
+1. 将你的代码推送到 GitHub
+2. 将仓库连接到 Cloudflare Pages
+3. 设置构建命令：`npm run build`
+4. 设置输出目录：`out`
+5. 部署！
 
-### Using CLI
+### 使用 CLI
 
 ```bash
-# Install Wrangler
+# 安装 Wrangler
 npm install -g wrangler
 
-# Deploy
+# 部署
 wrangler pages publish out
 ```
 
-## Custom Domain
+## 自定义域名
 
-After deploying, point your domain to your hosting:
+部署后，将你的域名指向你的托管平台：
 
-### DNS Configuration
+### DNS 配置
 
 ```
 Type    Name    Value
@@ -180,26 +180,26 @@ CNAME   www     your-site.pages.dev
 
 ### HTTPS
 
-Most platforms provide free SSL certificates:
+大多数平台都提供免费的 SSL 证书：
 
-- Vercel: Automatic
-- Netlify: Automatic
-- Cloudflare Pages: Automatic
-- GitHub Pages: Automatic
+- Vercel：自动
+- Netlify：自动
+- Cloudflare Pages：自动
+- GitHub Pages：自动
 
-## Build Optimization
+## 构建优化
 
-### Analyze Bundle Size
+### 分析包体积
 
 ```bash
 npm run build
 ```
 
-Check the build output for bundle sizes.
+检查构建输出中的包体积。
 
-### Optimize Images
+### 优化图片
 
-Place images in `public/` directory and use Next.js Image component:
+将图片放在 `public/` 目录中，并使用 Next.js 的 Image 组件：
 
 ```jsx
 import Image from 'next/image';
@@ -207,11 +207,11 @@ import Image from 'next/image';
 <Image src="/images/screenshot.png" alt="Screenshot" width={800} height={600} />;
 ```
 
-### Minimize Dependencies
+### 精简依赖
 
-Keep your `package.json` lean. Only install what you need.
+保持你的 `package.json` 精简，只安装你需要的依赖。
 
-## CI/CD Integration
+## CI/CD 集成
 
 ### GitHub Actions
 
@@ -231,37 +231,37 @@ jobs:
           node-version: 18
       - run: npm ci
       - run: npm run build
-      - run: npm run deploy # Your deploy script
+      - run: npm run deploy # 你的部署脚本
 ```
 
-## Environment Variables
+## 环境变量
 
-Set environment variables for different environments:
+为不同环境设置环境变量：
 
 ```bash
 # .env.production
 NEXT_PUBLIC_BASE_URL=https://wiki.example.com
 ```
 
-## Troubleshooting
+## 故障排查
 
-### 404 Errors
+### 404 错误
 
-Make sure your server is configured to serve `.html` files without the extension.
+确保你的服务器已配置为在不带扩展名的情况下提供 `.html` 文件。
 
-### Assets Not Loading
+### 资源未加载
 
-Check that your `baseUrl` in `payload/config.ts` matches your deployment URL.
+检查 `payload/config.ts` 中的 `baseUrl` 是否与你的部署 URL 匹配。
 
-### Build Fails
+### 构建失败
 
 ```bash
-# Clear cache and rebuild
+# 清除缓存并重新构建
 rm -rf .next out
 npm run build
 ```
 
-## Next Steps
+## 下一步
 
-- [Deploy to GitHub Pages](/deployment/github-pages)
-- [Deploy to Vercel](/deployment/vercel)
+- [部署到 GitHub Pages](/example/deployment/github-pages)
+- [部署到 Vercel](/example/deployment/vercel)

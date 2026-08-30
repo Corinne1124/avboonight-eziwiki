@@ -1,18 +1,18 @@
 ---
 tags:
   - markdown
-title: Code Blocks
-description: Syntax highlighting and code examples in eziwiki
+title: 代码块
+description: eziwiki 中的语法高亮与代码示例
 order: 3
 ---
 
-# Code Blocks
+# 代码块
 
-eziwiki uses Shiki for beautiful syntax highlighting with support for 100+ languages.
+eziwiki 使用 Shiki 提供精美的语法高亮，支持 100 多种语言。
 
-## Diagrams
+## 图表
 
-A fence tagged `mermaid` is drawn during the build and arrives as an SVG:
+标记为 `mermaid` 的围栏代码块会在构建时被绘制，并以 SVG 的形式呈现：
 
 ````markdown
 ```mermaid
@@ -30,23 +30,15 @@ flowchart TD
   B -->|no| D[Plain page]
 ```
 
-Nothing is drawn in the browser. The usual approach ships Mermaid to the reader
-and lets it draw after load, which would be the largest thing this site
-downloads, would move the page as the diagram appeared, and would leave a
-crawler — or anyone without JavaScript — looking at nothing. Drawn once at
-build time, the diagram is simply markup.
+浏览器中不会进行任何绘制。常规做法是把 Mermaid 随页面发送给读者，待页面加载后再绘制，但这会成为本站下载量最大的资源，图表出现时还会让页面发生位移，并且爬虫——以及任何没有启用 JavaScript 的访客——将什么也看不到。在构建时绘制一次，图表就只是普通的标记（markup）而已。
 
-Colours come from the stylesheet rather than the diagram, so it follows dark
-mode like everything else, and no web font is fetched from anywhere.
+颜色来自样式表而不是图表本身，因此它会像其他所有内容一样跟随深色模式，并且不会从任何地方获取网络字体。
 
-`flowchart`, `sequenceDiagram`, `stateDiagram-v2`, `classDiagram` and
-`erDiagram` are drawn. A kind that cannot be — `pie` and `gantt` among them —
-stays a code block, showing its source, which is what it looked like before
-diagrams were supported. A diagram never stops the build.
+`flowchart`、`sequenceDiagram`、`stateDiagram-v2`、`classDiagram` 和 `erDiagram` 都会被绘制。无法绘制的类型——其中包括 `pie` 和 `gantt`——会保持为代码块并显示其源码，这正是图表功能出现之前的样子。图表永远不会中断构建。
 
-## Basic Code Block
+## 基本代码块
 
-Use triple backticks with a language identifier:
+使用带语言标识的三重反引号：
 
 ````markdown
 ```javascript
@@ -62,10 +54,9 @@ function greet(name) {
 }
 ```
 
-## Naming the file
+## 为文件命名
 
-An example usually comes from somewhere. `title=` puts that somewhere in the
-bar, in place of the language — which a filename already implies:
+示例通常来自某个具体文件。`title=` 会把这个出处显示在标题栏中，取代语言名称——而文件名本身已经隐含了这一点：
 
 ````markdown
 ```typescript title="lib/greet.ts"
@@ -81,13 +72,11 @@ export function greet(name: string) {
 }
 ```
 
-`file=` does the same, so a document written for another generator keeps its
-labels.
+`file=` 的作用相同，因此为其他生成器编写的文档可以保留原有的标签。
 
-## Marking lines
+## 标记行
 
-An example is usually longer than the part of it being discussed. Naming the
-lines in braces saves the reader counting:
+示例通常比所讨论的部分更长。用花括号标出具体的行，读者就不必自己数了：
 
 ````markdown
 ```typescript {3-4}
@@ -107,13 +96,11 @@ export function greet(name: string) {
 }
 ```
 
-Single lines and ranges both work, in any combination: `{1}`, `{2,5}`,
-`{1,4-6}`. Marked lines keep their own colours and take a background, so the
-emphasis reads as emphasis rather than as some other kind of code.
+单行和区间都可以，并且可以任意组合：`{1}`、`{2,5}`、`{1,4-6}`。被标记的行保留自己的颜色并带有背景，因此强调读起来就是强调，而不是另一种代码。
 
-## Numbering lines
+## 显示行号
 
-`showLineNumbers` runs a gutter down the left:
+`showLineNumbers` 会在左侧显示行号栏：
 
 ````markdown
 ```bash showLineNumbers
@@ -129,11 +116,9 @@ npm run dev
 npm run build
 ```
 
-The numbers come from a CSS counter rather than from the markup, so they are
-not part of the code: copying the block, or selecting it by hand, gives the
-commands without the numbers in front of them.
+行号来自 CSS 计数器而不是标记，因此它们不属于代码：复制代码块或手动选择时，得到的命令不会带有前面的行号。
 
-All three annotations can share one fence, in any order:
+三种注解可以共用一个围栏代码块，顺序任意：
 
 ````markdown
 ```typescript title="lib/greet.ts" {2} showLineNumbers
@@ -149,21 +134,15 @@ export function greet(name: string) {
 }
 ```
 
-An annotation meant for some other tool is ignored rather than rejected, so a
-document written elsewhere still renders as the code it is.
+为其他工具准备的注解会被忽略而不是被拒绝，因此在别处编写的文档仍然会以其本来的代码形式渲染。
 
-## Lines too long for the page
+## 超出页面的长行
 
-Code is not prose and does not wrap: a line wider than the block scrolls
-sideways instead, so indentation survives and a line stays a line.
+代码不是散文，不会自动换行：比代码块更宽的行会改为横向滚动，这样缩进得以保留，一行始终是一行。
 
-On a narrow screen that would leave the code simply stopping at the edge, since
-a phone draws a scrollbar only while you are already scrolling. Instead the edge
-is shaded, on whichever side has more code beyond it, and the shading goes as
-you reach that end. A block that fits shows none of it. The whole effect is four
-background gradients — no script, and nothing added to the markup.
+在窄屏幕上，代码会直接停在边缘，因为手机只有在滚动时才会显示滚动条。取而代之的是，边缘会被加上阴影，阴影位于代码超出较多的一侧，当你滚动到那一端时阴影消失。能够完整容纳的代码块不会显示任何阴影。整个效果由四个背景渐变实现——没有脚本，也不向标记中添加任何内容。
 
-## Supported Languages
+## 支持的语言
 
 ### JavaScript / TypeScript
 
@@ -198,7 +177,7 @@ function greetUser(user: User): string {
 ````markdown
 ```python
 def calculate_fibonacci(n: int) -> list[int]:
-    """Generate Fibonacci sequence."""
+    """生成斐波那契数列。"""
     if n <= 0:
         return []
     elif n == 1:
@@ -214,7 +193,7 @@ def calculate_fibonacci(n: int) -> list[int]:
 
 ```python
 def calculate_fibonacci(n: int) -> list[int]:
-    """Generate Fibonacci sequence."""
+    """生成斐波那契数列。"""
     if n <= 0:
         return []
     elif n == 1:
@@ -233,13 +212,13 @@ def calculate_fibonacci(n: int) -> list[int]:
 ```bash
 #!/bin/bash
 
-# Install dependencies
+# 安装依赖
 npm install
 
-# Start development server
+# 启动开发服务器
 npm run dev
 
-# Build for production
+# 构建生产版本
 npm run build
 ```
 ````
@@ -247,13 +226,13 @@ npm run build
 ```bash
 #!/bin/bash
 
-# Install dependencies
+# 安装依赖
 npm install
 
-# Start development server
+# 启动开发服务器
 npm run dev
 
-# Build for production
+# 构建生产版本
 npm run build
 ```
 
@@ -403,9 +382,9 @@ jobs:
         run: npm run build
 ```
 
-## More Languages
+## 更多语言
 
-eziwiki supports 100+ languages including:
+eziwiki 支持 100 多种语言，包括：
 
 - `javascript`, `typescript`, `jsx`, `tsx`
 - `python`, `java`, `c`, `cpp`, `csharp`, `go`, `rust`
@@ -416,54 +395,54 @@ eziwiki supports 100+ languages including:
 - `markdown`, `mdx`
 - `dockerfile`, `nginx`
 - `php`, `ruby`, `perl`, `lua`
-- And many more!
+- 以及更多！
 
-## Inline Code
+## 行内代码
 
-Use single backticks for inline code:
+使用单个反引号来表示行内代码：
 
 ```markdown
-Use `const` instead of `var` in JavaScript.
+在 JavaScript 中使用 `const` 而不是 `var`。
 ```
 
-Use `const` instead of `var` in JavaScript.
+在 JavaScript 中使用 `const` 而不是 `var`。
 
-## Code Without Highlighting
+## 无语法高亮的代码
 
-Use `text` or omit the language:
+使用 `text`，或者省略语言标识：
 
 ````markdown
 ```text
-Plain text without syntax highlighting
+没有语法高亮的纯文本
 ```
 ````
 
 ```text
-Plain text without syntax highlighting
+没有语法高亮的纯文本
 ```
 
-## Best Practices
+## 最佳实践
 
-### Always Specify Language
+### 始终指定语言
 
 ````markdown
-✅ Good:
+✅ 好的：
 
 ```javascript
 const x = 10;
 ```
 
-❌ Bad:
+❌ 不好的：
 
 ```
 const x = 10;
 ```
 ````
 
-### Use Proper Indentation
+### 使用正确的缩进
 
 ````markdown
-✅ Good:
+✅ 好的：
 
 ```javascript
 function example() {
@@ -473,7 +452,7 @@ function example() {
 }
 ```
 
-❌ Bad:
+❌ 不好的：
 
 ```javascript
 function example() {
@@ -484,41 +463,41 @@ function example() {
 ```
 ````
 
-### Add Comments for Clarity
+### 添加注释以提升可读性
 
 ````markdown
 ```javascript
-// Initialize user data
+// 初始化用户数据
 const user = {
   name: 'Alice',
   email: 'alice@example.com',
 };
 
-// Send welcome email
+// 发送欢迎邮件
 sendEmail(user.email, 'Welcome!');
 ```
 ````
 
-### Keep Examples Focused
+### 保持示例聚焦
 
 ````markdown
-✅ Good - focused example:
+✅ 好的 - 聚焦的示例：
 
 ```javascript
-// Calculate total price
+// 计算总价
 const total = items.reduce((sum, item) => sum + item.price, 0);
 ```
 
-❌ Bad - too much code:
+❌ 不好的 - 代码过多：
 
 ```javascript
-// 100 lines of unrelated code...
+// 100 行无关的代码……
 ```
 ````
 
-## Escaping Code Blocks
+## 转义代码块
 
-To show code blocks in Markdown (like this guide does), use 4 backticks:
+要在 Markdown 中展示代码块（就像本指南所做的那样），请使用 4 个反引号：
 
 `````markdown
 ````markdown
@@ -528,12 +507,12 @@ const x = 10;
 ````
 `````
 
-## Dark Mode Support
+## 深色模式支持
 
-Code blocks automatically adapt to light and dark themes. The syntax highlighting theme changes based on the user's preference.
+代码块会自动适配浅色与深色主题。语法高亮主题会根据用户的偏好切换。
 
-## Next Steps
+## 下一步
 
-- [Learn Markdown Basics](/content/markdown-basics)
-- [Add Frontmatter](/content/frontmatter)
-- [Create Your First Wiki](/getting-started/first-wiki)
+- [学习 Markdown 基础](/example/content/markdown-basics)
+- [添加 Frontmatter](/example/content/frontmatter)
+- [创建你的第一个 Wiki](/example/getting-started/first-wiki)

@@ -1,58 +1,58 @@
 ---
-title: Your First Wiki
-description: Create your first wiki page from scratch
+title: 你的第一个 Wiki
+description: 从零创建你的第一个 Wiki 页面
 order: 3
 ---
 
-# Your First Wiki
+# 你的第一个 Wiki
 
-Let's create your first wiki page from scratch!
+让我们从零开始创建你的第一个 Wiki 页面！
 
-## Step 1: Create a Markdown File
+## 第 1 步：创建 Markdown 文件
 
-Create a new file in the `content/` directory:
+在 `content/` 目录下创建一个新文件：
 
 ```bash
-# Create a new file
+# 创建新文件
 touch content/my-first-page.md
 ```
 
-## Step 2: Add Frontmatter
+## 第 2 步：添加 Frontmatter
 
-Open the file and add frontmatter at the top:
+打开该文件，在文件顶部添加 Frontmatter：
 
 ```markdown
 ---
-title: My First Page
-description: This is my first wiki page
+title: 我的第一页
+description: 这是我的第一个 Wiki 页面
 ---
 ```
 
-Frontmatter is optional but recommended for better SEO and navigation.
+Frontmatter 是可选的，但建议添加，以便获得更好的 SEO 和导航效果。
 
-## Step 3: Write Content
+## 第 3 步：编写内容
 
-Add your content using Markdown:
+使用 Markdown 添加你的内容：
 
 ```markdown
 ---
-title: My First Page
-description: This is my first wiki page
+title: 我的第一页
+description: 这是我的第一个 Wiki 页面
 ---
 
-# My First Page
+# 我的第一页
 
-Welcome to my first wiki page!
+欢迎来到我的第一个 Wiki 页面！
 
-## What I Learned Today
+## 我今天学到了什么
 
-- How to create a wiki page
-- How to use Markdown
-- How to add frontmatter
+- 如何创建 Wiki 页面
+- 如何使用 Markdown
+- 如何添加 Frontmatter
 
-## Code Example
+## 代码示例
 
-Here's a simple JavaScript function:
+这是一个简单的 JavaScript 函数：
 
 \`\`\`javascript
 function greet(name) {
@@ -62,25 +62,22 @@ return `Hello, ${name}!`;
 console.log(greet('World'));
 \`\`\`
 
-## Next Steps
+## 下一步
 
-I'm going to learn more about [Markdown basics](/content/markdown-basics).
+接下来我会学习更多关于 [Markdown 基础](/example/content/markdown-basics) 的内容。
 ```
 
-## Step 4: View Your Page
+## 第 4 步：查看你的页面
 
-Save the file and go to <http://localhost:3000>. **That is it** — the page is
-already in the sidebar under a section named after its folder, and already
-searchable.
+保存文件，然后打开 <http://localhost:3000>。**就这样**——页面已经出现在侧边栏中，位于以它的文件夹命名的分区之下，并且已经可以被搜索到。
 
-There is no navigation array to update. Every Markdown file under `content/` is
-published automatically.
+无需更新任何 navigation 数组。`content/` 下的每个 Markdown 文件都会被自动发布。
 
-## Organizing Content
+## 组织内容
 
-### Create Folders
+### 创建文件夹
 
-Folders become sidebar sections:
+文件夹会成为侧边栏分区：
 
 ```bash
 mkdir -p content/guides
@@ -88,11 +85,11 @@ touch content/guides/getting-started.md
 touch content/guides/advanced.md
 ```
 
-Both pages appear immediately, grouped under a **Guides** section.
+两个页面会立即出现，并归入 **Guides** 分区。
 
-### Name and Order a Section
+### 命名并排序分区
 
-To control how a folder is presented, add a `_meta.json` beside its pages:
+要控制文件夹的呈现方式，请在其页面旁边添加一个 `_meta.json`：
 
 ```json
 {
@@ -102,38 +99,36 @@ To control how a folder is presented, add a `_meta.json` beside its pages:
 }
 ```
 
-### Order Pages
+### 页面排序
 
-Use `order` in each page's frontmatter — lower comes first:
+在每个页面的 Frontmatter 中使用 `order`——数字越小越靠前：
 
 ```markdown
 ---
-title: Getting Started
+title: 入门
 order: 1
 ---
 ```
 
-Pages without an `order` sort after those that have one, alphabetically.
+没有 `order` 的页面会排在设有 `order` 的页面之后，并按字母顺序排列。
 
-### Take Manual Control
+### 手动控制
 
-If you want a structure the folders cannot express, add a `navigation` array to
-`payload/config.ts`. It does not have to list everything — pages it omits are
-still discovered and appended. See [[navigation]].
+如果你想要文件夹无法表达的页面结构，可以在 `payload/config.ts` 中添加一个 `navigation` 数组。它不必列出所有页面——未列出的页面仍然会被发现并追加进来。参见 [[navigation]]。
 
-## Tips for Great Wiki Pages
+## 打造优秀 Wiki 页面的技巧
 
-### Use Clear Headings
+### 使用清晰的标题
 
 ```markdown
-# Main Title (H1)
+# 主标题（H1）
 
-## Section (H2)
+## 分区（H2）
 
-### Subsection (H3)
+### 子分区（H3）
 ```
 
-### Add Code Blocks
+### 添加代码块
 
 ```markdown
 \`\`\`typescript
@@ -141,103 +136,103 @@ const greeting: string = 'Hello, World!';
 \`\`\`
 ```
 
-### Link Between Pages
+### 在页面之间建立链接
 
 ```markdown
-Check out [another page](/guides/getting-started).
+查看[另一个页面](/guides/getting-started)。
 ```
 
-### Add Lists
+### 添加列表
 
 ```markdown
-- Bullet point 1
-- Bullet point 2
-  - Nested point
+- 项目符号 1
+- 项目符号 2
+  - 嵌套项
 
-1. Numbered item 1
-2. Numbered item 2
+1. 编号项 1
+2. 编号项 2
 ```
 
-### Include Images
+### 插入图片
 
 ```markdown
-![Alt text](/images/screenshot.png)
+![替代文本](/images/screenshot.png)
 ```
 
-## Common Patterns
+## 常见模式
 
-### Documentation Page
+### 文档页面
 
 ```markdown
 ---
-title: API Reference
-description: Complete API documentation
+title: API 参考
+description: 完整的 API 文档
 ---
 
-# API Reference
+# API 参考
 
-## Authentication
+## 身份验证
 
-All API requests require authentication...
+所有 API 请求都需要身份验证……
 
-## Endpoints
+## 接口端点
 
 ### GET /api/users
 
-Returns a list of users...
+返回用户列表……
 ```
 
-### Tutorial Page
+### 教程页面
 
 ```markdown
 ---
-title: Building Your First App
-description: Step-by-step tutorial
+title: 构建你的第一个应用
+description: 分步教程
 ---
 
-# Building Your First App
+# 构建你的第一个应用
 
-In this tutorial, you'll learn...
+在本教程中，你将学习……
 
-## Prerequisites
+## 前置要求
 
-- Node.js installed
-- Basic JavaScript knowledge
+- 已安装 Node.js
+- 基本的 JavaScript 知识
 
-## Step 1: Setup
+## 第 1 步：初始化
 
-First, create a new project...
+首先，创建一个新项目……
 ```
 
-### Reference Page
+### 参考页面
 
 ```markdown
 ---
-title: Configuration Options
-description: All available configuration options
+title: 配置选项
+description: 所有可用的配置选项
 ---
 
-# Configuration Options
+# 配置选项
 
-## Global Settings
+## 全局设置
 
 ### title
 
-- Type: `string`
-- Required: Yes
-- Description: Site title
+- 类型：`string`
+- 必填：是
+- 说明：站点标题
 
 ### description
 
-- Type: `string`
-- Required: No
-- Description: Site description
+- 类型：`string`
+- 必填：否
+- 说明：站点描述
 ```
 
-## Next Steps
+## 下一步
 
-- [Learn Markdown basics](/content/markdown-basics)
-- [Explore configuration options](/configuration/payload)
-- [Customize your theme](/configuration/theme)
+- [学习 Markdown 基础](/example/content/markdown-basics)
+- [探索配置选项](/example/configuration/payload)
+- [定制你的主题](/example/configuration/theme)
 
-Congratulations! You've created your first wiki page. 🎉
+恭喜！你已经创建了你的第一个 Wiki 页面。🎉

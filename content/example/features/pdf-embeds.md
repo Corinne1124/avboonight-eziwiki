@@ -2,32 +2,30 @@
 tags:
   - markdown
   - documents
-title: PDF Embeds
-description: Show a PDF inside a page with a viewer that follows the theme
+title: PDF 嵌入
+description: 在页面内展示 PDF，并带一个跟随主题的阅读器
 order: 10
 ---
 
-# PDF Embeds
+# PDF 嵌入
 
-Drop a PDF into `public/` and embed it the way you would embed an image:
+把 PDF 放进 `public/`，然后像嵌入图片一样嵌入它：
 
 ```markdown
 ![[sample.pdf]]
-![[sample.pdf|The handbook]] → the label names it in the header
-![[documents/sample.pdf]] → the full path, when the name is not unique
+![[sample.pdf|手册]] → 标签会在标题栏中显示它的名字
+![[documents/sample.pdf]] → 当名称不唯一时，使用完整路径
 ```
 
-The file is resolved by the same rule as any other embed — bare filename or
-path relative to `public/`, and an ambiguous name resolves to nothing rather
-than to a guess. See [[wiki-links#embedding-an-image]].
+文件的解析规则与其他嵌入一致——裸文件名或相对于 `public/` 的路径；名称有歧义时解析为空，而不是去猜测。参见 [[wiki-links#嵌入图片]]。
 
-Here is one:
+下面就是一个示例：
 
 ![[sample.pdf]]
 
-## What the build emits
+## 构建产出了什么
 
-A picture of the first page, and a link:
+第一页的图片，以及一个链接：
 
 ```html
 <figure class="ezw-pdf" data-ezw-pdf data-name="sample.pdf" data-size="3976" data-pages="3">
@@ -42,79 +40,52 @@ A picture of the first page, and a link:
 </figure>
 ```
 
-The poster is that first page, drawn once during the build. It is why the page
-above shows the document rather than a placeholder, and why **pdf.js is not
-fetched at all until you press Open** — a megabyte of parser, skipped entirely
-for a reader who was only passing the document by.
+预览图就是那第一页，在构建时绘制一次。正因如此，上面的页面显示的是文档本身而不是占位符；也正因如此，**在你按下「打开」之前，根本不会加载 pdf.js**——对于只是路过这份文档的读者，这一兆字节的解析器被完全跳过。
 
-That ordering is also what makes the markup its own fallback. Without script, or
-before hydration, or if the viewer fails to load, a reader is left with a picture
-of the document and a link to it rather than an empty box.
+这种顺序也让这段标记本身成为兜底方案。没有脚本、水合完成之前，或阅读器加载失败时，读者看到的仍然是文档的图片和链接，而不是一个空框。
 
-### Why only the first page
+### 为什么只绘制第一页
 
-Rasterising every page was measured and refused. A six-page text PDF of 33 kB
-became 1.3 MB of WebP — thirty-eight times the file it would replace — and the
-pages lost their text on the way, so no selection, no in-page search, and
-nothing for a screen reader. One page as a preview is the part of that idea
-that pays for itself.
+把每一页都栅格化的方案经过测量后被否决了。一份 33 kB、六页的文本 PDF 变成了 1.3 MB 的 WebP——是它所替代文件的三十八倍——而且页面上的文字在这个过程中丢失了：无法选中、无法页内搜索，屏幕阅读器也无从读取。只取一页作为预览，才是这个想法中真正划算的部分。
 
-## Where it has to stand
+## 嵌入的位置
 
-An embed alone in its paragraph becomes the viewer. Written mid-sentence it
-becomes a link to the file instead — a viewer is a block, and a block cannot sit
-inside a sentence. So this:
+单独占一个段落的嵌入会变成阅读器。写在句子中间时，它则会变成指向文件的链接——阅读器是一个块级元素，而块级元素不能待在句子内部。所以这样写：
 
 ```markdown
-The details are in ![[sample.pdf|the handbook]].
+详细信息见 ![[sample.pdf|手册]]。
 ```
 
-reads as prose, with a download link where the embed was.
+会以正文形式渲染，嵌入的位置会变成一个下载链接。
 
-## Reading it
+## 阅读方式
 
-The pages are drawn as you reach them rather than all at once, so a
-hundred-page document opens as fast as a one-page one. The page counter follows
-the scroll, so it says where you are rather than where you last clicked.
+页面在你翻到时才绘制，而不是一次性全部绘制，因此一百页的文档和一页的文档打开速度一样快。页码计数器跟随滚动位置，显示的是你当前所在的位置，而不是你上次点击的位置。
 
-Zoom is a multiple of the width of the column the document was embedded in —
-100% means fitted, not actual size — so the fit survives a resize or a trip to
-full screen, and the reader's own zoom survives with it.
+缩放以文档嵌入时所在栏的宽度为基准——100% 表示适应宽度，而不是实际大小——因此适应效果在窗口缩放或进入全屏后依然成立，阅读器的缩放也会随之保持。
 
-## What gets deployed
+## 部署了什么
 
-pdf.js fetches data files as it meets the need for them: a character map for a
-document that names one of Adobe's predefined encodings, a font program for one
-that uses a standard face without embedding it, an image codec for a scan.
-`npm run build` stages them into `public/pdfjs/` — but only when the wiki
-actually contains a PDF, so a wiki without one deploys nothing extra.
+pdf.js 会在需要时按需获取数据文件：为声明了 Adobe 预定义编码之一的文档获取字符映射表，为使用标准字体但未嵌入的文档获取字体程序，为扫描件获取图像编解码器。`npm run build` 会把它们暂存到 `public/pdfjs/`——但仅当 wiki 中确实包含 PDF 时才会如此，因此不含 PDF 的 wiki 不会多部署任何内容。
 
-Posters are written to `public/pdf-posters/`, redrawn only when their PDF has
-changed, and removed when it is deleted. Neither directory is committed.
+预览图写入 `public/pdf-posters/`，只有对应的 PDF 发生变化时才会重新绘制，PDF 被删除时预览图也会被移除。这两个目录都不会被提交。
 
-Drawing them needs a renderer, which is not installed by default because it is
-a native binary and most wikis have no PDF to draw:
+绘制预览图需要一个渲染器，它默认不会安装，因为它是原生二进制，而且大多数 wiki 并没有 PDF 需要绘制：
 
 ```bash
 npm i -D @napi-rs/canvas
 ```
 
-Without it everything still works — the viewer simply opens straight away and
-draws the first page in the browser, which is what the poster exists to avoid.
-`npm run build` says so when it finds a PDF and no renderer.
+没有它一切也照常工作——阅读器会直接打开并在浏览器中绘制第一页，而这正是预览图想要避免的情况。当 `npm run build` 发现 PDF 却没有渲染器时，会给出相应提示。
 
 > [!NOTE]
-> Adding the first PDF to an already-running `npm run dev` needs a restart, so
-> that the staging and poster steps run.
+> 向正在运行的 `npm run dev` 中添加第一个 PDF 需要重启，以便执行暂存和预览图步骤。
 
-## Scans
+## 扫描件
 
-A scanned page is already a picture. It carries no text to select, search, or
-read aloud, so drawing it during the build loses nothing — and usually costs
-less than the PDF did, since a re-encode to WebP beats what a scanner wrote.
-The demo scan below is 247 kB as a PDF and 90 kB as images.
+扫描页本身已经是一张图片。它没有可供选中、搜索或朗读的文字，因此在构建时绘制它不会损失任何东西——而且通常比 PDF 更省，因为重新编码为 WebP 的效果胜过扫描仪写出的内容。下面这个演示扫描件作为 PDF 是 247 kB，作为图片是 90 kB。
 
-Name those documents in `payload/config.ts`:
+在 `payload/config.ts` 中指定这些文档：
 
 ```typescript
 documents: {
@@ -122,14 +93,10 @@ documents: {
 }
 ```
 
-Paths are relative to `public/` and understand `*`, `**` and `?`.
+路径相对于 `public/`，支持 `*`、`**` 和 `?` 通配符。
 
-![[field-notebook.pdf|Field notebook, 1985]]
+![[field-notebook.pdf|1985 年的野外笔记本]]
 
-That figure is `<img>` tags in a box. No viewer, no pdf.js, no script of any
-kind — switch JavaScript off and it is unchanged.
+那个图形只是框内的一组 `<img>` 标签。没有阅读器、没有 pdf.js、没有任何脚本——即使关闭 JavaScript，它也原样不变。
 
-It is opt-in rather than automatic because the same treatment ruins a text
-document, and nothing about a file says reliably which kind it is. Turning it
-on for `documents/` above would have made this page's own sample thirty-eight
-times heavier and stripped its text out.
+它是可选的而不是自动的，因为同样的处理会毁掉文本文档，而且没有任何文件信息能可靠地说明它属于哪种类型。如果对上面的 `documents/` 开启该处理，本页自己的示例就会膨胀到三十八倍重，并且丢失全部文字。

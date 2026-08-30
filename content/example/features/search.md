@@ -1,96 +1,81 @@
 ---
 tags:
   - search
-title: Search
-description: Full-text search across titles, headings, and page contents
+title: 搜索
+description: 对标题、标题行与页面内容的全文搜索
 order: 2
 ---
 
-# Search
+# 搜索
 
-Press <kbd>⌘K</kbd> (<kbd>Ctrl K</kbd> on Windows and Linux) anywhere on the
-site, or click the search box in the sidebar.
+在站点的任意位置按下 <kbd>⌘K</kbd>（Windows 和 Linux 上为 <kbd>Ctrl K</kbd>），或点击侧边栏中的搜索框。
 
-## What is searched
+## 搜索范围
 
-Every published page contributes several entries to the index:
+每个已发布的页面都会向索引贡献若干条目：
 
-- the page itself — title, description, and the text before its first heading
-- one entry per `h2`, `h3`, and `h4` section
+- 页面本身——标题、描述以及第一个标题之前的正文
+- 每个 `h2`、`h3` 和 `h4` 章节各一条
 
-Because sections are indexed separately, a result links straight to the heading
-that matched rather than dropping you at the top of a long page.
+由于章节是分别索引的，结果会直接链接到匹配的标题，而不是把您丢到长页面的顶部。
 
-Code inside fenced blocks **is** indexed. Searching for a flag or an API name is
-one of the main things people do in developer documentation, so `--strict` or
-`generateStaticParams` will find the page that mentions it.
+围栏代码块内的代码**会**被索引。在开发者文档中，搜索某个标志或 API 名称是人们最主要的操作之一，因此搜索 `--strict` 或 `generateStaticParams` 就能找到提到它的页面。
 
-## Ranking
+## 排序（权重）
 
-Fields are weighted, so a page whose _title_ matches outranks one that merely
-mentions the words in a paragraph:
+各字段带有权重，因此 _标题_ 匹配的页面会排在仅仅在段落中提到这些词的页面之前：
 
-| Field       | Weight |
-| ----------- | ------ |
-| Title       | 4×     |
-| Heading     | 3×     |
-| Description | 2×     |
-| Body        | 1×     |
+| 字段     | 权重 |
+| -------- | ---- |
+| 标题     | 4×   |
+| 章节标题 | 3×   |
+| 描述     | 2×   |
+| 正文     | 1×   |
 
-Queries are matched with prefix and light fuzzy matching, so `deploym` finds
-Deployment and `instalation` still finds Installation.
+查询使用前缀匹配和轻量模糊匹配，因此 `deploym` 能找到 Deployment，`instalation` 也能找到 Installation。
 
-By default every word in the query must appear. If nothing matches all of them,
-the search falls back to matching any of them rather than showing an empty list.
+默认情况下，查询中的每个词都必须出现。如果没有任何结果同时匹配全部词，搜索会退而匹配其中任意一个词，而不是显示空列表。
 
-## Non-Latin content
+## 非拉丁字符内容
 
-Korean, Japanese, and Chinese are written without spaces between words, so
-splitting on whitespace would index `위키문서를` as a single token and a search
-for `위키` would never match it.
+韩语、日语和中文在书写时词与词之间没有空格，因此按空白分词会把 `위키문서를` 索引为单个分词，搜索 `위키` 将永远无法匹配到它。
 
-eziwiki indexes CJK runs as overlapping character pairs:
+eziwiki 将中日韩文字按重叠的字符对进行索引：
 
 ```
 위키문서  →  위키문서, 위키, 키문, 문서
 ```
 
-The same tokenisation runs over your query, so substring searches work without
-a morphological analyser. The whole phrase is indexed alongside its pairs, so an
-exact match still scores highest.
+相同的分词逻辑也作用于您的查询，因此无需词法分析器即可进行子串搜索。整个短语与其字符对一同被索引，所以精确匹配依然得分最高。
 
-## How it works
+## 工作原理
 
-The index is generated at build time into `public/search-index.json` and
-searched entirely in the browser. There is no server to run and no third-party
-service to sign up for — it works on GitHub Pages, S3, or any static host.
+索引在构建时生成到 `public/search-index.json`，并完全在浏览器中进行搜索。无需运行服务器，也无需注册第三方服务——它可以在 GitHub Pages、S3 或任何静态托管上工作。
 
-The index and the search library are fetched the first time you actually search,
-so readers who never open the palette never download them.
+索引和搜索库只在您第一次真正搜索时才被加载，因此从不打开命令面板的读者永远不会下载它们。
 
-Regenerate it manually with:
+手动重新生成：
 
 ```bash
 npm run build:search
 ```
 
-It also runs automatically as part of `npm run dev` and `npm run build`.
+它也会作为 `npm run dev` 和 `npm run build` 的一部分自动运行。
 
-## What is excluded
+## 被排除的内容
 
-[[hidden-pages|Hidden pages]] are left out of the index entirely. They are
-unlisted by intent, and returning them in search would defeat that.
+[[hidden-pages|隐藏页面]] 完全不会进入索引。它们本就是有意不被列出的，在搜索中返回它们会破坏这一目的。
 
-## Keyboard
+## 键盘操作
 
-| Key                               | Action               |
-| --------------------------------- | -------------------- |
-| <kbd>⌘K</kbd> / <kbd>Ctrl K</kbd> | Open or close        |
-| <kbd>↑</kbd> <kbd>↓</kbd>         | Move through results |
-| <kbd>↵</kbd>                      | Open the result      |
-| <kbd>Esc</kbd>                    | Close                |
+| 按键                              | 操作         |
+| --------------------------------- | ------------ |
+| <kbd>⌘K</kbd> / <kbd>Ctrl K</kbd> | 打开或关闭   |
+| <kbd>↑</kbd> <kbd>↓</kbd>         | 在结果中移动 |
+| <kbd>↵</kbd>                      | 打开结果     |
+| <kbd>Esc</kbd>                    | 关闭         |
 
-## Next
+## 下一步
 
-- [[table-of-contents]] — navigate within a page
-- [[graph-and-backlinks]] — navigate between pages
+- [[table-of-contents]] — 在页面内导航
+- [[graph-and-backlinks]] — 在页面之间导航

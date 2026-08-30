@@ -1,33 +1,33 @@
 ---
-title: Personal Wiki Example
-description: Build your own personal knowledge base
+title: 个人 Wiki 示例
+description: 构建你自己的个人知识库
 order: 1
 ---
 
-# Personal Wiki Example
+# 个人 Wiki 示例
 
 ![eziwiki](/images/eziwiki.webp)
 
-Use eziwiki to build your personal knowledge base - your second brain.
+使用 eziwiki 构建你的个人知识库——你的第二大脑。
 
-## Use Cases
+## 适用场景
 
-- **Learning Notes** - Document what you learn
-- **Project Documentation** - Track your projects
-- **Book Summaries** - Remember what you read
-- **Code Snippets** - Save useful code
-- **Meeting Notes** - Keep track of discussions
-- **Ideas** - Capture and organize thoughts
+- **学习笔记** - 记录你学到的东西
+- **项目文档** - 追踪你的项目
+- **读书笔记** - 记住你读过的内容
+- **代码片段** - 保存有用的代码
+- **会议纪要** - 记录讨论内容
+- **灵感想法** - 捕捉并整理思路
 
-## Example Structure
+## 示例结构
 
-Your folder layout _is_ your navigation — nothing to register:
+你的文件夹结构 _就是_ 导航——无需任何注册：
 
 ```
 content/
 ├── intro.md
 ├── learning/
-│   ├── _meta.json              → { "name": "📚 Learning", "order": 1 }
+│   ├── _meta.json              → { "name": "📚 学习", "order": 1 }
 │   ├── javascript/
 │   │   ├── promises.md
 │   │   ├── async-await.md
@@ -36,39 +36,37 @@ content/
 │       ├── generics.md
 │       └── utility-types.md
 ├── projects/
-│   ├── _meta.json              → { "name": "💡 Projects", "order": 2 }
+│   ├── _meta.json              → { "name": "💡 项目", "order": 2 }
 │   ├── todo-app.md
 │   └── blog-engine.md
 └── books/
-    ├── _meta.json              → { "name": "📖 Books", "order": 3 }
+    ├── _meta.json              → { "name": "📖 书籍", "order": 3 }
     └── atomic-habits.md
 ```
 
-Drop a file in, and it appears. Use `order` in a page's frontmatter to rank it
-among its siblings, and `_meta.json` to name and colour the section — see
-[[navigation]].
+把文件放进去，它就会自动出现。使用页面 frontmatter 中的 `order` 字段可以调整它在同级页面中的排序，使用 `_meta.json` 可以为章节命名并设置颜色——参见 [[navigation]]。
 
-## Example Pages
+## 示例页面
 
-### Learning Note
+### 学习笔记
 
 ```markdown
 ---
-title: JavaScript Promises
-description: Understanding promises and async programming
+title: JavaScript Promise 详解
+description: 理解 Promise 与异步编程
 ---
 
-# JavaScript Promises
+# JavaScript Promise 详解
 
-## What are Promises?
+## 什么是 Promise？
 
-A Promise is an object representing the eventual completion or failure of an asynchronous operation.
+Promise 是表示异步操作最终成功或失败的对象。
 
-## Basic Syntax
+## 基本语法
 
 \`\`\`javascript
 const promise = new Promise((resolve, reject) => {
-// Async operation
+// 异步操作
 if (success) {
 resolve(value);
 } else {
@@ -77,7 +75,7 @@ reject(error);
 });
 \`\`\`
 
-## Using Promises
+## 使用 Promise
 
 \`\`\`javascript
 promise
@@ -86,47 +84,47 @@ promise
 .finally(() => console.log('Done'));
 \`\`\`
 
-## Key Concepts
+## 核心概念
 
-- **Pending**: Initial state
-- **Fulfilled**: Operation completed successfully
-- **Rejected**: Operation failed
+- **Pending（待定）**：初始状态
+- **Fulfilled（已兑现）**：操作成功完成
+- **Rejected（已拒绝）**：操作失败
 
-## Resources
+## 参考资料
 
-- [MDN Promises](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)
-- [JavaScript.info Promises](https://javascript.info/promise-basics)
+- [MDN Promise 文档](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)
+- [JavaScript.info 的 Promise 教程](https://javascript.info/promise-basics)
 ```
 
-### Project Documentation
+### 项目文档
 
 ```markdown
 ---
-title: Todo App Project
-description: Full-stack todo application with React and Node.js
+title: Todo 应用项目
+description: 使用 React 和 Node.js 构建的全栈 Todo 应用
 ---
 
-# Todo App Project
+# Todo 应用项目
 
-## Overview
+## 项目概览
 
-A full-stack todo application built with React, Node.js, and PostgreSQL.
+一个使用 React、Node.js 和 PostgreSQL 构建的全栈 Todo 应用。
 
-## Tech Stack
+## 技术栈
 
-- **Frontend**: React, TypeScript, Tailwind CSS
-- **Backend**: Node.js, Express, PostgreSQL
-- **Deployment**: Vercel (frontend), Railway (backend)
+- **前端**：React、TypeScript、Tailwind CSS
+- **后端**：Node.js、Express、PostgreSQL
+- **部署**：Vercel（前端）、Railway（后端）
 
-## Features
+## 功能特性
 
-- ✅ Create, read, update, delete todos
-- ✅ Mark todos as complete
-- ✅ Filter by status
-- ✅ User authentication
-- ✅ Responsive design
+- ✅ 创建、读取、更新、删除待办事项
+- ✅ 将待办事项标记为已完成
+- ✅ 按状态筛选
+- ✅ 用户认证
+- ✅ 响应式设计
 
-## Architecture
+## 架构
 
 \`\`\`
 ┌─────────────┐ ┌─────────────┐ ┌─────────────┐
@@ -135,11 +133,11 @@ A full-stack todo application built with React, Node.js, and PostgreSQL.
 └─────────────┘ └─────────────┘ └─────────────┘
 \`\`\`
 
-## API Endpoints
+## API 接口
 
 ### GET /api/todos
 
-Get all todos for the current user.
+获取当前用户的全部待办事项。
 
 \`\`\`typescript
 interface Todo {
@@ -152,7 +150,7 @@ createdAt: string;
 
 ### POST /api/todos
 
-Create a new todo.
+创建新的待办事项。
 
 \`\`\`typescript
 {
@@ -160,112 +158,112 @@ Create a new todo.
 }
 \`\`\`
 
-## Lessons Learned
+## 经验教训
 
-- TypeScript makes refactoring much easier
-- Tailwind CSS speeds up development
-- PostgreSQL is great for relational data
-- Vercel deployment is incredibly simple
+- TypeScript 让重构变得容易得多
+- Tailwind CSS 大大加快了开发速度
+- PostgreSQL 非常适合关系型数据
+- Vercel 部署极其简单
 
-## Next Steps
+## 下一步
 
-- [ ] Add due dates
-- [ ] Add categories/tags
-- [ ] Add search functionality
-- [ ] Add dark mode
+- [ ] 添加截止日期
+- [ ] 添加分类/标签
+- [ ] 添加搜索功能
+- [ ] 添加深色模式
 ```
 
-### Book Summary
+### 读书笔记
 
 ```markdown
 ---
-title: Clean Code by Robert C. Martin
-description: Key takeaways and notes
+title: 《代码整洁之道》—— Robert C. Martin
+description: 关键要点与笔记
 ---
 
-# Clean Code
+# 《代码整洁之道》
 
-**Author**: Robert C. Martin  
-**Published**: 2008  
-**Rating**: ⭐⭐⭐⭐⭐
+**作者**：Robert C. Martin  
+**出版年份**：2008  
+**评分**：⭐⭐⭐⭐⭐
 
-## Key Takeaways
+## 核心要点
 
-### Meaningful Names
+### 有意义的命名
 
-- Use intention-revealing names
-- Avoid disinformation
-- Make meaningful distinctions
-- Use pronounceable names
+- 使用能表达意图的命名
+- 避免误导性信息
+- 做出有意义的区分
+- 使用便于发音的命名
 
 \`\`\`javascript
-// ❌ Bad
+// ❌ 反面示例
 const d = new Date();
 
-// ✅ Good
+// ✅ 正面示例
 const currentDate = new Date();
 \`\`\`
 
-### Functions
+### 函数
 
-- Should be small
-- Should do one thing
-- Should have descriptive names
-- Should have few arguments
+- 应当保持短小
+- 只做一件事
+- 应有描述性的名称
+- 参数应尽量少
 
 \`\`\`javascript
-// ❌ Bad
+// ❌ 反面示例
 function processUser(name, email, age, address, phone) {
-// Too many parameters
+// 参数太多
 }
 
-// ✅ Good
+// ✅ 正面示例
 function processUser(user) {
-// Single object parameter
+// 单个对象参数
 }
 \`\`\`
 
-### Comments
+### 注释
 
-- Don't comment bad code - rewrite it
-- Explain why, not what
-- Good code is self-documenting
+- 不要给糟糕的代码写注释——重写它
+- 解释"为什么"，而不是"是什么"
+- 好的代码是自我说明的
 
-### Error Handling
+### 错误处理
 
-- Use exceptions, not error codes
-- Don't return null
-- Don't pass null
+- 使用异常，而不是错误码
+- 不要返回 null
+- 不要传递 null
 
-## Favorite Quotes
+## 最喜欢的名言
 
-> "Clean code is simple and direct. Clean code reads like well-written prose."
+> "整洁的代码简单直接，读起来像优美的散文。"
 
-> "You know you are working on clean code when each routine you read turns out to be pretty much what you expected."
+> "当你读到的每个例程都与你预期的差不多时，你就知道自己在编写整洁的代码。"
 
-## My Notes
+## 我的笔记
 
-This book changed how I write code. The principles are timeless and apply to any programming language.
+这本书改变了我写代码的方式。其中的原则永不过时，适用于任何编程语言。
 
-## Related
+## 相关
 
-- [Refactoring](/books/refactoring)
-- [Design Patterns](/books/design-patterns)
+- [重构](/books/refactoring)
+- [设计模式](/books/design-patterns)
 ```
 
-### Code Snippet
+### 代码片段
 
 ```markdown
 ---
-title: React Custom Hooks
-description: Useful React hooks I've created
+title: React 自定义 Hook
+description: 我创建的一些实用 React Hooks
 ---
 
-# React Custom Hooks
+# React 自定义 Hook
 
 ## useLocalStorage
 
-Persist state to localStorage:
+将状态持久化到 localStorage：
 
 \`\`\`typescript
 import { useState, useEffect } from 'react';
@@ -283,13 +281,13 @@ localStorage.setItem(key, JSON.stringify(value));
 return [value, setValue] as const;
 }
 
-// Usage
+// 用法
 const [name, setName] = useLocalStorage('name', 'John');
 \`\`\`
 
 ## useDebounce
 
-Debounce a value:
+对值进行防抖（debounce）：
 
 \`\`\`typescript
 import { useState, useEffect } from 'react';
@@ -309,14 +307,14 @@ setDebouncedValue(value);
 return debouncedValue;
 }
 
-// Usage
+// 用法
 const [search, setSearch] = useState('');
 const debouncedSearch = useDebounce(search, 500);
 \`\`\`
 
 ## useFetch
 
-Simple data fetching:
+简单的数据获取：
 
 \`\`\`typescript
 import { useState, useEffect } from 'react';
@@ -337,35 +335,35 @@ fetch(url)
 return { data, loading, error };
 }
 
-// Usage
+// 用法
 const { data, loading, error } = useFetch<User[]>('/api/users');
 \`\`\`
 ```
 
-## Tips for Personal Wikis
+## 个人 Wiki 使用技巧
 
-### Keep It Simple
+### 保持简单
 
-Don't over-organize. Start with a few categories and expand as needed.
+不要过度整理。从少数几个分类开始，需要时再扩展。
 
-### Write for Future You
+### 写给未来的自己
 
-Write as if you're explaining to yourself in 6 months.
+想象自己在 6 个月后会重读，像给那时的自己解释一样去写。
 
-### Link Between Pages
+### 在页面之间建立链接
 
-Create connections between related topics.
+在相关主题之间建立连接。
 
-### Update Regularly
+### 定期更新
 
-Review and update your notes periodically.
+定期回顾并更新你的笔记。
 
-### Use Templates
+### 使用模板
 
-Create templates for common page types (book summaries, project docs, etc.).
+为常见页面类型创建模板（读书笔记、项目文档等）。
 
-## Next Steps
+## 下一步
 
-- [Create Your First Wiki](/getting-started/first-wiki)
-- [Learn Markdown Basics](/content/markdown-basics)
-- [Customize Your Theme](/configuration/theme)
+- [创建你的第一个 Wiki](/example/getting-started/first-wiki)
+- [学习 Markdown 基础](/example/content/markdown-basics)
+- [定制你的主题](/example/configuration/theme)

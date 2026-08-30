@@ -1,76 +1,76 @@
 ---
 tags:
   - deployment
-title: Deploy to Vercel
-description: Deploy your eziwiki to Vercel in minutes
+title: 部署到 Vercel
+description: 几分钟内将你的 eziwiki 部署到 Vercel
 order: 2
 ---
 
-# Deploy to Vercel
+# 部署到 Vercel
 
 ![eziwiki](/images/eziwiki.webp)
 
-Vercel is the easiest way to deploy your eziwiki with zero configuration.
+Vercel 是以零配置部署你的 eziwiki 的最简单方式。
 
-## Quick Deploy
+## 快速部署
 
-### Using Vercel CLI
+### 使用 Vercel CLI
 
 ```bash
-# Install Vercel CLI
+# 安装 Vercel CLI
 npm install -g vercel
 
-# Deploy
+# 部署
 vercel
 ```
 
-Follow the prompts and your site will be live in seconds!
+按照提示操作，你的站点将在几秒钟内上线！
 
-### Using Vercel Dashboard
+### 使用 Vercel 控制台
 
-1. Go to [vercel.com](https://vercel.com)
-2. Click "New Project"
-3. Import your Git repository
-4. Click "Deploy"
+1. 访问 [vercel.com](https://vercel.com)
+2. 点击"新建项目"（New Project）
+3. 导入你的 Git 仓库
+4. 点击"部署"（Deploy）
 
-That's it! Vercel automatically detects Next.js and configures everything.
+就这么简单！Vercel 会自动检测 Next.js 并配置好一切。
 
-## Automatic Deployments
+## 自动部署
 
-### Production Deployments
+### 生产部署
 
-Every push to your main branch triggers a production deployment:
+每次推送到 main 分支都会触发一次生产部署：
 
 ```bash
 git push origin main
 ```
 
-Your site updates automatically at `your-project.vercel.app`
+你的站点会在 `your-project.vercel.app` 自动更新
 
-### Preview Deployments
+### 预览部署
 
-Every pull request gets a unique preview URL:
+每个拉取请求都会获得一个唯一的预览 URL：
 
 ```bash
 git checkout -b feature-branch
 git push origin feature-branch
 ```
 
-Create a PR and get a preview link like `your-project-git-feature-branch.vercel.app`
+创建一个 PR，即可获得类似 `your-project-git-feature-branch.vercel.app` 的预览链接
 
-## Custom Domain
+## 自定义域名
 
-### 1. Add Domain
+### 1. 添加域名
 
-In Vercel dashboard:
+在 Vercel 控制台中：
 
-1. Go to Project Settings → Domains
-2. Add your domain: `wiki.example.com`
-3. Follow DNS instructions
+1. 进入 Project Settings → Domains
+2. 添加你的域名：`wiki.example.com`
+3. 按照 DNS 说明操作
 
-### 2. Configure DNS
+### 2. 配置 DNS
 
-Add DNS records provided by Vercel:
+添加 Vercel 提供的 DNS 记录：
 
 ```
 Type    Name    Value
@@ -78,24 +78,24 @@ A       @       76.76.21.21
 CNAME   www     cname.vercel-dns.com
 ```
 
-### 3. Enable HTTPS
+### 3. 启用 HTTPS
 
-Vercel automatically provisions SSL certificates. HTTPS is enabled by default.
+Vercel 会自动配置 SSL 证书，默认启用 HTTPS。
 
-## Environment Variables
+## 环境变量
 
-### Add Variables
+### 添加变量
 
-In Vercel dashboard:
+在 Vercel 控制台中：
 
-1. Go to Project Settings → Environment Variables
-2. Add variables:
+1. 进入 Project Settings → Environment Variables
+2. 添加变量：
 
 ```
 NEXT_PUBLIC_BASE_URL=https://wiki.example.com
 ```
 
-### Use in Code
+### 在代码中使用
 
 ```typescript
 // payload/config.ts
@@ -104,11 +104,11 @@ global: {
 }
 ```
 
-## Build Configuration
+## 构建配置
 
 ### vercel.json
 
-Create `vercel.json` for custom configuration:
+创建 `vercel.json` 以进行自定义配置：
 
 ```json
 {
@@ -119,32 +119,32 @@ Create `vercel.json` for custom configuration:
 }
 ```
 
-### Build Settings
+### 构建设置
 
-In Vercel dashboard:
+在 Vercel 控制台中：
 
-- **Framework Preset**: Next.js
-- **Build Command**: `npm run build`
-- **Output Directory**: `out`
-- **Install Command**: `npm install`
+- **框架预设**：Next.js
+- **构建命令**：`npm run build`
+- **输出目录**：`out`
+- **安装命令**：`npm install`
 
-## Performance Optimization
+## 性能优化
 
-### Edge Network
+### 边缘网络
 
-Vercel automatically deploys to a global edge network for fast loading worldwide.
+Vercel 会自动部署到全球边缘网络，让世界各地的访问都更快。
 
-### Automatic Caching
+### 自动缓存
 
-Static assets are cached automatically:
+静态资源会自动缓存：
 
-- HTML: Cached with revalidation
-- JS/CSS: Cached with long expiry
-- Images: Optimized and cached
+- HTML：带重新验证的缓存
+- JS/CSS：长期缓存
+- 图片：优化并缓存
 
-### Analytics
+### 分析
 
-Enable Vercel Analytics:
+启用 Vercel Analytics：
 
 ```bash
 npm install @vercel/analytics
@@ -166,196 +166,196 @@ export default function RootLayout({ children }) {
 }
 ```
 
-## Deployment Workflow
+## 部署工作流
 
-### Development
+### 开发
 
 ```bash
-# Work locally
+# 在本地开发
 npm run dev
 
-# Commit changes
+# 提交更改
 git add .
 git commit -m "Update content"
 ```
 
-### Preview
+### 预览
 
 ```bash
-# Create feature branch
+# 创建功能分支
 git checkout -b new-feature
 
-# Push to get preview
+# 推送以获取预览
 git push origin new-feature
 ```
 
-Create PR to get preview URL.
+创建 PR 以获取预览 URL。
 
-### Production
+### 生产
 
 ```bash
-# Merge to main
+# 合并到 main
 git checkout main
 git merge new-feature
 git push origin main
 ```
 
-Automatic production deployment!
+自动生产部署！
 
-## Rollback
+## 回滚
 
-### Using Dashboard
+### 使用控制台
 
-1. Go to Deployments
-2. Find previous deployment
-3. Click "Promote to Production"
+1. 进入 Deployments
+2. 找到之前的部署
+3. 点击"提升为生产部署"（Promote to Production）
 
-### Using CLI
+### 使用 CLI
 
 ```bash
-# List deployments
+# 列出部署
 vercel ls
 
-# Rollback to specific deployment
+# 回滚到指定部署
 vercel rollback [deployment-url]
 ```
 
-## Monitoring
+## 监控
 
-### Deployment Logs
+### 部署日志
 
-View logs in Vercel dashboard:
+在 Vercel 控制台中查看日志：
 
-1. Go to Deployments
-2. Click on a deployment
-3. View build and runtime logs
+1. 进入 Deployments
+2. 点击某个部署
+3. 查看构建和运行时日志
 
-### Real-time Logs
+### 实时日志
 
 ```bash
-# Stream logs
+# 流式查看日志
 vercel logs
 ```
 
-## Team Collaboration
+## 团队协作
 
-### Add Team Members
+### 添加团队成员
 
-1. Go to Project Settings → Team
-2. Invite members
-3. Set permissions (Viewer, Developer, Admin)
+1. 进入 Project Settings → Team
+2. 邀请成员
+3. 设置权限（Viewer、Developer、Admin）
 
-### Protected Branches
+### 受保护分支
 
-Configure branch protection:
+配置分支保护：
 
-1. Go to Git → Branch Protection
-2. Require reviews before merging
-3. Require status checks
+1. 进入 Git → Branch Protection
+2. 合并前要求审查
+3. 要求状态检查通过
 
-## Vercel Features
+## Vercel 功能
 
-### Instant Rollback
+### 即时回滚
 
-One-click rollback to any previous deployment.
+一键回滚到任意之前的部署。
 
-### Preview Comments
+### 预览评论
 
-Comment on preview deployments directly in GitHub PRs.
+直接在 GitHub PR 中评论预览部署。
 
-### Automatic HTTPS
+### 自动 HTTPS
 
-Free SSL certificates for all domains.
+为所有域名提供免费的 SSL 证书。
 
-### Global CDN
+### 全球 CDN
 
-Deploy to 100+ edge locations worldwide.
+部署到全球 100 多个边缘节点。
 
-### Zero Config
+### 零配置
 
-Works out of the box with Next.js.
+与 Next.js 开箱即用。
 
-## Pricing
+## 定价
 
-### Hobby (Free)
+### Hobby（免费）
 
-- Unlimited deployments
-- 100 GB bandwidth/month
-- Automatic HTTPS
-- Preview deployments
-- Perfect for personal wikis
+- 无限次部署
+- 每月 100 GB 带宽
+- 自动 HTTPS
+- 预览部署
+- 非常适合个人 Wiki
 
-### Pro ($20/month)
+### Pro（每月 $20）
 
-- 1 TB bandwidth/month
-- Team collaboration
-- Analytics
-- Password protection
-- Custom deployment regions
+- 每月 1 TB 带宽
+- 团队协作
+- 分析功能
+- 密码保护
+- 自定义部署区域
 
-## Troubleshooting
+## 故障排查
 
-### Build Fails
+### 构建失败
 
-Check build logs in Vercel dashboard:
+在 Vercel 控制台中查看构建日志：
 
 ```bash
-# Test build locally
+# 在本地测试构建
 npm run build
 ```
 
-### Environment Variables
+### 环境变量
 
-Make sure all required variables are set in Vercel dashboard.
+确保所有必需的变量都已在 Vercel 控制台中设置。
 
-### Domain Not Working
+### 域名无法访问
 
-1. Check DNS propagation: `dig wiki.example.com`
-2. Wait up to 48 hours for DNS propagation
-3. Verify DNS records match Vercel's instructions
+1. 检查 DNS 传播：`dig wiki.example.com`
+2. 等待 DNS 传播，最长 48 小时
+3. 确认 DNS 记录与 Vercel 的说明一致
 
-### Old Content Showing
+### 显示旧内容
 
-Vercel caches aggressively. To force refresh:
+Vercel 的缓存策略比较激进。如需强制刷新：
 
-1. Make a change
-2. Push to trigger new deployment
-3. Hard refresh browser (Ctrl+Shift+R)
+1. 做一处修改
+2. 推送以触发新的部署
+3. 强制刷新浏览器（Ctrl+Shift+R）
 
-## Best Practices
+## 最佳实践
 
-### Use Git Integration
+### 使用 Git 集成
 
-Connect your Git repository for automatic deployments.
+连接你的 Git 仓库以实现自动部署。
 
-### Enable Preview Deployments
+### 启用预览部署
 
-Test changes before merging to production.
+在合并到生产环境之前测试更改。
 
-### Set Up Custom Domain
+### 设置自定义域名
 
-Use your own domain for professional appearance.
+使用你自己的域名，让站点更专业。
 
-### Monitor Analytics
+### 监控分析数据
 
-Track page views and performance.
+跟踪页面浏览量和性能。
 
-### Use Environment Variables
+### 使用环境变量
 
-Keep sensitive data out of your code.
+不要把敏感数据写进代码里。
 
-## Comparison with Other Platforms
+## 与其他平台的对比
 
-| Feature       | Vercel    | GitHub Pages | Netlify   |
-| ------------- | --------- | ------------ | --------- |
-| Setup         | Instant   | Manual       | Easy      |
-| Custom Domain | Free      | Free         | Free      |
-| HTTPS         | Automatic | Automatic    | Automatic |
-| Preview URLs  | Yes       | No           | Yes       |
-| Analytics     | Yes ($)   | No           | Yes ($)   |
-| Build Time    | Fast      | Medium       | Fast      |
+| 功能           | Vercel        | GitHub Pages  | Netlify       |
+| ------------- | ------------- | ------------- | ------------- |
+| 设置          | 即时          | 手动          | 简单          |
+| 自定义域名     | 免费          | 免费          | 免费          |
+| HTTPS         | 自动          | 自动          | 自动          |
+| 预览 URL      | 支持          | 不支持        | 支持          |
+| 分析          | 支持（付费）   | 不支持        | 支持（付费）   |
+| 构建时间       | 快            | 中等          | 快            |
 
-## Next Steps
+## 下一步
 
-- [Deploy to GitHub Pages](/deployment/github-pages)
-- [Static Export](/deployment/static-export)
+- [部署到 GitHub Pages](/example/deployment/github-pages)
+- [静态导出](/example/deployment/static-export)

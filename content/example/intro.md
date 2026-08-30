@@ -1,17 +1,16 @@
 ---
-title: Welcome to eziwiki
-description: A beautiful, minimal wiki and documentation site generator
+title: 欢迎使用 eziwiki
+description: 一个简洁美观的 Wiki 与文档站点生成器
 order: 1
 ---
 
-# Welcome to eziwiki 👋
+# 欢迎使用 eziwiki 👋
 
 ![eziwiki](/images/eziwiki.webp)
 
-**eziwiki** is a wiki and documentation site generator built on Next.js 14,
-inspired by Notion and Obsidian. Write Markdown, get a fast static site.
+**eziwiki** 是一个基于 Next.js 14 构建的 Wiki 与文档站点生成器，灵感来源于 Notion 和 Obsidian。编写 Markdown，即可获得一个快速的静态站点。
 
-## Start here
+## 从这里开始
 
 ```bash
 npx create-eziwiki my-docs
@@ -20,50 +19,34 @@ npm install
 npm run dev
 ```
 
-Open <http://localhost:3000>. See [[quick-start]] for the walkthrough.
+打开 <http://localhost:3000>。完整教程请参阅 [[quick-start]]。
 
-## What you get
+## 功能一览
 
-**Pages from files.** Drop a `.md` file into `content/` and it is published.
-Folders become sidebar sections. There is no registration step and no navigation
-array to maintain — this very site has none. See [[navigation]].
+**文件即页面。** 将 `.md` 文件放入 `content/`，它就会被发布。文件夹会成为侧边栏分区。无需注册步骤，也没有需要维护的导航数组——本站就没有。参见 [[navigation]]。
 
-**[[search|Search]]** across titles, headings, and body text, with a
-<kbd>⌘K</kbd> palette. Results link straight to the matching section. It runs
-entirely in the browser against a static index, so it works on any host — and
-handles Korean, Japanese, and Chinese properly.
+**[[search|搜索]]** 覆盖标题、小标题和正文，配有 <kbd>⌘K</kbd> 命令面板。搜索结果直接链接到对应章节。它完全在浏览器中基于静态索引运行，因此适用于任何托管平台——并且能正确处理韩语、日语和中文。
 
-**[[table-of-contents|Contents rail]]** on every page, with the section you are
-reading highlighted as you scroll.
+**[[table-of-contents|目录栏]]** 出现在每个页面上，滚动时会高亮你正在阅读的章节。
 
-**[[wiki-links|Wiki links]].** Write `[[quick-start]]` and it resolves by path,
-file name, or title. Links that go nowhere are shown as broken instead of
-pretending to work.
+**[[wiki-links|Wiki 链接]]。** 编写 `[[quick-start]]` 即可，它会按路径、文件名或标题解析。指向不存在页面的链接会显示为失效，而不是假装可用。
 
-**[[graph-and-backlinks|Backlinks and a graph view]].** Every page lists what
-points at it, and [the graph](/graph) shows how the whole site connects.
+**[[graph-and-backlinks|反向链接与关系图]]。** 每个页面都会列出指向它的链接，[关系图](/graph) 则展示整个站点如何相互连接。
 
-**Dated from its own history.** Every page says when it last changed, taken
-from the commit that touched it, so nothing has to be maintained for it to stay
-true — and links to its source, so whoever spots a mistake can fix it.
+**日期来自自身历史。** 每个页面都会显示最后修改时间，该时间取自修改它的那次提交，因此无需任何维护就能保持准确——同时还会链接到其源码，发现错误的人可以直接修正。
 
-**Build-time rendering.** Markdown is parsed, highlighted with Shiki, and
-link-resolved during the build, so no Markdown parser or highlighter is sent to
-the browser. Content pages load about 88 kB of JavaScript.
+**构建时渲染。** Markdown 在构建期间完成解析、用 Shiki 高亮并解析链接，因此浏览器端无需加载任何 Markdown 解析器或高亮器。内容页面大约加载 88 kB 的 JavaScript。
 
-**And the rest:** [[dark-mode]], [[markdown-basics#maths|maths via KaTeX]],
-GitHub Flavored Markdown,
-[[url-strategies|readable or hashed URLs]], [[hidden-pages]], SEO metadata, and
-a sitemap.
+**其他功能：** [[dark-mode]]、[[markdown-basics#数学|数学公式（KaTeX）]]、GitHub 风格 Markdown、[[url-strategies|可读或哈希 URL]]、[[hidden-pages]]、SEO 元数据以及站点地图。
 
-## Good for
+## 适用场景
 
-- **Documentation sites** — API references, user guides, technical docs
-- **Personal wikis** — a second brain you actually own
-- **Team knowledge bases** — internal docs that stay searchable
-- **Learning notes** — study material with real cross-links
+- **文档站点** —— API 参考、用户指南、技术文档
+- **个人 Wiki** —— 真正属于你的第二大脑
+- **团队知识库** —— 始终保持可搜索的内部文档
+- **学习笔记** —— 带有真实交叉链接的学习资料
 
-## Configuration, in full
+## 完整配置
 
 ```typescript
 export const payload: Payload = {
@@ -74,18 +57,14 @@ export const payload: Payload = {
 };
 ```
 
-That is a complete site. Everything else — [[theme|colours]],
-[[url-strategies|URL style]], SEO, manual [[navigation]] — is optional. See
-[[payload]].
+这就是一个完整的站点。其余一切——[[theme|颜色]]、[[url-strategies|URL 样式]]、SEO、手动配置 [[navigation]]——都是可选项。参见 [[payload]]。
 
-## Deploying
+## 部署
 
-`npm run build` produces a fully static site in `out/`. Put it anywhere:
-[[static-export|any static host]], [[vercel|Vercel]], or
-[[github-pages|GitHub Pages]].
+`npm run build` 会在 `out/` 中生成一个完全静态的站点。你可以把它部署到任何地方：[[static-export|任意静态托管]]、[[vercel|Vercel]] 或 [[github-pages|GitHub Pages]]。
 
-## Next
+## 下一步
 
-- [[quick-start]] — build your first wiki
-- [[installation]] — detailed setup
-- [[markdown-basics]] — what you can write in a page
+- [[quick-start]] —— 构建你的第一个 Wiki
+- [[installation]] —— 详细的安装设置
+- [[markdown-basics]] —— 页面中可以写什么

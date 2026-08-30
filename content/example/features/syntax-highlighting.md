@@ -1,44 +1,35 @@
 ---
-title: Syntax Highlighting
-description: Beautiful code highlighting powered by Shiki
+title: 语法高亮
+description: 由 Shiki 驱动的漂亮代码高亮
 order: 8
 ---
 
-# Syntax Highlighting
+# 语法高亮
 
-eziwiki uses [Shiki](https://shiki.matsu.io/) for beautiful, accurate syntax highlighting.
+eziwiki 使用 [Shiki](https://shiki.matsu.io/) 提供漂亮、准确的语法高亮。
 
-## Why Shiki?
+## 为什么选择 Shiki？
 
-- **Accurate** — uses the same TextMate grammars as VS Code
-- **Beautiful** — the highlighting you already know from your editor
-- **Zero client cost** — code is highlighted during the build, so no
-  highlighter is sent to the browser
-- **Both themes at once** — light and dark are emitted as CSS variables, so
-  switching theme never flashes or re-highlights
+- **准确** —— 使用与 VS Code 相同的 TextMate 语法
+- **漂亮** —— 就是您在编辑器中已经熟悉的高亮效果
+- **零客户端开销** —— 代码在构建期间完成高亮，因此不会向浏览器发送高亮器
+- **两种主题同时支持** —— 浅色和深色主题以 CSS 变量形式输出，切换主题时不会闪烁或重新高亮
 
-## Supported Languages
+## 支持的语言
 
-Shiki bundles grammars for over a hundred languages — JavaScript, TypeScript,
-Python, Go, Rust, C, C++, C#, Java, Ruby, PHP, SQL, GraphQL, HTML, CSS, YAML,
-TOML, Bash, and so on.
+Shiki 内置了一百多种语言的语法——JavaScript、TypeScript、Python、Go、Rust、C、C++、C#、Java、Ruby、PHP、SQL、GraphQL、HTML、CSS、YAML、TOML、Bash 等等。
 
-### Only what you use is loaded
+### 只加载您用到的语言
 
-Loading all of them costs about twenty seconds before the first page renders,
-so eziwiki scans your content for the languages it actually contains and loads
-only those, plus a handful of common defaults. This site loads sixteen grammars
-and initialises in well under a second.
+全部加载会让第一页渲染前多花大约二十秒，因此 eziwiki 会扫描您的内容，找出其中实际用到的语言，只加载这些语言以及少量常见默认项。本站加载了十六种语法，初始化时间远不到一秒。
 
-The practical effect: **write a fence in any supported language and it just
-works** — the next build picks it up. A fence whose language Shiki does not
-recognise renders as plain text rather than failing the build.
+实际效果是：**用任何受支持的语言写一个围栏代码块，它就能直接生效**——下一次构建会将其纳入。如果某个围栏代码块的语言 Shiki 无法识别，它会以纯文本渲染，而不会导致构建失败。
 
-## Usage
+## 用法
 
-### Basic Code Block
+### 基础代码块
 
-Use triple backticks with a language identifier:
+使用带语言标识符的三重反引号：
 
 ````markdown
 ```javascript
@@ -48,7 +39,7 @@ function greet(name) {
 ```
 ````
 
-Result:
+结果：
 
 ```javascript
 function greet(name) {
@@ -56,7 +47,7 @@ function greet(name) {
 }
 ```
 
-### TypeScript Example
+### TypeScript 示例
 
 ````markdown
 ```typescript
@@ -86,7 +77,7 @@ async function fetchUser(id: string): Promise<User> {
 }
 ```
 
-### Python Example
+### Python 示例
 
 ````markdown
 ```python
@@ -116,38 +107,38 @@ def calculate_fibonacci(n: int) -> list[int]:
     return fib
 ```
 
-## Configuration
+## 配置
 
-### Change Theme
+### 更换主题
 
-Edit `lib/markdown/highlighter.ts`:
+编辑 `lib/markdown/highlighter.ts`：
 
 ```typescript
 import { getHighlighter } from 'shiki';
 
 const highlighter = await getHighlighter({
-  themes: ['github-light', 'github-dark'],  // Change themes here
+  themes: ['github-light', 'github-dark'],  // 在此处更换主题
   langs: ['javascript', 'typescript', ...],
 });
 ```
 
-### Available Themes
+### 可用主题
 
-Popular themes:
+常用主题：
 
-- `github-light`, `github-dark` (default)
+- `github-light`、`github-dark`（默认）
 - `nord`
 - `dracula`
 - `monokai`
 - `one-dark-pro`
 - `material-theme`
-- `solarized-light`, `solarized-dark`
+- `solarized-light`、`solarized-dark`
 
-See [all themes](https://github.com/shikijs/shiki/blob/main/docs/themes.md).
+查看[全部主题](https://github.com/shikijs/shiki/blob/main/docs/themes.md)。
 
-### Add Languages
+### 添加语言
 
-Add more languages to support:
+添加更多需要支持的语言：
 
 ```typescript
 const highlighter = await getHighlighter({
@@ -156,20 +147,20 @@ const highlighter = await getHighlighter({
     'javascript',
     'typescript',
     'python',
-    'rust', // Add Rust
-    'kotlin', // Add Kotlin
-    'swift', // Add Swift
+    'rust', // 添加 Rust
+    'kotlin', // 添加 Kotlin
+    'swift', // 添加 Swift
   ],
 });
 ```
 
-## Dark Mode Support
+## 深色模式支持
 
-Code blocks automatically adapt to the theme:
+代码块会自动适配主题：
 
 ```typescript
-// Light mode: github-light theme
-// Dark mode: github-dark theme
+// 浅色模式：github-light 主题
+// 深色模式：github-dark 主题
 
 const html = highlighter.codeToHtml(code, {
   lang: 'javascript',
@@ -177,31 +168,31 @@ const html = highlighter.codeToHtml(code, {
 });
 ```
 
-## Inline Code
+## 行内代码
 
-Inline code uses a simple monospace style:
+行内代码使用简单的等宽字体样式：
 
 ```markdown
-Use `const` instead of `var` in JavaScript.
+在 JavaScript 中使用 `const` 而不是 `var`。
 ```
 
-Use `const` instead of `var` in JavaScript.
+在 JavaScript 中使用 `const` 而不是 `var`。
 
-## Line Numbers
+## 行号
 
-To add line numbers, modify the highlighter configuration:
+要添加行号，请修改高亮器配置：
 
 ```typescript
 const html = highlighter.codeToHtml(code, {
   lang: 'javascript',
   theme: 'github-light',
-  lineNumbers: true, // Enable line numbers
+  lineNumbers: true, // 启用行号
 });
 ```
 
-## Line Highlighting
+## 行高亮
 
-Highlight specific lines:
+高亮特定行：
 
 ```typescript
 const html = highlighter.codeToHtml(code, {
@@ -214,9 +205,9 @@ const html = highlighter.codeToHtml(code, {
 });
 ```
 
-## Copy Button
+## 复制按钮
 
-Add a copy button to code blocks:
+为代码块添加复制按钮：
 
 ```typescript
 'use client';
@@ -249,9 +240,9 @@ export function CodeBlock({ code, lang }: { code: string; lang: string }) {
 }
 ```
 
-## Language Detection
+## 语言检测
 
-If no language is specified, Shiki tries to detect it:
+如果未指定语言，Shiki 会尝试自动检测：
 
 ````markdown
 ```
@@ -261,7 +252,7 @@ function hello() {
 ```
 ````
 
-But it's better to always specify the language:
+但最好始终显式指定语言：
 
 ````markdown
 ```javascript
@@ -271,52 +262,52 @@ function hello() {
 ```
 ````
 
-## Performance
+## 性能
 
-### Build-Time Rendering
+### 构建时渲染
 
-Code blocks are highlighted at build time, not runtime:
+代码块在构建时而非运行时完成高亮：
 
 ```typescript
-// During build
+// 构建期间
 const html = highlighter.codeToHtml(code, { lang, theme });
 
-// Served as static HTML
+// 作为静态 HTML 提供
 <div dangerouslySetInnerHTML={{ __html: html }} />
 ```
 
-This means:
+这意味着：
 
-- **Fast loading** - No client-side processing
-- **Small bundle** - No syntax highlighting library in browser
-- **SEO friendly** - Fully rendered HTML
+- **加载更快** —— 无需客户端处理
+- **包体积更小** —— 浏览器中无需语法高亮库
+- **对 SEO 友好** —— 完全渲染的 HTML
 
-### Bundle Size
+### 包体积
 
-Shiki only runs at build time, so it doesn't increase your client bundle size.
+Shiki 只在构建时运行，因此不会增加您的客户端包体积。
 
-## Best Practices
+## 最佳实践
 
-### Always Specify Language
+### 始终指定语言
 
 ````markdown
-✅ Good:
+✅ 好：
 
 ```javascript
 const x = 10;
 ```
 
-❌ Bad:
+❌ 不好：
 
 ```
 const x = 10;
 ```
 ````
 
-### Use Proper Indentation
+### 使用正确的缩进
 
 ````markdown
-✅ Good:
+✅ 好：
 
 ```javascript
 function example() {
@@ -326,7 +317,7 @@ function example() {
 }
 ```
 
-❌ Bad:
+❌ 不好：
 
 ```javascript
 function example() {
@@ -337,70 +328,70 @@ function example() {
 ```
 ````
 
-### Add Comments
+### 添加注释
 
 ````markdown
 ```javascript
-// Initialize user data
+// 初始化用户数据
 const user = {
   name: 'Alice',
   email: 'alice@example.com',
 };
 
-// Send welcome email
+// 发送欢迎邮件
 sendEmail(user.email, 'Welcome!');
 ```
 ````
 
-### Keep Examples Focused
+### 保持示例聚焦
 
 ````markdown
-✅ Good - focused example:
+✅ 好——聚焦的示例：
 
 ```javascript
-// Calculate total
+// 计算总额
 const total = items.reduce((sum, item) => sum + item.price, 0);
 ```
 
-❌ Bad - too much code:
+❌ 不好——代码太多：
 
 ```javascript
-// 100 lines of unrelated code...
+// 100 行无关的代码……
 ```
 ````
 
-## Troubleshooting
+## 故障排查
 
-### Language Not Recognized
+### 语言未被识别
 
-If a language isn't highlighted:
+如果某种语言没有被高亮：
 
-1. Check the language name is correct
-2. Add it to `langs` array in highlighter config
-3. See [supported languages](https://github.com/shikijs/shiki/blob/main/docs/languages.md)
+1. 检查语言名称是否正确
+2. 将其添加到高亮器配置的 `langs` 数组中
+3. 查看[受支持的语言](https://github.com/shikijs/shiki/blob/main/docs/languages.md)
 
-### Theme Not Working
+### 主题不生效
 
-If theme doesn't apply:
+如果主题没有生效：
 
-1. Check theme name is correct
-2. Add it to `themes` array in highlighter config
-3. Rebuild the site: `npm run build`
+1. 检查主题名称是否正确
+2. 将其添加到高亮器配置的 `themes` 数组中
+3. 重新构建站点：`npm run build`
 
-### Code Not Highlighting
+### 代码未高亮
 
-If code blocks aren't highlighted:
+如果代码块没有被高亮：
 
-1. Check triple backticks are correct
-2. Verify language identifier is specified
-3. Check for syntax errors in code
-4. Rebuild the site
+1. 检查三重反引号是否正确
+2. 确认已指定语言标识符
+3. 检查代码中是否有语法错误
+4. 重新构建站点
 
-## Examples
+## 示例
 
-### Diff Highlighting
+### Diff 高亮
 
-Show code changes:
+展示代码变更：
 
 ````markdown
 ```diff
@@ -409,19 +400,19 @@ Show code changes:
 ```
 ````
 
-### Shell Commands
+### Shell 命令
 
 ````markdown
 ```bash
-# Install dependencies
+# 安装依赖
 npm install
 
-# Start dev server
+# 启动开发服务器
 npm run dev
 ```
 ````
 
-### Configuration Files
+### 配置文件
 
 ````markdown
 ```json
@@ -436,8 +427,8 @@ npm run dev
 ```
 ````
 
-## Next Steps
+## 下一步
 
-- [Learn Markdown Basics](/content/markdown-basics)
-- [Explore Code Blocks Guide](/content/code-blocks)
-- [Customize Theme](/configuration/theme)
+- [学习 Markdown 基础](/example/content/markdown-basics)
+- [探索代码块指南](/example/content/code-blocks)
+- [定制主题](/example/configuration/theme)

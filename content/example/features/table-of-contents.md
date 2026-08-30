@@ -1,54 +1,44 @@
 ---
-title: Table of Contents
-description: An automatic contents rail with scroll tracking on every page
+title: 目录
+description: 每页自动生成的目录栏，带滚动跟随
 order: 3
 ---
 
-# Table of Contents
+# 目录
 
-Every page gets a contents rail on the right, built from its headings. You are
-looking at one now — on a wide enough screen.
+每个页面右侧都有一个由标题生成的目录栏。您现在就在看着它——只要屏幕足够宽。
 
-## Linking to a section
+## 链接到章节
 
-Rest on any heading and a `#` appears beside it, linking to that heading. It is
-a real link — copy it, or follow it to put the anchor in the address bar — so a
-section can be shared without reading an id out of the URL.
+将鼠标悬停在任意标题上，旁边会出现一个 `#`，它链接到该标题。这是一个真正的链接——您可以复制它，或点击它把锚点放进地址栏——这样无需从 URL 中读出 id 就能分享某个章节。
 
-Keyboard users reach it by tabbing, where it becomes visible on focus rather
-than staying hidden under an invisible focus ring. On touch, where there is no
-hover to reveal anything, it is simply shown.
+键盘用户可以通过 Tab 键聚焦到它，聚焦时它会显示出来，而不会藏在一个不可见的焦点环之下。在触屏设备上，由于没有悬停可以揭示任何内容，它会被直接显示。
 
-The page title is left alone: the page URL already addresses it. Headings that
-arrived by [[wiki-links|transclusion]] are skipped too — their ids belong to the
-document they came from, and linking one here would send a reader to a copy.
+页面标题不会出现：页面 URL 已经指向它。通过 [[wiki-links|嵌入引用]] 引入的标题同样会被跳过——它们的 id 属于来源文档，在这里链接它们会把读者带到一个副本。
 
-## What appears
+## 显示什么
 
-Headings from `h2` to `h4`:
+从 `h2` 到 `h4` 的标题：
 
 ```markdown
-# Page Title ← not listed; it is the page, not a section within it
+# 页面标题 ← 不列出；它是页面本身，而不是其中的章节
 
-## A section ← listed
+## 一个章节 ← 列出
 
-### A subsection ← listed, indented
+### 一个子章节 ← 列出，缩进
 
-#### A detail ← listed, indented further
+#### 一个细节 ← 列出，进一步缩进
 
-##### Too deep ← not listed
+##### 太深 ← 不列出
 ```
 
-`h1` is skipped because it names the page as a whole, and the rail already sits
-on that page. `h5` and below are skipped to keep the rail readable.
+`h1` 会被跳过，因为它命名的是整个页面，而目录栏已经位于该页面上。`h5` 及以下的标题会被跳过，以保持目录栏的可读性。
 
-Pages with fewer than two headings get no rail at all — a contents list with one
-entry is noise.
+标题少于两个的页面完全不会显示目录栏——只有一个条目的目录只是噪音。
 
-## Anchors
+## 锚点
 
-Every heading receives an id derived from its text, so each section is directly
-linkable:
+每个标题都会获得一个由标题文本生成的 id，因此每个章节都可以直接链接：
 
 ```markdown
 ## Getting Started → #getting-started
@@ -56,37 +46,29 @@ linkable:
 ## What's new in v2 → #whats-new-in-v2
 ```
 
-Link to one from anywhere:
+从任何位置链接到某个章节：
 
 ```markdown
-[Jump to setup](#setup)
-[From another page](/getting-started/quick-start#prerequisites)
-[[quick-start#prerequisites]]
+[跳到设置](#设置)
+[从另一页跳转](/example/getting-started/quick-start#前置要求)
+[[quick-start#前置要求]]
 ```
 
-[[search|Search results]] link to these anchors too, which is what lets a hit
-open at the right section.
+[[search|搜索结果]] 也会链接到这些锚点，这正是让命中项在正确的章节打开的原因。
 
-## Scroll tracking
+## 滚动跟随
 
-The entry for whichever section you are reading is highlighted as you scroll.
-The active section is chosen by position — the last heading to pass the top of
-the viewport — so a long section stays highlighted after its heading scrolls out
-of view.
+当您滚动时，您正在阅读的章节对应的条目会被高亮。活动章节按位置确定——即最后一个越过视口顶部的标题——因此即使标题滚出视野，一个长章节也会保持高亮。
 
-## Where it appears
+## 显示位置
 
-The rail shows on screens 1280px and wider. Below that the article takes the
-full width; the headings are still in the page and still linkable, just not
-listed alongside.
+目录栏在 1280px 及更宽的屏幕上显示。低于该宽度时，文章占满整行；标题仍然在页面中，仍然可以链接，只是不再在侧边列出。
 
-## Generated at build time
+## 构建时生成
 
-The heading list is extracted while your Markdown is compiled, so it ships in
-the HTML rather than being assembled by a script after the page loads. Only the
-scroll highlighting runs in the browser.
+标题列表在编译 Markdown 时被提取，因此它随 HTML 一起提供，而不是在页面加载后由脚本拼装。只有滚动高亮在浏览器中运行。
 
-## Next
+## 下一步
 
-- [[search]] — find pages by their contents
-- [[wiki-links]] — link between pages by name
+- [[search]] — 按内容查找页面
+- [[wiki-links]] — 按名称在页面之间链接

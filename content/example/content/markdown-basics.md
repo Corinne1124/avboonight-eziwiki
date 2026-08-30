@@ -1,123 +1,123 @@
 ---
 tags:
   - markdown
-title: Markdown Basics
-description: Learn Markdown syntax for writing wiki content
+title: Markdown 基础
+description: 学习编写 Wiki 内容所需的 Markdown 语法
 order: 1
 ---
 
-# Markdown Basics
+# Markdown 基础
 
-eziwiki supports full GitHub Flavored Markdown (GFM). This guide covers all the syntax you need.
+eziwiki 完整支持 GitHub 风格 Markdown（GFM）。本指南涵盖你需要的全部语法。
 
-## Headings
-
-```markdown
-# Heading 1
-
-## Heading 2
-
-### Heading 3
-
-#### Heading 4
-
-##### Heading 5
-
-###### Heading 6
-```
-
-## Text Formatting
+## 标题
 
 ```markdown
-**Bold text**
-_Italic text_
-**_Bold and italic_**
-~~Strikethrough~~
-`Inline code`
+# 标题 1
+
+## 标题 2
+
+### 标题 3
+
+#### 标题 4
+
+##### 标题 5
+
+###### 标题 6
 ```
 
-**Bold text**
-_Italic text_
-**_Bold and italic_**
-~~Strikethrough~~
-`Inline code`
-
-## Lists
-
-### Unordered Lists
+## 文本格式
 
 ```markdown
-- Item 1
-- Item 2
-  - Nested item 2.1
-  - Nested item 2.2
-- Item 3
+**粗体文本**
+_斜体文本_
+**_粗体加斜体_**
+~~删除线~~
+`行内代码`
 ```
 
-- Item 1
-- Item 2
-  - Nested item 2.1
-  - Nested item 2.2
-- Item 3
+**粗体文本**
+_斜体文本_
+**_粗体加斜体_**
+~~删除线~~
+`行内代码`
 
-### Ordered Lists
+## 列表
+
+### 无序列表
 
 ```markdown
-1. First item
-2. Second item
-3. Third item
-   1. Nested item 3.1
-   2. Nested item 3.2
+- 项目 1
+- 项目 2
+  - 嵌套项目 2.1
+  - 嵌套项目 2.2
+- 项目 3
 ```
 
-1. First item
-2. Second item
-3. Third item
-   1. Nested item 3.1
-   2. Nested item 3.2
+- 项目 1
+- 项目 2
+  - 嵌套项目 2.1
+  - 嵌套项目 2.2
+- 项目 3
 
-### Task Lists
+### 有序列表
 
 ```markdown
-- [x] Completed task
-- [ ] Incomplete task
-- [ ] Another task
+1. 第一项
+2. 第二项
+3. 第三项
+   1. 嵌套项 3.1
+   2. 嵌套项 3.2
 ```
 
-- [x] Completed task
-- [ ] Incomplete task
-- [ ] Another task
+1. 第一项
+2. 第二项
+3. 第三项
+   1. 嵌套项 3.1
+   2. 嵌套项 3.2
 
-## Links
+### 任务列表
 
 ```markdown
-[Link text](https://example.com)
-[Link with title](https://example.com 'Title text')
-[Internal link](/getting-started/quick-start)
+- [x] 已完成的任务
+- [ ] 未完成的任务
+- [ ] 另一个任务
 ```
 
-[Link text](https://example.com)
-[Link with title](https://example.com 'Title text')
-[Internal link](/getting-started/quick-start)
+- [x] 已完成的任务
+- [ ] 未完成的任务
+- [ ] 另一个任务
 
-## Images
+## 链接
 
 ```markdown
-![Alt text](/images/screenshot.png)
-![Alt text with title](/images/screenshot.png 'Image title')
+[链接文本](https://example.com)
+[带标题的链接](https://example.com '标题文本')
+[内部链接](/example/getting-started/quick-start)
 ```
 
-## Code Blocks
+[链接文本](https://example.com)
+[带标题的链接](https://example.com '标题文本')
+[内部链接](/example/getting-started/quick-start)
 
-### Inline Code
+## 图片
 
 ```markdown
-Use `const` instead of `var` in JavaScript.
+![替代文本](/images/screenshot.png)
+![带标题的替代文本](/images/screenshot.png '图片标题')
 ```
 
-Use `const` instead of `var` in JavaScript.
+## 代码块
 
-### Code Blocks with Syntax Highlighting
+### 行内代码
+
+```markdown
+在 JavaScript 中使用 `const` 而不是 `var`。
+```
+
+在 JavaScript 中使用 `const` 而不是 `var`。
+
+### 带语法高亮的代码块
 
 ````markdown
 ```javascript
@@ -133,155 +133,148 @@ function greet(name) {
 }
 ```
 
-See [Code Blocks](/content/code-blocks) for more details.
+更多细节请参见 [代码块](/example/content/code-blocks)。
 
-## Blockquotes
+## 引用块
 
 ```markdown
-> This is a blockquote.
-> It can span multiple lines.
+> 这是一个引用块。
+> 它可以跨越多行。
 >
-> > Nested blockquote
+> > 嵌套引用块
 ```
 
-> This is a blockquote.
-> It can span multiple lines.
+> 这是一个引用块。
+> 它可以跨越多行。
 >
-> > Nested blockquote
+> > 嵌套引用块
 
-## Tables
-
-```markdown
-| Header 1 | Header 2 | Header 3 |
-| -------- | -------- | -------- |
-| Cell 1   | Cell 2   | Cell 3   |
-| Cell 4   | Cell 5   | Cell 6   |
-```
-
-| Header 1 | Header 2 | Header 3 |
-| -------- | -------- | -------- |
-| Cell 1   | Cell 2   | Cell 3   |
-| Cell 4   | Cell 5   | Cell 6   |
-
-### Alignment
+## 表格
 
 ```markdown
-| Left | Center | Right |
-| :--- | :----: | ----: |
-| L1   |   C1   |    R1 |
-| L2   |   C2   |    R2 |
+| 表头 1 | 表头 2 | 表头 3 |
+| ------ | ------ | ------ |
+| 单元格 1 | 单元格 2 | 单元格 3 |
+| 单元格 4 | 单元格 5 | 单元格 6 |
 ```
 
-| Left | Center | Right |
-| :--- | :----: | ----: |
-| L1   |   C1   |    R1 |
-| L2   |   C2   |    R2 |
+| 表头 1 | 表头 2 | 表头 3 |
+| ------ | ------ | ------ |
+| 单元格 1 | 单元格 2 | 单元格 3 |
+| 单元格 4 | 单元格 5 | 单元格 6 |
 
-## Horizontal Rules
+### 对齐
+
+```markdown
+| 左对齐 | 居中 | 右对齐 |
+| :----- | :--: | -----: |
+| L1     |  C1  |     R1 |
+| L2     |  C2  |     R2 |
+```
+
+| 左对齐 | 居中 | 右对齐 |
+| :----- | :--: | -----: |
+| L1     |  C1  |     R1 |
+| L2     |  C2  |     R2 |
+
+## 分隔线
 
 ```markdown
 ---
 ---
-
----
 ```
 
 ---
 
-## HTML in Markdown
+## Markdown 中的 HTML
 
-You can use HTML tags in Markdown:
+你可以在 Markdown 中使用 HTML 标签：
 
 ```markdown
 <div style="color: red;">
-  This text is red.
+  这段文本是红色的。
 </div>
 
 <details>
-  <summary>Click to expand</summary>
-  Hidden content here.
+  <summary>点击展开</summary>
+  这里隐藏着内容。
 </details>
 ```
 
 <details>
-  <summary>Click to expand</summary>
-  Hidden content here.
+  <summary>点击展开</summary>
+  这里隐藏着内容。
 </details>
 
-## Escaping Characters
+## 转义字符
 
-Use backslash to escape special characters:
-
-```markdown
-\*Not italic\*
-\[Not a link\]
-\`Not code\`
-```
-
-\*Not italic\*
-\[Not a link\]
-\`Not code\`
-
-## Line Breaks
-
-Two spaces at the end of a line create a line break:
+使用反斜杠转义特殊字符：
 
 ```markdown
-First line  
-Second line
+\*不是斜体\*
+\[不是链接\]
+\`不是代码\`
 ```
 
-Or use a blank line for a paragraph break:
+\*不是斜体\*
+\[不是链接\]
+\`不是代码\`
+
+## 换行
+
+行末的两个空格会创建一个换行：
 
 ```markdown
-First paragraph
-
-Second paragraph
+第一行  
+第二行
 ```
 
-## Footnotes
+或者使用空行来分段：
 
 ```markdown
-Here's a sentence with a footnote[^1].
+第一段
 
-[^1]: This is the footnote content.
+第二段
 ```
 
-Here's a sentence with a footnote[^1].
+## 脚注
+
+```markdown
+这是一个带脚注的句子[^1]。
+
+[^1]: 这是脚注的内容。
+```
+
+这是一个带脚注的句子[^1]。
 
 [^1]:
-    Footnotes collect at the foot of the page, and each one links back to
-    where it was cited.
+    脚注会汇集在页面底部，每条脚注都会链接回它被引用的位置。
 
-## Maths
+## 数学
 
-Wrap an expression in `$` to set it inside a sentence, or in `$$` to give it a
-line of its own:
+用 `$` 将表达式包裹起来以嵌入句子中，或用 `$$` 让它独占一行：
 
 ```markdown
-The mass–energy relation is $E = mc^2$.
+质能关系是 $E = mc^2$。
 
 $$
 \int_0^1 x^2 \, dx = \frac{1}{3}
 $$
 ```
 
-The mass–energy relation is $E = mc^2$.
+质能关系是 $E = mc^2$。
 
 $$
 \int_0^1 x^2 \, dx = \frac{1}{3}
 $$
 
-Typesetting happens during the build, so the page arrives with the formula
-already drawn — no maths library is downloaded, and nothing shifts into place
-after the text has settled.
+排版在构建期间完成，因此页面加载时公式已经绘制好——不会下载任何数学库，文本稳定之后也不会有内容再移动到位。
 
-Escape a literal dollar sign as `\$`. Two unescaped ones on the same line are
-read as a formula, so `$5 and $7` becomes maths rather than two prices.
+如需显示字面上的美元符号，请转义为 `\$`。同一行中两个未转义的美元符号会被当作公式处理，因此 `$5 and $7` 会变成数学公式，而不是两个价格。
 
-## Emoji
+## 表情符号
 
-Write the character itself:
+直接输入字符本身：
 
 ```markdown
 😊 ❤️ 🚀 🎉
@@ -289,95 +282,85 @@ Write the character itself:
 
 😊 ❤️ 🚀 🎉
 
-Shortcodes like `:smile:` are left alone rather than expanded. The character is
-what ends up in the HTML either way, and it reads the same in the source file.
+像 `:smile:` 这样的短代码会被原样保留，而不会被展开。无论哪种方式，最终进入 HTML 的都是字符本身，在源文件中看起来也相同。
 
-## Callouts
+## 提示框
 
-A blockquote opening with `[!KIND]` becomes a callout. The syntax is GitHub's
-and Obsidian's alike, so a document written for either renders here, and one
-written here still reads as an ordinary quote anywhere that does not know the
-convention.
+以 `[!KIND]` 开头的引用块会变成提示框。这种语法在 GitHub 和 Obsidian 中是一致的，因此为其中任一平台编写的文档都可以在这里渲染，而在这里编写的文档在任何不了解该约定的地方也仍然会被当作普通引用。
 
 ```markdown
 > [!NOTE]
-> Useful information.
+> 有用的信息。
 
-> [!WARNING] Mind the gap
-> A title on the marker line replaces the default.
+> [!WARNING] 注意脚下
+> 标记行上的标题会取代默认标题。
 
-> [!TIP]- Optional detail
-> A trailing `-` folds it away; `+` starts it open.
+> [!TIP]- 可选详情
+> 末尾的 `-` 会将其折叠；`+` 则默认展开。
 ```
 
 > [!NOTE]
-> Useful information a reader should not miss.
+> 读者不应错过的有用信息。
 
-> [!WARNING] Mind the gap
-> A title on the marker line replaces the default one.
+> [!WARNING] 注意脚下
+> 标记行上的标题会取代默认标题。
 
-> [!TIP]- Optional detail
-> Folded with a trailing `-`. This is a `<details>` element, so it opens and
-> closes without any script.
+> [!TIP]- 可选详情
+> 以末尾的 `-` 折叠。这是一个 `<details>` 元素，因此无需任何脚本即可展开和收起。
 
-Five kinds carry their own colour — `note`, `tip`, `important`, `warning` and
-`caution`. Obsidian's longer list is accepted too and maps onto the nearest of
-them, so a vault keeps its formatting: `danger` reads as `caution`, `success`
-as `tip`, `question` as `important`.
+五种类型带有各自的颜色——`note`、`tip`、`important`、`warning` 和 `caution`。Obsidian 更长的类型列表同样被接受，并映射到其中最接近的类型，因此笔记库能保留原有的格式：`danger` 会被当作 `caution`，`success` 当作 `tip`，`question` 当作 `important`。
 
-An unrecognised kind stays an ordinary blockquote rather than being rendered as
-something it is not. Everything inside a callout behaves as it does outside —
-links, [[wiki-links|wiki links]], and code all work normally.
+无法识别的类型会保持为普通引用块，而不会被渲染成别的东西。提示框内部的一切行为都与外部一致——链接、[[wiki-links|Wiki 链接]] 和代码都能正常工作。
 
-## Best Practices
+## 最佳实践
 
-### Use Descriptive Link Text
+### 使用描述性的链接文本
 
 ```markdown
-✅ Good: [Read the installation guide](/getting-started/installation)
-❌ Bad: [Click here](/getting-started/installation)
+✅ 好的：[阅读安装指南](/example/getting-started/installation)
+❌ 不好的：[点击这里](/example/getting-started/installation)
 ```
 
-### Keep Lines Short
+### 保持行简短
 
-Break long lines for better readability:
+将长行拆开以提高可读性：
 
 ```markdown
-✅ Good:
-This is a long paragraph that has been broken into
-multiple lines for better readability in the source.
+✅ 好的：
+这是一个长段落，为了在源码中获得更好的可读性，
+被拆成了多行。
 
-❌ Bad:
-This is a long paragraph that goes on and on without any line breaks making it hard to read in the source file.
+❌ 不好的：
+这是一个没有任何换行、一直延续下去的长段落，使得源文件中的内容难以阅读。
 ```
 
-### Use Consistent Formatting
+### 使用一致的格式
 
 ```markdown
-✅ Good:
+✅ 好的：
 
-- Item 1
-- Item 2
-- Item 3
+- 项目 1
+- 项目 2
+- 项目 3
 
-❌ Bad:
+❌ 不好的：
 
-- Item 1
+- 项目 1
 
-* Item 2
+* 项目 2
 
-- Item 3
+- 项目 3
 ```
 
-### Add Alt Text to Images
+### 为图片添加替代文本
 
 ```markdown
-✅ Good: ![Dashboard screenshot showing user analytics](/images/dashboard.png)
-❌ Bad: ![](/images/dashboard.png)
+✅ 好的：![展示用户分析数据的仪表盘截图](/images/dashboard.png)
+❌ 不好的：![](/images/dashboard.png)
 ```
 
-## Next Steps
+## 下一步
 
-- [Learn about Frontmatter](/content/frontmatter)
-- [Explore Code Blocks](/content/code-blocks)
-- [Create Your First Wiki](/getting-started/first-wiki)
+- [了解 Frontmatter](/example/content/frontmatter)
+- [探索代码块](/example/content/code-blocks)
+- [创建你的第一个 Wiki](/example/getting-started/first-wiki)

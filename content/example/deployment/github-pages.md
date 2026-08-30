@@ -3,25 +3,25 @@ tags:
   - deployment
   - seo
 title: GitHub Pages
-description: Deploy your wiki to GitHub Pages for free
+description: 免费将你的 Wiki 部署到 GitHub Pages
 order: 3
 ---
 
 # GitHub Pages
 
-Deploy your eziwiki to GitHub Pages for free hosting.
+免费将你的 eziwiki 部署到 GitHub Pages。
 
-## Prerequisites
+## 前置条件
 
-- GitHub account
-- Git repository with your wiki
-- GitHub Pages enabled in repository settings
+- GitHub 账户
+- 包含你的 Wiki 的 Git 仓库
+- 在仓库设置中启用 GitHub Pages
 
-## Quick Deploy
+## 快速部署
 
-### 1. Update Configuration
+### 1. 更新配置
 
-Edit `payload/config.ts`:
+编辑 `payload/config.ts`：
 
 ```typescript
 global: {
@@ -31,12 +31,12 @@ global: {
 }
 ```
 
-### 2. Update next.config.js
+### 2. 更新 next.config.js
 
 ```javascript
 const nextConfig = {
   output: 'export',
-  basePath: '/your-repo', // Your repository name
+  basePath: '/your-repo', // 你的仓库名称
   images: {
     unoptimized: true,
   },
@@ -45,21 +45,21 @@ const nextConfig = {
 module.exports = nextConfig;
 ```
 
-### 3. Build and Deploy
+### 3. 构建并部署
 
 ```bash
-# Build the site
+# 构建站点
 npm run build
 
-# Deploy to gh-pages branch
+# 部署到 gh-pages 分支
 npx gh-pages -d out
 ```
 
-## Automated Deployment
+## 自动化部署
 
-### Using GitHub Actions
+### 使用 GitHub Actions
 
-Create `.github/workflows/deploy.yml`:
+创建 `.github/workflows/deploy.yml`：
 
 ```yaml
 name: Deploy to GitHub Pages
@@ -110,14 +110,14 @@ jobs:
         uses: actions/deploy-pages@v2
 ```
 
-### Enable GitHub Pages
+### 启用 GitHub Pages
 
-1. Go to repository Settings
-2. Navigate to Pages section
-3. Source: GitHub Actions
-4. Save
+1. 进入仓库的 Settings 设置
+2. 导航到 Pages 部分
+3. Source（源）选择：GitHub Actions
+4. 保存
 
-### Push to Deploy
+### 推送以部署
 
 ```bash
 git add .
@@ -125,21 +125,21 @@ git commit -m "Deploy to GitHub Pages"
 git push origin main
 ```
 
-Your site will be live at `https://yourusername.github.io/your-repo`
+你的站点将上线于 `https://yourusername.github.io/your-repo`
 
-## Custom Domain
+## 自定义域名
 
-### 1. Add CNAME File
+### 1. 添加 CNAME 文件
 
-Create `public/CNAME`:
+创建 `public/CNAME`：
 
 ```
 wiki.example.com
 ```
 
-### 2. Configure DNS
+### 2. 配置 DNS
 
-Add DNS records:
+添加 DNS 记录：
 
 ```
 Type    Name    Value
@@ -149,113 +149,113 @@ A       @       185.199.110.153
 A       @       185.199.111.153
 ```
 
-Or for subdomain:
+或者用于子域名：
 
 ```
 Type    Name    Value
 CNAME   wiki    yourusername.github.io
 ```
 
-### 3. Enable HTTPS
+### 3. 启用 HTTPS
 
-1. Go to repository Settings → Pages
-2. Check "Enforce HTTPS"
-3. Wait for SSL certificate (can take up to 24 hours)
+1. 进入仓库的 Settings → Pages
+2. 勾选"强制 HTTPS"
+3. 等待 SSL 证书颁发（最长可能需要 24 小时）
 
-## Project vs User Site
+## 项目站点与用户站点
 
-### Project Site
+### 项目站点
 
-- URL: `https://username.github.io/repo-name`
-- Any repository
-- Requires `basePath` in config
+- URL：`https://username.github.io/repo-name`
+- 任意仓库
+- 需要在配置中设置 `basePath`
 
-### User Site
+### 用户站点
 
-- URL: `https://username.github.io`
-- Repository must be named `username.github.io`
-- No `basePath` needed
+- URL：`https://username.github.io`
+- 仓库必须命名为 `username.github.io`
+- 无需设置 `basePath`
 
-## Troubleshooting
+## 故障排查
 
-### 404 Error
+### 404 错误
 
-Make sure `basePath` in `next.config.js` matches your repository name:
+确保 `next.config.js` 中的 `basePath` 与你的仓库名称匹配：
 
 ```javascript
-basePath: '/your-repo',  // Must match repo name
+basePath: '/your-repo',  // 必须与仓库名称匹配
 ```
 
-### Assets Not Loading
+### 资源未加载
 
-Check that all asset paths are relative:
+检查所有资源路径是否为相对路径：
 
 ```markdown
 ✅ Good: ![Image](/images/screenshot.png)
 ❌ Bad: ![Image](images/screenshot.png)
 ```
 
-### Build Fails
+### 构建失败
 
-Check the Actions tab in GitHub for error logs:
+查看 GitHub 中的 Actions 选项卡以获取错误日志：
 
 ```bash
-# Test build locally first
+# 先在本地测试构建
 npm run build
 ```
 
-### Old Content Showing
+### 显示旧内容
 
-Clear GitHub Pages cache:
+清除 GitHub Pages 缓存：
 
-1. Make a change
-2. Push to trigger new build
-3. Wait 1-2 minutes
-4. Hard refresh browser (Ctrl+Shift+R)
+1. 做一处修改
+2. 推送以触发新的构建
+3. 等待 1-2 分钟
+4. 强制刷新浏览器（Ctrl+Shift+R）
 
-## Manual Deployment
+## 手动部署
 
-### Using gh-pages Package
+### 使用 gh-pages 包
 
 ```bash
-# Install gh-pages
+# 安装 gh-pages
 npm install -D gh-pages
 
-# Add deploy script to package.json
+# 将 deploy 脚本添加到 package.json
 {
   "scripts": {
     "deploy": "gh-pages -d out"
   }
 }
 
-# Build and deploy
+# 构建并部署
 npm run build
 npm run deploy
 ```
 
-### Using Git Directly
+### 直接使用 Git
 
 ```bash
-# Build the site
+# 构建站点
 npm run build
 
-# Create gh-pages branch
+# 创建 gh-pages 分支
 git checkout --orphan gh-pages
 
-# Add built files
+# 添加构建产物
 git add -f out
 git commit -m "Deploy to GitHub Pages"
 
-# Push to gh-pages branch
+# 推送到 gh-pages 分支
 git push origin gh-pages
 
-# Switch back to main
+# 切换回 main 分支
 git checkout main
 ```
 
-## Environment-Specific Config
+## 环境特定配置
 
-Use environment variables:
+使用环境变量：
 
 ```javascript
 // next.config.js
@@ -272,24 +272,24 @@ const nextConfig = {
 module.exports = nextConfig;
 ```
 
-## Best Practices
+## 最佳实践
 
-### Use GitHub Actions
+### 使用 GitHub Actions
 
-Automated deployment is more reliable than manual deployment.
+自动化部署比手动部署更可靠。
 
-### Test Locally
+### 本地测试
 
-Always test the production build locally:
+始终在本地测试生产构建：
 
 ```bash
 npm run build
 npx serve out
 ```
 
-### Version Control
+### 版本控制
 
-Don't commit the `out/` directory:
+不要提交 `out/` 目录：
 
 ```gitignore
 # .gitignore
@@ -297,20 +297,20 @@ out/
 .next/
 ```
 
-### Monitor Deployments
+### 监控部署
 
-Check the Actions tab regularly for failed deployments.
+定期检查 Actions 选项卡，查看是否有失败的部署。
 
-## Limitations
+## 限制
 
-- **Build Time**: 10 minutes maximum
-- **Site Size**: 1 GB maximum
-- **Bandwidth**: 100 GB/month soft limit
-- **Builds**: 10 per hour
+- **构建时间**：最长 10 分钟
+- **站点大小**：最大 1 GB
+- **带宽**：每月 100 GB 软限制
+- **构建次数**：每小时 10 次
 
-For larger sites, consider [Vercel](/deployment/vercel) or Netlify.
+对于更大的站点，可考虑 [Vercel](/example/deployment/vercel) 或 Netlify。
 
-## Next Steps
+## 下一步
 
-- [Deploy to Vercel](/deployment/vercel)
-- [Static Export](/deployment/static-export)
+- [部署到 Vercel](/example/deployment/vercel)
+- [静态导出](/example/deployment/static-export)

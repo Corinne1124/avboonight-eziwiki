@@ -1,37 +1,32 @@
 ---
-title: Navigation Configuration
-description: How the sidebar is built, and how to take control of it
+title: 导航配置
+description: 侧边栏是如何构建的，以及如何接管它
 order: 2
 ---
 
-# Navigation Configuration
+# 导航配置
 
-**You usually do not configure navigation.** Every Markdown file under
-`content/` is published and placed in the sidebar automatically, grouped by
-folder. This site's sidebar is built that way — `payload/config.ts` contains no
-navigation array at all.
+**你通常不需要配置导航。**`content/` 下的每个 Markdown 文件都会被发布并自动放入侧边栏，按文件夹分组。本网站的侧边栏就是这样构建的——`payload/config.ts` 中完全没有导航数组。
 
-Configure it only when you want something the filesystem cannot express.
+只有当你想实现文件系统无法表达的内容时，才需要配置导航。
 
-## The default: from the filesystem
+## 默认行为：来自文件系统
 
 ```
 content/
-├── intro.md                    → a top-level page
-└── getting-started/            → a section
-    ├── quick-start.md          → a page inside it
+├── intro.md                    → 一个顶级页面
+└── getting-started/            → 一个分区
+    ├── quick-start.md          → 分区内的一个页面
     └── installation.md
 ```
 
-Names come from each page's frontmatter `title`, falling back to a tidied-up
-file name (`quick-start.md` → "Quick Start").
+名称取自每个页面的 Frontmatter `title`，若未设置则回退到整理过的文件名（`quick-start.md` → "Quick Start"）。
 
-Files and folders whose names start with `_` or `.` are skipped, so drafts can
-live in `content/_drafts/` without being published.
+名称以 `_` 或 `.` 开头的文件和文件夹会被跳过，因此草稿可以放在 `content/_drafts/` 中而不被发布。
 
-## Ordering
+## 排序
 
-### Pages — frontmatter `order`
+### 页面——Frontmatter `order`
 
 ```markdown
 ---
@@ -40,12 +35,11 @@ order: 1
 ---
 ```
 
-Lower numbers come first. Pages without an `order` sort after those that have
-one, alphabetically by title.
+数字越小越靠前。没有设置 `order` 的页面排在已设置 `order` 的页面之后，并按标题字母顺序排列。
 
-### Sections — `_meta.json`
+### 分区——`_meta.json`
 
-Drop a `_meta.json` beside a folder's pages:
+在文件夹的页面旁放置一个 `_meta.json`：
 
 ```json
 {
@@ -55,42 +49,35 @@ Drop a `_meta.json` beside a folder's pages:
 }
 ```
 
-| Field    | Purpose                                           |
+| 字段     | 用途                                           |
 | -------- | ------------------------------------------------- |
-| `name`   | Section label; defaults to the tidied folder name |
-| `order`  | Position among siblings                           |
-| `color`  | Background tint, as `#rrggbb`                     |
-| `icon`   | Icon identifier                                   |
-| `hidden` | Keep the whole section out of the sidebar         |
+| `name`   | 分区标签；默认为整理后的文件夹名 |
+| `order`  | 同级之间的位置                           |
+| `color`  | 背景色，格式为 `#rrggbb`                     |
+| `icon`   | 图标标识符                                   |
+| `hidden` | 将整个分区从侧边栏中隐藏         |
 
-### Mixing pages and sections
+### 页面与分区混排
 
-Top-level pages and sections share one sequence. A root page's own `order` ranks
-it against the sections' `_meta.json` orders:
+顶级页面与分区共享同一条顺序。根页面的 `order` 与各分区的 `_meta.json` 中的 `order` 一起参与排序：
 
 ```
-content/intro.md         order: 1   → first
-content/getting-started/ order: 2   → second
-content/configuration/   order: 3   → third
+content/intro.md         order: 1   → 第一
+content/getting-started/ order: 2   → 第二
+content/configuration/   order: 3   → 第三
 ```
 
-## Reading order
+## 阅读顺序
 
-The sidebar order is also the reading order. Every page ends with links to the
-one before and the one after it, so a guide can be read straight through
-without going back to the sidebar to find your place.
+侧边栏的顺序也就是阅读顺序。每个页面末尾都带有指向前一页和后一页的链接，因此可以一口气读完整个指南，而无需回到侧边栏寻找当前的位置。
 
-There is nothing to configure: the sequence is the sidebar flattened, so
-changing `order` or a `_meta.json` moves both at once and they cannot disagree.
+这里无需任何配置：阅读顺序就是侧边栏的展开结果，因此修改 `order` 或 `_meta.json` 会同时改变两者，二者不会产生冲突。
 
-[[hidden-pages|Hidden pages]] are left out — stepping through a guide should
-not land on something deliberately unlisted — and the first and last pages
-simply show one link instead of two.
+[[hidden-pages|隐藏页面]]会被排除在外——按顺序阅读指南时不应跳到被刻意隐藏的页面——而且第一页和最后一页只会显示一个链接而不是两个。
 
-The links carry `rel="prev"` and `rel="next"`, which is how a sequence of pages
-is declared to a crawler.
+这些链接带有 `rel="prev"` 和 `rel="next"` 属性，这是向爬虫声明页面序列的方式。
 
-## Hiding a page
+## 隐藏页面
 
 ```markdown
 ---
@@ -99,14 +86,11 @@ hidden: true
 ---
 ```
 
-The page still builds and is still reachable by URL — it just does not appear in
-the sidebar, [[search]], the [[graph-and-backlinks|graph]], or the sitemap. See
-[[hidden-pages]].
+该页面仍会被构建，也仍可通过 URL 访问——只是不会出现在侧边栏、[[search]]、[[graph-and-backlinks|关系图]]或站点地图中。参见 [[hidden-pages]]。
 
-## Taking manual control
+## 手动接管导航
 
-Add a `navigation` array to `payload/config.ts` when you want an order or a
-grouping the folder structure cannot produce:
+当你想实现文件夹结构无法产生的顺序或分组时，可以在 `payload/config.ts` 中添加一个 `navigation` 数组：
 
 ```typescript
 navigation: [
@@ -122,29 +106,24 @@ navigation: [
 ];
 ```
 
-| Field      | Purpose                                                   |
+| 字段       | 用途                                                   |
 | ---------- | --------------------------------------------------------- |
-| `name`     | Label in the sidebar                                      |
-| `path`     | Content path without `.md`; omit to make a section header |
-| `children` | Nested items, to any depth                                |
-| `color`    | Background tint for the item and its children             |
-| `icon`     | Icon identifier                                           |
-| `hidden`   | Hide this item, and everything under it                   |
+| `name`     | 侧边栏中的标签                                      |
+| `path`     | 不带 `.md` 的内容路径；省略以创建分区标题 |
+| `children` | 嵌套条目，可任意深度                                |
+| `color`    | 条目及其子条目的背景色             |
+| `icon`     | 图标标识符                                           |
+| `hidden`   | 隐藏该条目及其下所有内容                   |
 
-### Manual and automatic together
+### 手动与自动并存
 
-A `navigation` array does not have to be exhaustive. Entries you write control
-naming and order; any page it does not mention is still discovered and appended
-to the section covering its folder.
+`navigation` 数组不必是完整的。你编写的条目控制命名与顺序；未被提及的页面仍会被自动发现，并追加到覆盖其文件夹的分区中。
 
-That means adding a page never _requires_ editing config — it only lets you
-override where it lands.
+这意味着添加页面永远不_需要_编辑配置——它只是让你能够覆盖页面所在的位置。
 
-A section is taken to cover a folder when all its entries live in that folder.
-Sections spanning several folders are left alone, since appending to them would
-be a guess; discovered pages from an unclaimed folder get a new section instead.
+当一个分区的所有条目都位于某个文件夹中时，该分区就被视为覆盖这个文件夹。跨越多个文件夹的分区则不会被修改，因为向其中追加内容只能靠猜测；来自未归属文件夹的已发现页面会另建一个新的分区。
 
-To make the array exhaustive and stop discovery entirely:
+要使数组变得完整并完全停止自动发现：
 
 ```typescript
 global: {
@@ -152,23 +131,20 @@ global: {
 }
 ```
 
-## Nesting
+## 嵌套
 
-Nest as deep as you need — the filesystem and the array both support it. Past
-three or four levels a sidebar gets hard to scan; consider whether [[search]]
-and [[wiki-links|wiki links]] would serve readers better than another tier of
-folders.
+按需任意嵌套——文件系统和数组都支持。超过三四层之后，侧边栏就会变得难以浏览；不妨考虑一下 [[search]] 和 [[wiki-links|Wiki 链接]] 是否比再增加一层文件夹对读者更有帮助。
 
-## Checking the result
+## 检查结果
 
 ```bash
 npm run show-urls
 ```
 
-Lists every page that will be built, in order, with its URL.
+按顺序列出将要构建的每个页面及其 URL。
 
-## Next
+## 下一步
 
-- [[payload]] — everything else in the config file
-- [[theme]] — colours and appearance
-- [[frontmatter]] — the full list of page fields
+- [[payload]] — 配置文件中的其他内容
+- [[theme]] — 颜色与外观
+- [[frontmatter]] — 完整的页面字段列表

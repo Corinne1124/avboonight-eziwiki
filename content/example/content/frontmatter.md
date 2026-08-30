@@ -1,130 +1,111 @@
 ---
 title: Frontmatter
-description: Add metadata to your Markdown files
+description: 为你的 Markdown 文件添加元数据
 order: 2
 ---
 
 # Frontmatter
 
-Frontmatter is YAML metadata at the top of your Markdown files. It's optional but recommended for better SEO and organization.
+Frontmatter 是位于 Markdown 文件开头的 YAML 元数据。它不是必需的，但为了更好的 SEO 和组织性，建议使用。
 
-## Basic Syntax
+## 基本语法
 
-Frontmatter is enclosed between `---` markers:
+Frontmatter 被包裹在 `---` 标记之间：
 
 ```markdown
 ---
-title: My Page Title
-description: A brief description of the page
+title: 我的页面标题
+description: 页面的简短描述
 ---
 
-# My Page Title
+# 我的页面标题
 
-Your content here...
+这里写你的内容……
 ```
 
-## Supported Fields
+## 支持的字段
 
 ### title
 
-The page title used in:
+页面标题用于：
 
-- Browser tab
-- SEO meta tags
-- Open Graph tags
+- 浏览器标签页
+- SEO 元标签
+- Open Graph 标签
 
 ```markdown
 ---
-title: Getting Started with eziwiki
+title: 开始使用 eziwiki
 ---
 ```
 
 ### description
 
-A brief description used in:
+简短的描述用于：
 
-- SEO meta description
-- Open Graph description
-- Search results
+- SEO 元描述
+- Open Graph 描述
+- 搜索结果
 
 ```markdown
 ---
-title: Getting Started
-description: Learn how to set up and use eziwiki in 5 minutes
+title: 开始使用
+description: 在 5 分钟内学会安装并使用 eziwiki
 ---
 ```
 
 ### tags
 
-Subjects this page belongs to. A file sits in exactly one directory, so the
-sidebar can only ever show one arrangement; tags are the other one. A page
-belongs to one section and to as many subjects as it touches.
+本页面所属的主题。一个文件只位于一个目录中，因此侧边栏只能展示一种排列方式；tags 则是另一种。一个页面属于一个章节，也属于它所涉及的任意多个主题。
 
 ```markdown
 ---
-title: Deploying to Vercel
+title: 部署到 Vercel
 tags:
   - deployment
   - hosting
 ---
 ```
 
-A single tag can be written without the list, and a comma-separated string
-works too:
+单个 tag 可以不用列表形式书写，逗号分隔的字符串也同样有效：
 
 ```markdown
 tags: deployment
 tags: deployment, hosting
 ```
 
-Every subject gets a page at `/tags/<name>`, and `/tags` lists them all. Tags
-are matched case-insensitively — `Setup` and `setup` are one subject, not two —
-and the first spelling used is the one shown.
+每个主题都会在 `/tags/<name>` 生成一个页面，`/tags` 会列出全部主题。标签的匹配不区分大小写——`Setup` 和 `setup` 是同一个主题，而不是两个——并显示最先使用的那种写法。
 
-[[hidden-pages|Hidden pages]] are left out. A page kept off the sidebar on
-purpose should not reappear in a tag listing, which would turn the tag index
-into a way of enumerating exactly what was meant to stay unlisted.
+[[hidden-pages|隐藏页面]] 会被排除在外。刻意不放进侧边栏的页面不应再次出现在标签列表中，否则标签索引就会变成一种枚举本应保持未列出内容的方式。
 
 ### aliases
 
-Addresses this page used to answer on. A URL is built from a file's path, so
-moving `guides/setup.md` to `getting-started/setup.md` changes the published
-URL and every bookmark, external link and search result pointing at the old one
-stops working. Wiki links survive the move — they resolve by name — but nothing
-arriving from outside does.
+这个页面曾经应答的地址。URL 由文件路径生成，因此把 `guides/setup.md` 移动到 `getting-started/setup.md` 会改变已发布的 URL，所有指向旧地址的书签、外部链接和搜索结果都会失效。Wiki 链接不受移动影响——它们按名称解析——但从外部到达的链接则无一幸免。
 
 ```markdown
 ---
-title: Setup
+title: 设置
 aliases:
   - guides/setup
   - old/install-guide
 ---
 ```
 
-Each alias is built as a page that forwards to this one, kept out of the
-sitemap and marked `noindex`, with its canonical pointing here so any ranking
-the old address earned transfers rather than being split.
+每个 alias 都会被构建为一个转发到本页的页面，不进入站点地图并标记为 `noindex`，其 canonical 指向本页，这样旧地址获得的排名会转移过来，而不是被拆分。
 
-A single alias can be written without the list:
+单个 alias 可以不用列表形式书写：
 
 ```markdown
 aliases: guides/setup
 ```
 
-Two mistakes stop the build rather than being resolved quietly: an alias naming
-a path a real page occupies, which would make that page unreachable, and the
-same alias claimed by two documents, which has no correct answer. Both are
-cheaper to find at build time than as a wrong page in production.
+有两种错误会直接终止构建而不是被静默解决：一是 alias 指向了真实页面所占用的路径，这会让该页面无法访问；二是两个文档声明了同一个 alias，这种情况没有正确答案。在构建时发现这两类问题，比在生产环境中出现错误的页面要划算得多。
 
-Under the [[url-strategies|`hash` strategy]] the alias produces the digest of
-the old path — which is exactly what the old URL was.
+在 [[url-strategies|`hash` 策略]] 下，alias 会生成旧路径的摘要——这正是旧 URL 本身。
 
 ### updated
 
-When this page last changed. It is optional, and usually wrong to write: with
-no `updated`, the date shown at the foot of the page comes from the last commit
-that touched the file, which nobody has to remember to maintain.
+本页面最后一次修改的时间。它是可选的，而且通常不应该写：如果没有 `updated`，页面底部显示的日期来自最后一次修改该文件的提交记录，无需任何人记得去维护。
 
 ```markdown
 ---
@@ -132,23 +113,15 @@ updated: 2026-03-14
 ---
 ```
 
-Declare it when the commit is not the story. A typo fixed today does not make a
-page from March any newer, and an imported document may have been written long
-before it reached the repository. A declared date wins over the commit.
+当提交记录不能说明问题时，再声明它。今天修正的一个错别字并不会让三月份的页面变得更新，而导入的文档可能早在进入仓库之前就已写成。声明的日期优先于提交记录。
 
-An unquoted `2026-03-14` is what YAML calls a date; a quoted `'2026-03-14'` is
-a string. Both are understood, as is a full timestamp. A value naming no real
-instant is ignored rather than displayed.
+不带引号的 `2026-03-14` 是 YAML 所称的日期；带引号的 `'2026-03-14'` 是字符串。两者都能被识别，完整的时间戳也是如此。没有指向真实时刻的值会被忽略，而不会被显示。
 
-A page with neither a declared date nor a commit — one written a minute ago —
-shows no date at all. The build time would be an easy thing to fall back on and
-a false one: it would say every page was revised the moment the site was last
-published.
+既没有声明日期也没有提交记录的页面——比如一分钟前刚写的页面——不会显示任何日期。回退到构建时间既容易也是错误的：那会显示每个页面都在站点上次发布的那一刻被修订过。
 
 ### date
 
-When this page was first published. Nothing displays it; it becomes
-`datePublished` in the structured data a crawler reads.
+本页面首次发布的时间。没有任何地方显示它；它会成为爬虫读取的结构化数据中的 `datePublished`。
 
 ```markdown
 ---
@@ -156,241 +129,238 @@ date: 2026-01-02
 ---
 ```
 
-Only the frontmatter can answer this one. The first commit touching a file is
-when it entered the repository, which for an imported vault or a restructured
-wiki is not when the page was written.
+只有 frontmatter 能回答这个问题。第一次修改某个文件的提交记录是它进入仓库的时间，对于导入的 vault（笔记库）或经过重构的 wiki 而言，这并不是页面写作的时间。
 
-## Complete Example
+## 完整示例
 
 ```markdown
 ---
-title: API Authentication Guide
-description: Learn how to authenticate API requests using OAuth 2.0
+title: API 身份验证指南
+description: 学习如何使用 OAuth 2.0 对 API 请求进行身份验证
 ---
 
-# API Authentication Guide
+# API 身份验证指南
 
-This guide covers authentication methods...
+本指南涵盖身份验证方法……
 ```
 
-## Why Use Frontmatter?
+## 为什么要使用 Frontmatter？
 
-### Better SEO
+### 更好的 SEO
 
-Search engines use title and description for:
+搜索引擎使用 title 和 description 用于：
 
-- Search result titles
-- Meta descriptions
-- Social media previews
+- 搜索结果标题
+- 元描述
+- 社交媒体预览
 
 ```markdown
 ---
-title: eziwiki - Beautiful Documentation Made Easy
-description: A minimal wiki generator built with Next.js, inspired by Notion and Obsidian
+title: eziwiki - 让文档变得美观而简单
+description: 一个受 Notion 和 Obsidian 启发、基于 Next.js 构建的极简 wiki 生成器
 ---
 ```
 
-### Consistent Metadata
+### 一致的元数据
 
-Frontmatter ensures every page has proper metadata:
+Frontmatter 确保每个页面都有正确的元数据：
 
 ```markdown
 ---
-title: Installation Guide
-description: Step-by-step installation instructions for eziwiki
+title: 安装指南
+description: eziwiki 的分步安装说明
 ---
 ```
 
-### Social Sharing
+### 社交分享
 
-When shared on social media, frontmatter provides:
+在社交媒体上分享时，frontmatter 提供：
 
-- Card title
-- Card description
-- Better preview
+- 卡片标题
+- 卡片描述
+- 更好的预览
 
-## Frontmatter vs Markdown Headings
+## Frontmatter 与 Markdown 标题
 
-You can use both:
+你可以同时使用两者：
 
 ```markdown
 ---
-title: Getting Started
-description: Quick start guide
+title: 开始使用
+description: 快速入门指南
 ---
 
-# Getting Started
+# 开始使用
 
-Welcome to the quick start guide...
+欢迎阅读快速入门指南……
 ```
 
-The frontmatter `title` is used for SEO and metadata, while the Markdown `# Heading` is displayed in the content.
+frontmatter 的 `title` 用于 SEO 和元数据，而 Markdown 的 `# Heading` 显示在内容中。
 
-## Optional Frontmatter
+## 可选的 Frontmatter
 
-Frontmatter is completely optional. If not provided:
+Frontmatter 完全是可选的。如果没有提供：
 
-- Title defaults to the first `# Heading` in the file
-- Description is empty
+- title 默认为文件中的第一个 `# Heading`
+- description 为空
 
 ```markdown
-# My Page
+# 我的页面
 
-This page has no frontmatter, but still works fine!
+这个页面没有 frontmatter，但仍然可以正常工作！
 ```
 
-## YAML Syntax
+## YAML 语法
 
-Frontmatter uses YAML syntax:
+Frontmatter 使用 YAML 语法：
 
 ```yaml
 ---
-# Simple values
-title: My Title
-description: My description
+# 简单的值
+title: 我的标题
+description: 我的描述
 
-# Quotes for special characters
-title: "Title: With Colon"
-description: 'Description with "quotes"'
+# 特殊字符使用引号
+title: "标题: 带冒号"
+description: '带"引号"的描述'
 
-# Multi-line values
+# 多行值
 description: |
-  This is a multi-line
-  description that spans
-  multiple lines.
+  这是一个多行
+  描述，跨越多行。
 ---
 ```
 
-## Common Patterns
+## 常见模式
 
-### Documentation Page
+### 文档页面
 
 ```markdown
 ---
-title: API Reference
-description: Complete API documentation with examples
+title: API 参考
+description: 带有示例的完整 API 文档
 ---
 
-# API Reference
+# API 参考
 
-## Authentication
+## 身份验证
 
-All API requests require...
+所有 API 请求都需要……
 ```
 
-### Tutorial Page
+### 教程页面
 
 ```markdown
 ---
-title: Building Your First App
-description: Step-by-step tutorial for beginners
+title: 构建你的第一个应用
+description: 面向初学者的分步教程
 ---
 
-# Building Your First App
+# 构建你的第一个应用
 
-In this tutorial, you'll learn...
+在本教程中，你将学会……
 ```
 
-### Guide Page
+### 指南页面
 
 ```markdown
 ---
-title: Deployment Guide
-description: Deploy your wiki to production
+title: 部署指南
+description: 将你的 wiki 部署到生产环境
 ---
 
-# Deployment Guide
+# 部署指南
 
-This guide covers deployment to...
+本指南涵盖部署到……
 ```
 
-## Best Practices
+## 最佳实践
 
-### Keep Titles Concise
+### 保持标题简洁
 
 ```markdown
-## ✅ Good:
+## ✅ 好的：
 
-## title: Quick Start Guide
+## title: 快速入门指南
 
-## ❌ Too long:
+## ❌ 太长：
 
-## title: The Complete and Comprehensive Quick Start Guide for Getting Started with eziwiki
+## title: 一份完整的、全面的、关于开始使用 eziwiki 的快速入门指南
 ```
 
-### Write Descriptive Descriptions
+### 编写详实的描述
 
 ```markdown
-## ✅ Good:
+## ✅ 好的：
 
-## description: Learn how to install eziwiki and create your first wiki page
+## description: 学习如何安装 eziwiki 并创建你的第一个 wiki 页面
 
-## ❌ Too vague:
+## ❌ 太模糊：
 
-## description: Installation stuff
+## description: 安装相关的东西
 ```
 
-### Use Proper Capitalization
+### 使用正确的大小写
 
 ```markdown
-## ✅ Good:
+## ✅ 好的：
 
 ## title: Getting Started with eziwiki
 
-## ❌ Bad:
+## ❌ 不好的：
 
 ## title: getting started with eziwiki
 ```
 
-### Avoid Duplicate Content
+### 避免重复内容
 
-Don't repeat the title in the description:
+不要在 description 中重复 title：
 
 ```markdown
-## ✅ Good:
+## ✅ 好的：
 
-title: Installation Guide
-description: Step-by-step instructions for installing eziwiki
+title: 安装指南
+description: 安装 eziwiki 的分步说明
 
 ---
 
-## ❌ Bad:
+## ❌ 不好的：
 
-title: Installation Guide
-description: Installation Guide - How to install
+title: 安装指南
+description: 安装指南 - 如何安装
 
 ---
 ```
 
-## Validation
+## 验证
 
-eziwiki validates frontmatter at build time. Common errors:
+eziwiki 会在构建时验证 frontmatter。常见的错误：
 
 ```markdown
-## ❌ Invalid YAML syntax:
+## ❌ YAML 语法无效：
 
-title: Missing closing quote
-description: "Unclosed quote
+title: 缺少右引号
+description: "未闭合的引号
 
 ---
 
-## ❌ Invalid structure:
+## ❌ 结构无效：
 
 title
 description
 
 ---
 
-## ✅ Valid:
+## ✅ 有效：
 
-title: Correct Title
-description: Correct description
+title: 正确的标题
+description: 正确的描述
 
 ---
 ```
 
-## Next Steps
+## 下一步
 
-- [Learn Markdown Basics](/content/markdown-basics)
-- [Explore Code Blocks](/content/code-blocks)
-- [Configure Your Wiki](/configuration/payload)
+- [学习 Markdown 基础](/example/content/markdown-basics)
+- [探索代码块](/example/content/code-blocks)
+- [配置你的 Wiki](/example/configuration/payload)

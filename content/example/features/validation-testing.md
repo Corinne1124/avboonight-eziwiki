@@ -1,18 +1,16 @@
 ---
-title: Validation & Testing
-description: Catch broken configuration and dangling links before you deploy
+title: 校验与测试
+description: 在部署前发现配置错误与失效链接
 order: 9
 ---
 
-# Validation & Testing
+# 校验与测试
 
-Three checks run as part of `npm run build`, so problems surface at build time
-rather than in front of a reader.
+三项检查会作为 `npm run build` 的一部分运行，因此问题会在构建时暴露，而不是在读者面前。
 
-## Wiki health
+## Wiki 健康检查
 
-The same command reports two things a link check cannot, because both are
-about links that are _absent_:
+同一个命令还会报告链接检查无法发现的两类问题，因为这两类问题都关乎_缺失的_链接：
 
 ```
 🔗 Links OK — 102 links across 25 pages
@@ -26,25 +24,15 @@ about links that are _absent_:
      content/deployment/vercel.md
 ```
 
-An **orphan** is a page nothing points at. It is in the sidebar, so it is not
-lost, but no one reading the wiki will ever stumble into it. A **dead end** is
-a page with no links out: a reader arrives and the only way on is the back
-button.
+**孤立页面**是指没有任何链接指向它的页面。它出现在侧边栏中，因此不会丢失，但阅读 Wiki 的人永远不会偶然撞见它。**死胡同（无出链页面）**是指没有任何出链的页面：读者到达后，唯一的前进方式就是后退按钮。
 
-Neither is an error, and neither ever fails the build — a correct wiki can
-have both, and a reference page with nothing to say next is legitimate. They
-are reported because neither is visible from inside a single document. You
-notice a broken link the moment you click it; you never notice the page nobody
-links to.
+这两者都不是错误，也永远不会导致构建失败——一个正确的 Wiki 完全可以同时存在两者，一个没有更多内容可讲的参考页面也是合理的。它们之所以被报告，是因为从单个文档内部都看不到它们。您在点击失效链接的那一刻就会发现它；而您永远不会注意到那个无人链接的页面。
 
-The page a reader starts at is never called an orphan. Nothing needs to point
-at the entrance.
+读者最先到达的页面永远不会被称作孤立页面。入口页面不需要任何链接指向。
 
-This falls out of treating documents as a [[graph-and-backlinks|graph]] rather
-than a tree. In a tree, being in the sidebar is the whole of belonging, and
-"orphan" has no meaning.
+这源于把文档视为 [[graph-and-backlinks|关系图]] 而不是树。在树中，出现在侧边栏就是全部归属，而"孤立页面"没有意义。
 
-## Config validation
+## 配置校验
 
 ```bash
 npm run validate:payload
@@ -56,23 +44,23 @@ npm run validate:payload
 ✅ Payload validation passed!
 ```
 
-`payload/config.ts` is checked against a JSON Schema. It catches:
+`payload/config.ts` 会根据 JSON Schema 进行校验。它可以发现：
 
-- missing required fields (`global.title`, `global.description`)
-- malformed colours — theme values must be `#rrggbb`
-- an invalid `urlStrategy` — only `path` and `hash` are accepted
-- navigation entries missing a `name`, or nested wrongly
+- 缺少必填字段（`global.title`、`global.description`）
+- 颜色格式错误——主题值必须是 `#rrggbb`
+- `urlStrategy` 无效——只接受 `path` 和 `hash`
+- 导航条目缺少 `name`，或嵌套方式错误
 
-A failure stops the build immediately, before anything is rendered.
+校验失败会立即停止构建，在任何内容渲染之前。
 
-### Example failure
+### 失败示例
 
 ```
 ❌ Payload validation failed:
   - /global/title must NOT have fewer than 1 characters
 ```
 
-## Link checking
+## 链接检查
 
 ```bash
 npm run check:links
@@ -82,12 +70,9 @@ npm run check:links
 🔗 Links OK — 61 links across 21 pages
 ```
 
-Every [[wiki-links|wiki link]] and internal Markdown link is resolved against
-the content tree. Two things can go wrong, and they are reported differently
-because the fix is in different places.
+每个 [[wiki-links|Wiki 链接]] 和内部 Markdown 链接都会对照内容树进行解析。有两类问题可能出错，它们的报告方式不同，因为修复的位置也不同。
 
-A link matching several pages is a fault in the link, so it is reported where
-it was written:
+一个匹配多个页面的链接是链接本身的错误，因此它会在编写它的位置被报告：
 
 ```
 🔗 1 unresolved link
@@ -98,9 +83,7 @@ it was written:
       [[overview]] matches api/overview, guides/overview
 ```
 
-A link matching nothing is not really a fault at all. Someone wrote it while
-writing about something else, because that is when they knew the page was
-needed. Those are reported the other way round — by the page being asked for:
+一个匹配不到任何页面的链接其实根本不是错误。某人在写别的内容时写下了它，因为正是在那时他们知道这个页面是需要的。这类链接会以相反的方式报告——按被请求的页面来报告：
 
 ```
   Wanted — 1 page linked to but not written, most-wanted first:
@@ -111,82 +94,66 @@ needed. Those are reported the other way round — by the page being asked for:
       npm run new deploying-to-fly
 ```
 
-Two pages asking for the same one is the clearest statement a wiki can make
-about what to write next, and it costs nothing to collect — the links were
-written by whoever needed the page. Spelling does not split the count:
-`[[Deploying to Fly]]` and `[[deploying to fly]]` are one page wanted twice,
-because one file answers both.
+两个页面请求同一个页面，是 Wiki 对接下来该写什么最清晰的表达，而且收集它的成本为零——链接由需要该页面的人写就。拼写差异不会拆分计数：`[[Deploying to Fly]]` 和 `[[deploying to fly]]` 算作同一个页面被请求两次，因为一个文件就能同时满足两者。
 
-## Writing what is wanted
+## 编写被请求的页面
 
-The last line of each entry is the whole of it:
+每个条目的最后一行就是全部：
 
 ```bash
 npm run new deploying-to-fly
 ```
 
-The file is created with its frontmatter, in the directory the path names, and
-is published on the next build. A title works as well as a path:
+文件会连同其 frontmatter 一起创建在路径指定的目录中，并在下一次构建时发布。标题和路径同样有效：
 
 ```bash
 npm run new "Deploying to Fly"                    # → deploying-to-fly.md
-npm run new guides/setup -- --title "Set it up"   # npm needs the `--`
+npm run new guides/setup -- --title "Set it up"   # npm 需要 `--`
 ```
 
-A target written as a title keeps its own capitalisation, which is what makes
-the link that asked for it resolve — it matches on the title. An existing file
-is never overwritten.
+以标题形式书写的目标会保留其原有大小写，这正是让请求它的链接得以解析的原因——它按标题匹配。已有文件永远不会被覆盖。
 
-## Failing on purpose
+## 故意让检查失败
 
-By default the check **reports without failing**. A dangling link in one page is
-not a reason to block a deploy of the other twenty, and content is often written
-before the page it references exists.
+默认情况下，检查**只报告而不失败**。某一页中的一个悬空链接不是阻止其余二十页部署的理由，而且内容常常先于它引用的页面被写出。
 
-To make it fatal — in CI, for instance:
+要让它在失败时终止——例如在 CI 中：
 
 ```bash
 npm run check:links -- --strict
 ```
 
-The [Graph](/graph) page lists the same wanted pages, so the gap is visible from
-the wiki as well as from the terminal.
+[Graph](/graph) 页面会列出同样被请求的页面，因此这个缺口不仅从终端可见，从 Wiki 中也能看到。
 
-## Tests
+## 测试
 
 ```bash
-npm test           # once
-npm run test:watch # on change
+npm test           # 运行一次
+npm run test:watch # 变更时运行
 ```
 
-The suite covers the engine: content discovery, navigation assembly, URL
-resolution under both strategies, the Markdown pipeline, wiki-link parsing,
-search indexing and ranking, and the graph layout.
+测试套件覆盖引擎本身：内容发现、导航组装、两种策略下的 URL 解析、Markdown 流水线、Wiki 链接解析、搜索索引与排序（权重），以及关系图布局。
 
-It also asserts against this site's own content — that every section in the
-search index points at a real anchor, and that no page contains a dangling
-link — so the tests fail if the documentation drifts from the code.
+它还会针对本站自身的内容进行断言——搜索索引中的每个章节都指向真实的锚点，且没有任何页面包含悬空链接——因此如果文档与代码出现偏差，测试就会失败。
 
-## Types
+## 类型
 
 ```bash
 npm run type-check
 ```
 
-`payload/config.ts` is typed, so most configuration mistakes are caught in your
-editor before any script runs. If a field is not in the `Payload` type, it is
-not a real option.
+`payload/config.ts` 带有类型，因此大多数配置错误会在任何脚本运行之前在您的编辑器中就被发现。如果某个字段不在 `Payload` 类型中，它就不是一个真实可用的选项。
 
-## Formatting and lint
+## 格式化与代码检查
 
 ```bash
-npm run lint     # ESLint, with --fix
+npm run lint     # ESLint，带 --fix
 npm run format   # Prettier
 ```
 
-## In CI
+## 在 CI 中
 
-A workflow that runs everything:
+一个运行所有检查的工作流：
 
 ```yaml
 - run: npm ci
@@ -197,8 +164,8 @@ A workflow that runs everything:
 - run: npm run build
 ```
 
-## Next
+## 下一步
 
-- [[payload]] — what the config can contain
-- [[graph-and-backlinks]] — see unresolved links in context
-- [[static-export]] — deploying the result
+- [[payload]] — 配置中可以包含什么
+- [[graph-and-backlinks]] — 在上下文中查看无法解析的链接
+- [[static-export]] — 部署构建结果

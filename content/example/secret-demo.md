@@ -1,77 +1,76 @@
 ---
-title: Secret Demo Page
-description: This is a hidden page example - you found it!
+title: 隐藏演示页面
+description: 这是一个隐藏页面示例——你找到它了！
 order: 99
 hidden: true
 ---
 
-# 🎉 You Found the Secret Page!
+# 🎉 你找到了隐藏页面！
 
 ![eziwiki](/images/eziwiki.webp)
 
-This page is **hidden** from the sidebar navigation, but you can still access it via direct link.
+此页面已从侧边栏导航中**隐藏**，但你仍然可以通过直接链接访问它。
 
-## How Did You Get Here?
+## 你是怎么找到这里的？
 
-You probably:
+你可能：
 
-- Ran `npm run show-urls` and found this URL
-- Clicked a link from another page
-- Bookmarked this page
-- Someone shared the URL with you
+- 运行了 `npm run show-urls` 并找到了这个 URL
+- 点击了其他页面上的链接
+- 将此页面加入了书签
+- 有人与你分享了 URL
 
-## What Makes This Page Special?
+## 这个页面有什么特别之处？
 
-This page has `hidden: true` in its frontmatter:
+此页面在 frontmatter 中有 `hidden: true`：
 
 ```markdown
 ---
-title: Secret Demo Page
-description: This is a hidden page example - you found it!
-hidden: true # 👈 This makes it hidden
+title: 隐藏演示页面
+description: 这是一个隐藏页面示例——你找到它了！
+hidden: true # 👈 正是这一行使它隐藏
 ---
 ```
 
-That is the whole mechanism — no configuration file involved. See
-[[hidden-pages]] for what "hidden" does and does not cover.
+这就是全部机制——不涉及任何配置文件。关于 hidden 能覆盖和不能覆盖的内容，请参见 [[hidden-pages]]。
 
-## Hidden Page Features
+## 隐藏页面的特性
 
-### ✅ Fully Functional
+### ✅ 功能完整
 
-Hidden pages work exactly like regular pages:
+隐藏页面与普通页面完全一样：
 
-- Full Markdown support
-- Syntax highlighting
-- Images and links
-- Dark mode support
-- All features available
+- 完整的 Markdown 支持
+- 语法高亮
+- 图片和链接
+- 深色模式支持
+- 所有功能可用
 
-### ✅ Accessible
+### ✅ 可访问
 
-Anyone with the URL can access this page:
+任何拥有 URL 的人都可以访问此页面：
 
-- Share the link with others
-- Bookmark for quick access
-- Link from other pages
+- 与他人分享链接
+- 添加书签以便快速访问
+- 从其他页面链接过来
 
-### ❌ Not in Sidebar
+### ❌ 不在侧边栏中
 
-This page won't appear in the sidebar navigation, keeping it "unlisted" but not private.
+此页面不会出现在侧边栏导航中，因此它是“未列出”的，但并非私有。
 
-## Use Cases
+## 使用场景
 
-Hidden pages are perfect for:
+隐藏页面非常适合：
 
-1. **Draft Content** - Work on content before publishing
-2. **Internal Docs** - Team-only documentation
-3. **Deprecated Pages** - Keep old content accessible
-4. **Easter Eggs** - Fun surprises for curious users
-5. **Testing** - Test new layouts or features
+1. **草稿内容** —— 在发布前完善内容
+2. **内部文档** —— 仅供团队使用的文档
+3. **已废弃页面** —— 让旧内容保持可访问
+4. **彩蛋** —— 给好奇用户的趣味惊喜
+5. **测试** —— 测试新的布局或功能
 
-## Example Code
+## 示例代码
 
-Here's some code with syntax highlighting:
+下面是带语法高亮的代码：
 
 ```typescript
 interface HiddenPage {
@@ -91,7 +90,7 @@ console.log('This page is hidden! 🤫');
 
 ```python
 def find_hidden_pages():
-    """Find all hidden pages in the wiki."""
+    """查找 Wiki 中所有隐藏页面。"""
     hidden_pages = []
 
     for page in all_pages:
@@ -103,68 +102,68 @@ def find_hidden_pages():
 print(f"Found {len(find_hidden_pages())} hidden pages!")
 ```
 
-## Important Notes
+## 重要说明
 
-### Not Private
+### 并非私有
 
-Hidden pages are **unlisted**, not **private**:
+隐藏页面是**未列出**的，而非**私有**：
 
-- ✅ Anyone with the URL can access
-- ✅ Included in the static build
-- ✅ Indexed by search engines (by default)
-- ❌ NOT password protected
+- ✅ 任何拥有 URL 的人都可以访问
+- ✅ 包含在静态构建中
+- ✅ 可被搜索引擎收录（默认情况下）
+- ❌ 不受密码保护
 
-For truly private content, use authentication or don't include in the build.
+对于真正私有的内容，请使用身份验证，或者不要将其包含在构建中。
 
-### Finding This Page
+### 查找此页面
 
-To find all hidden pages:
+要查找所有隐藏页面：
 
 ```bash
 npm run show-urls
 ```
 
-Look for pages marked with 🔒 [HIDDEN].
+查找标记为 🔒 [HIDDEN] 的页面。
 
-## Try It Yourself
+## 自己动手试试
 
-Create your own hidden page:
+创建你自己的隐藏页面：
 
-1. Create `content/my-secret.md`:
+1. 创建 `content/my-secret.md`：
 
    ```markdown
    ---
-   title: My Secret Page
+   title: 我的隐藏页面
    hidden: true
    ---
 
-   # My Secret Page
+   # 我的隐藏页面
 
-   This is my hidden page!
+   这是我的隐藏页面！
    ```
 
-2. Find the URL:
+2. 找到 URL：
 
    ```bash
    npm run show-urls | grep "my-secret"
    ```
 
-3. Share the URL with others!
+3. 与其他人分享 URL！
 
-There is no step for registering the page anywhere — the file is enough.
+无需在任何地方注册页面——只要有文件就够了。
 
-## Navigation
+## 导航
 
-Want to go back?
+想回去吗？
 
-- [Home](/intro)
-- [Learn About Hidden Pages](/features/hidden-pages)
-- [[url-strategies|URL Strategies]]
+- [首页](/example/intro)
+- [了解隐藏页面](/example/features/hidden-pages)
+- [[url-strategies|URL 策略]]
 
 ---
 
-**Pro Tip**: You can link to this page from anywhere in your wiki, even though it's hidden from the sidebar!
+**专业提示**：你可以从 Wiki 中的任何位置链接到此页面，即使它在侧边栏中处于隐藏状态！
 
 ```markdown
-Check out the [secret demo page](/secret-demo)!
+看看这个[隐藏演示页面](/example/secret-demo)吧！
 ```

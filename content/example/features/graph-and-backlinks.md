@@ -2,95 +2,72 @@
 tags:
   - linking
   - graph
-title: Graph & Backlinks
-description: See how your pages connect, in both directions
+title: 关系图与反向链接
+description: 从两个方向查看你的页面之间如何连接
 order: 5
 ---
 
-# Graph & Backlinks
+# 关系图与反向链接
 
-Forward links tell a reader where to go next. They say nothing about how the
-page they are on fits into everything else. Backlinks and the graph fill that in.
+正向链接告诉读者下一步该去哪里，却无法说明当前页面在整个体系中处于什么位置。反向链接和关系图补上了这一块。
 
-## Backlinks
+## 反向链接
 
-Every page ends with the pages that link **to** it — scroll to the bottom of
-this one to see them.
+每个页面底部都会列出指向它的页面——滚动到本页底部即可看到。
 
-The list is built by scanning every page for references, so it covers both
-[[wiki-links|wiki links]] and ordinary Markdown links. Nothing to maintain: link
-to a page and it gains a backlink.
+该列表通过扫描每个页面中的引用自动生成，因此同时覆盖 [[wiki-links|Wiki 链接]] 和普通的 Markdown 链接。无需任何维护：链接到某个页面，它就会自动获得一条反向链接。
 
-Pages nothing links to show no panel at all.
+没有被任何页面链接的页面，则完全不显示该面板。
 
-## The graph
+## 关系图
 
-The [Graph](/graph) page draws the whole site: one node per page, one line per
-link.
+[Graph](/graph) 页面绘制出整个站点：每个页面一个节点，每个链接一条连线。
 
-- **Node size** reflects how many links touch a page, so hubs stand out
-- **Hover** a node to dim everything it is not connected to
-- **Click** to open the page
+- **节点大小** 反映有多少链接触及该页面，因此中心页面格外醒目
+- **悬停** 节点可让与之无关的一切变暗
+- **点击** 打开页面
 
-The layout is computed from a fixed starting arrangement, so the graph looks the
-same on every visit. A graph that rearranges itself each time is impossible to
-build any familiarity with.
+布局基于固定的初始排列计算，因此每次访问时关系图的样子都一致。每次访问都会重新排列的关系图，很难让人产生任何熟悉感。
 
-It is drawn as plain SVG with a small force-directed layout — no charting
-library, so nothing extra is downloaded on any other page.
+它用纯 SVG 配合一个小型力导向布局绘制——不依赖图表库，因此其他页面不会额外下载任何东西。
 
-## The neighbourhood of a page
+## 页面的邻域
 
-Scroll to the bottom of this page and there is a second, smaller graph: the
-pages one link away from this one, in either direction, and the links among
-them. The page you are reading is the filled node at its centre.
+滚动到本页底部，你会看到第二个更小的关系图：与本页相隔一条链接的页面（无论方向），以及它们之间的链接。你正在阅读的页面就是位于中心的实心节点。
 
-The site graph answers what the wiki looks like. Past a few dozen pages it
-stops answering what is _near here_, which is the question you have while
-reading — so that one is drawn per page instead.
+站点关系图回答的是 wiki 整体长什么样。一旦页面超过几十个，它就不再能回答「_附近有什么_」——而这正是你在阅读时真正关心的问题——因此后者改为在每个页面单独绘制。
 
-The neighbours' own links are kept, not only the ones touching this page.
-Without them the view would be a fan of unconnected dots, which says no more
-than the backlinks list above it. With them you can see which of the related
-pages are related to each other.
+邻接页之间的链接也会保留，而不只是与本页相连的链接。没有这些链接，视图就会变成一堆互不相连的散点，信息量并不比上面的反向链接列表多。有了它们，你就能看出哪些相关页面之间彼此相关。
 
-Direction is not distinguished here. Looking for what to read next, it matters
-that two pages are connected, not which one did the linking — and the backlinks
-list already names the ones pointing this way.
+这里不区分方向。在寻找下一步该读什么时，重要的是两个页面之间存在连接，而不是谁链接了谁——况且反向链接列表已经列出了指向本页的页面。
 
-A page with nothing linking to or from it gets no graph rather than an empty
-box.
+没有任何链接指向或引出的页面不会显示关系图，而不是显示一个空框。
 
-## Unresolved links
+## 未解析的链接
 
-The graph page lists every link that resolves to no page, with the file it was
-written in. The same list is available from the command line:
+关系图页面会列出每个无法解析到任何页面的链接，以及它所在的文件。同样的列表也可以从命令行获取：
 
 ```bash
 npm run check:links
 ```
 
-See [[validation-testing]] for wiring that into CI.
+关于如何把它接入 CI，参见 [[validation-testing]]。
 
-## What is excluded
+## 哪些内容会被排除
 
-[[hidden-pages|Hidden pages]] appear in neither the graph nor any backlink
-panel, and links pointing at them are not drawn. An unlisted page cannot be
-discovered by reading the graph.
+[[hidden-pages|隐藏页面]]不会出现在关系图或任何反向链接面板中，指向它们的链接也不会被绘制。未列入的页面无法通过阅读关系图被发现。
 
-Links to external sites, in-page anchors, and a page linking to itself are not
-edges either — the graph is about how _your_ pages relate to one another.
+指向外部网站的链接、页内锚点以及页面自身的链接同样不算边——关系图展示的是_你的_页面之间如何相互关联。
 
-## Building a connected wiki
+## 构建互联的 wiki
 
-A graph with no lines in it is telling you something. Some habits that help:
+一张没有任何连线的关系图本身就在告诉你一些事情。以下是一些有帮助的习惯：
 
-- End each page with a "Next" section pointing at two or three related pages
-- Link the first mention of a concept to the page that explains it
-- Check the graph occasionally for isolated nodes — pages nothing reaches are
-  pages nobody finds
+- 在每个页面末尾用「下一步」区块指向两三个相关页面
+- 将概念首次出现的地方链接到解释该概念的页面
+- 偶尔检查关系图中孤立的节点——无人到达的页面，也就无人发现
 
-## Next
+## 下一步
 
-- [[wiki-links]] — the syntax for linking by name
-- [[search]] — the other way readers find pages
+- [[wiki-links]] — 按名称链接的语法
+- [[search]] — 读者找到页面的另一种方式

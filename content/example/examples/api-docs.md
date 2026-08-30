@@ -1,80 +1,77 @@
 ---
-title: API Documentation Example
-description: Use eziwiki for beautiful API documentation
+title: API 文档示例
+description: 使用 eziwiki 打造漂亮的 API 文档
 order: 3
 ---
 
-# API Documentation Example
+# API 文档示例
 
 ![eziwiki](/images/eziwiki.webp)
 
-eziwiki is perfect for creating clean, organized API documentation.
+eziwiki 非常适合创建整洁、条理清晰的 API 文档。
 
-## Example Structure
+## 示例结构
 
 ```
 content/
 ├── intro.md
 ├── authentication/
-│   ├── _meta.json              → { "name": "🔐 Authentication", "order": 1 }
+│   ├── _meta.json              → { "name": "🔐 认证", "order": 1 }
 │   ├── api-keys.md
 │   └── oauth.md
 ├── endpoints/
-│   ├── _meta.json              → { "name": "🔌 Endpoints", "order": 2 }
+│   ├── _meta.json              → { "name": "🔌 接口", "order": 2 }
 │   ├── users.md
 │   ├── posts.md
 │   └── webhooks.md
 └── reference/
-    ├── _meta.json              → { "name": "📕 Reference", "order": 3 }
+    ├── _meta.json              → { "name": "📕 参考", "order": 3 }
     ├── errors.md
     └── rate-limits.md
 ```
 
-For API documentation, [[search]] matters more than navigation depth — readers
-arrive looking for one endpoint or one error code. Code inside fenced blocks is
-indexed, so searching a field name or status code finds the page that documents
-it.
+对于 API 文档，[[search]] 比导航层级更重要——读者通常是冲着某个接口（endpoint）或某个错误码来的。围栏代码块内的代码也会被索引，因此搜索字段名或状态码就能找到记录它的页面。
 
-## Example API Endpoint Page
+## 示例 API 接口页面
 
 ```markdown
 ---
-title: List Users
-description: Retrieve a list of users
+title: 获取用户列表
+description: 获取用户列表
 ---
 
-# List Users
+# 获取用户列表
 
-Retrieve a paginated list of users.
+获取分页的用户列表。
 
-## Endpoint
+## 接口（endpoint）
 
 \`\`\`
 GET /api/v1/users
 \`\`\`
 
-## Authentication
+## 认证
 
-Requires a valid API key in the `Authorization` header:
+需要在 `Authorization` 请求头中携带有效的 API 密钥：
 
 \`\`\`
 Authorization: Bearer YOUR_API_KEY
 \`\`\`
 
-## Query Parameters
+## 查询参数
 
-| Parameter | Type    | Required | Description                                   |
-| --------- | ------- | -------- | --------------------------------------------- |
-| `page`    | integer | No       | Page number (default: 1)                      |
-| `limit`   | integer | No       | Items per page (default: 20, max: 100)        |
-| `sort`    | string  | No       | Sort field (default: `created_at`)            |
-| `order`   | string  | No       | Sort order: `asc` or `desc` (default: `desc`) |
-| `status`  | string  | No       | Filter by status: `active`, `inactive`        |
+| 参数    | 类型    | 是否必填 | 说明                                        |
+| ------- | ------- | -------- | ------------------------------------------- |
+| `page`  | integer | 否       | 页码（默认：1）                             |
+| `limit` | integer | 否       | 每页条目数（默认：20，最大：100）           |
+| `sort`  | string  | 否       | 排序字段（默认：`created_at`）              |
+| `order` | string  | 否       | 排序方式：`asc` 或 `desc`（默认：`desc`）   |
+| `status`| string  | 否       | 按状态筛选：`active`、`inactive`            |
 
-## Request Example
+## 请求示例
 
 \`\`\`bash
-curl -X GET "https://api.example.com/v1/users?page=1&limit=20" \\
+curl -X GET "https://api.example.com/v1/users?page=1&limit=20" \
 -H "Authorization: Bearer YOUR_API_KEY"
 \`\`\`
 
@@ -100,9 +97,9 @@ headers={'Authorization': 'Bearer YOUR_API_KEY'}
 data = response.json()
 \`\`\`
 
-## Response
+## 响应
 
-### Success Response (200 OK)
+### 成功响应（200 OK）
 
 \`\`\`json
 {
@@ -133,26 +130,26 @@ data = response.json()
 }
 \`\`\`
 
-### Response Fields
+### 响应字段
 
-| Field               | Type    | Description                         |
-| ------------------- | ------- | ----------------------------------- |
-| `data`              | array   | Array of user objects               |
-| `data[].id`         | string  | Unique user identifier              |
-| `data[].email`      | string  | User email address                  |
-| `data[].name`       | string  | User full name                      |
-| `data[].status`     | string  | User status: `active` or `inactive` |
-| `data[].created_at` | string  | ISO 8601 timestamp                  |
-| `data[].updated_at` | string  | ISO 8601 timestamp                  |
-| `pagination`        | object  | Pagination metadata                 |
-| `pagination.page`   | integer | Current page number                 |
-| `pagination.limit`  | integer | Items per page                      |
-| `pagination.total`  | integer | Total number of items               |
-| `pagination.pages`  | integer | Total number of pages               |
+| 字段                | 类型    | 说明                               |
+| ------------------- | ------- | ---------------------------------- |
+| `data`              | array   | 用户对象数组                       |
+| `data[].id`         | string  | 用户唯一标识                       |
+| `data[].email`      | string  | 用户邮箱地址                       |
+| `data[].name`       | string  | 用户全名                           |
+| `data[].status`     | string  | 用户状态：`active` 或 `inactive`   |
+| `data[].created_at` | string  | ISO 8601 时间戳                    |
+| `data[].updated_at` | string  | ISO 8601 时间戳                    |
+| `pagination`        | object  | 分页元数据                         |
+| `pagination.page`   | integer | 当前页码                           |
+| `pagination.limit`  | integer | 每页条目数                         |
+| `pagination.total`  | integer | 条目总数                           |
+| `pagination.pages`  | integer | 总页数                             |
 
-## Error Responses
+## 错误响应
 
-### 401 Unauthorized
+### 401 Unauthorized（未授权）
 
 \`\`\`json
 {
@@ -163,7 +160,7 @@ data = response.json()
 }
 \`\`\`
 
-### 429 Too Many Requests
+### 429 Too Many Requests（请求过多）
 
 \`\`\`json
 {
@@ -174,7 +171,7 @@ data = response.json()
 }
 \`\`\`
 
-### 500 Internal Server Error
+### 500 Internal Server Error（服务器内部错误）
 
 \`\`\`json
 {
@@ -185,56 +182,56 @@ data = response.json()
 }
 \`\`\`
 
-## Rate Limiting
+## 速率限制
 
-- **Rate Limit**: 100 requests per minute
-- **Headers**:
-  - `X-RateLimit-Limit`: Maximum requests per minute
-  - `X-RateLimit-Remaining`: Remaining requests
-  - `X-RateLimit-Reset`: Unix timestamp when limit resets
+- **速率限制**：每分钟 100 次请求
+- **响应头**：
+  - `X-RateLimit-Limit`：每分钟最大请求数
+  - `X-RateLimit-Remaining`：剩余请求数
+  - `X-RateLimit-Reset`：速率限制重置的 Unix 时间戳
 
-## Related Endpoints
+## 相关接口
 
-- [Get User](/api/users/get) - Get a single user by ID
-- [Create User](/api/users/create) - Create a new user
-- [Update User](/api/users/update) - Update an existing user
+- [获取用户](/api/users/get) - 按 ID 获取单个用户
+- [创建用户](/api/users/create) - 创建新用户
+- [更新用户](/api/users/update) - 更新现有用户
 ```
 
-## Authentication Page Example
+## 认证页面示例
 
 ```markdown
 ---
-title: Authentication
-description: Learn how to authenticate API requests
+title: 认证
+description: 了解如何对 API 请求进行认证
 ---
 
-# Authentication
+# 认证
 
-All API requests require authentication using an API key.
+所有 API 请求都需要使用 API 密钥进行认证。
 
-## Getting an API Key
+## 获取 API 密钥
 
-1. Log in to your dashboard
-2. Navigate to Settings → API Keys
-3. Click "Create API Key"
-4. Copy and securely store your key
+1. 登录你的控制台（dashboard）
+2. 进入"设置 → API 密钥"（Settings → API Keys）
+3. 点击"创建 API 密钥"
+4. 复制并妥善保管你的密钥
 
-⚠️ **Important**: Keep your API key secret. Never commit it to version control.
+⚠️ **重要**：请对 API 密钥严格保密，切勿将其提交到版本控制系统中。
 
-## Using Your API Key
+## 使用你的 API 密钥
 
-Include your API key in the `Authorization` header:
+将你的 API 密钥放入 `Authorization` 请求头中：
 
 \`\`\`
 Authorization: Bearer YOUR_API_KEY
 \`\`\`
 
-## Example Requests
+## 请求示例
 
 ### cURL
 
 \`\`\`bash
-curl -X GET "https://api.example.com/v1/users" \\
+curl -X GET "https://api.example.com/v1/users" \
 -H "Authorization: Bearer YOUR_API_KEY"
 \`\`\`
 
@@ -257,9 +254,9 @@ headers = {'Authorization': 'Bearer YOUR_API_KEY'}
 response = requests.get('https://api.example.com/v1/users', headers=headers)
 \`\`\`
 
-## Environment Variables
+## 环境变量
 
-Store your API key in environment variables:
+将你的 API 密钥保存在环境变量中：
 
 \`\`\`bash
 
@@ -272,20 +269,20 @@ API_KEY=your_api_key_here
 const apiKey = process.env.API_KEY;
 \`\`\`
 
-## Security Best Practices
+## 安全最佳实践
 
-- ✅ Use HTTPS for all requests
-- ✅ Store API keys in environment variables
-- ✅ Rotate keys regularly
-- ✅ Use different keys for development and production
-- ❌ Never commit API keys to version control
-- ❌ Never expose API keys in client-side code
+- ✅ 所有请求均使用 HTTPS
+- ✅ 将 API 密钥保存在环境变量中
+- ✅ 定期轮换密钥
+- ✅ 开发环境与生产环境使用不同的密钥
+- ❌ 切勿将 API 密钥提交到版本控制
+- ❌ 切勿在客户端代码中暴露 API 密钥
 
-## Error Responses
+## 错误响应
 
-### 401 Unauthorized
+### 401 Unauthorized（未授权）
 
-Missing or invalid API key:
+API 密钥缺失或无效：
 
 \`\`\`json
 {
@@ -296,9 +293,9 @@ Missing or invalid API key:
 }
 \`\`\`
 
-### 403 Forbidden
+### 403 Forbidden（禁止访问）
 
-Valid key but insufficient permissions:
+密钥有效但权限不足：
 
 \`\`\`json
 {
@@ -310,30 +307,30 @@ Valid key but insufficient permissions:
 \`\`\`
 ```
 
-## Benefits for API Docs
+## 对 API 文档的好处
 
-### Clear Structure
+### 结构清晰
 
-Organize endpoints by resource with nested navigation.
+通过嵌套导航按资源组织接口（endpoint）。
 
-### Code Examples
+### 代码示例
 
-Show examples in multiple languages with syntax highlighting.
+以多种语言展示示例，并带有语法高亮。
 
-### Searchable
+### 可搜索
 
-Users can quickly find what they need.
+用户可以快速找到所需内容。
 
-### Version Control
+### 版本控制
 
-Track changes to your API documentation in Git.
+在 Git 中跟踪 API 文档的变更。
 
-### Easy Updates
+### 易于更新
 
-Update docs as fast as you update your API.
+更新文档的速度与更新 API 一样快。
 
-## Next Steps
+## 下一步
 
-- [Create Your First Wiki](/getting-started/first-wiki)
-- [Learn About Code Blocks](/content/code-blocks)
-- [Deploy Your Docs](/deployment/static-export)
+- [创建你的第一个 Wiki](/example/getting-started/first-wiki)
+- [了解代码块](/example/content/code-blocks)
+- [部署你的文档](/example/deployment/static-export)

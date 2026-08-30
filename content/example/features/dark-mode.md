@@ -1,37 +1,37 @@
 ---
-title: Dark Mode
-description: Built-in dark mode with automatic theme switching
+title: 深色模式
+description: 内置深色模式，自动跟随系统主题切换
 order: 7
 ---
 
-# Dark Mode
+# 深色模式
 
-eziwiki includes a beautiful dark mode that users can toggle with a single click.
+eziwiki 内置了漂亮的深色模式，用户只需一次点击即可切换。
 
-## Features
+## 功能特性
 
-- **One-Click Toggle** - Switch themes instantly
-- **Persistent Preference** - Remembers user choice
-- **System Sync** - Respects OS theme preference
-- **Smooth Transitions** - Animated theme changes
-- **Accessible** - WCAG compliant contrast ratios
+- **一键切换** - 即时切换主题
+- **偏好记忆** - 记住用户的选择
+- **跟随系统** - 尊重操作系统的主题偏好
+- **平滑过渡** - 主题切换带动画效果
+- **无障碍** - 符合 WCAG 的对比度标准
 
-## How to Use
+## 使用方法
 
-### Toggle Button
+### 切换按钮
 
-Click the theme toggle button in the top-right corner:
+点击右上角的主题切换按钮：
 
-- ☀️ Light mode
-- 🌙 Dark mode
+- ☀️ 浅色模式
+- 🌙 深色模式
 
-### Keyboard Shortcut
+### 键盘快捷键
 
-Press `Ctrl/Cmd + Shift + D` to toggle (if implemented).
+按 `Ctrl/Cmd + Shift + D` 切换（如果已实现）。
 
-## Theme Colors
+## 主题颜色
 
-### Light Mode
+### 浅色模式
 
 ```css
 :root {
@@ -48,7 +48,7 @@ Press `Ctrl/Cmd + Shift + D` to toggle (if implemented).
 }
 ```
 
-### Dark Mode
+### 深色模式
 
 ```css
 .dark {
@@ -65,32 +65,32 @@ Press `Ctrl/Cmd + Shift + D` to toggle (if implemented).
 }
 ```
 
-## Customization
+## 自定义
 
-### Custom Colors
+### 自定义颜色
 
-Edit `styles/theme.css` to customize colors:
+编辑 `styles/theme.css` 来自定义颜色：
 
 ```css
 .dark {
-  /* Your custom dark mode colors */
-  --color-primary: #10b981; /* Green primary */
-  --color-background: #0f172a; /* Darker background */
-  --color-sidebar-bg: #1e293b; /* Darker sidebar */
+  /* 你的自定义深色模式颜色 */
+  --color-primary: #10b981; /* 绿色主色 */
+  --color-background: #0f172a; /* 更深的背景 */
+  --color-sidebar-bg: #1e293b; /* 更深的侧边栏 */
 }
 ```
 
-### Disable Dark Mode
+### 禁用深色模式
 
-To remove dark mode entirely:
+如需彻底移除深色模式：
 
-1. Remove the theme toggle component
-2. Remove `.dark` styles from `styles/theme.css`
-3. Remove dark mode logic from `components/ThemeToggle.tsx`
+1. 删除主题切换组件
+2. 从 `styles/theme.css` 中删除 `.dark` 样式
+3. 删除 `components/ThemeToggle.tsx` 中的深色模式逻辑
 
-### Force Dark Mode
+### 强制深色模式
 
-To always use dark mode:
+如需始终使用深色模式：
 
 ```typescript
 // app/layout.tsx
@@ -103,9 +103,9 @@ export default function RootLayout({ children }) {
 }
 ```
 
-## Implementation
+## 实现
 
-### Theme Toggle Component
+### 主题切换组件
 
 ```typescript
 'use client';
@@ -117,7 +117,7 @@ export function ThemeToggle() {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
 
   useEffect(() => {
-    // Load saved theme
+    // 读取已保存的主题
     const saved = localStorage.getItem('theme');
     const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches
       ? 'dark'
@@ -147,39 +147,39 @@ export function ThemeToggle() {
 }
 ```
 
-### System Preference Detection
+### 系统偏好检测
 
-Automatically detect user's OS theme:
+自动检测用户的操作系统主题：
 
 ```typescript
 const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
-// Listen for system theme changes
+// 监听系统主题变化
 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
   const newTheme = e.matches ? 'dark' : 'light';
   setTheme(newTheme);
 });
 ```
 
-### Persistent Storage
+### 持久化存储
 
-Theme preference is saved to localStorage:
+主题偏好保存在 localStorage 中：
 
 ```typescript
-// Save theme
+// 保存主题
 localStorage.setItem('theme', 'dark');
 
-// Load theme
+// 读取主题
 const savedTheme = localStorage.getItem('theme');
 ```
 
-## Syntax Highlighting
+## 语法高亮
 
-Code blocks automatically adapt to the theme:
+代码块会自动适配主题：
 
 ```typescript
-// Light mode: github-light theme
-// Dark mode: github-dark theme
+// 浅色模式：github-light 主题
+// 深色模式：github-dark 主题
 
 const highlighter = await getHighlighter({
   themes: ['github-light', 'github-dark'],
@@ -187,19 +187,19 @@ const highlighter = await getHighlighter({
 });
 ```
 
-## Accessibility
+## 无障碍
 
-### Contrast Ratios
+### 对比度
 
-All colors meet WCAG AA standards:
+所有颜色都符合 WCAG AA 标准：
 
-- **Normal text**: 4.5:1 minimum
-- **Large text**: 3:1 minimum
-- **UI components**: 3:1 minimum
+- **普通文本**：最低 4.5:1
+- **大号文本**：最低 3:1
+- **UI 组件**：最低 3:1
 
-### Focus Indicators
+### 焦点指示
 
-Focus states are visible in both themes:
+两种主题下焦点状态都清晰可见：
 
 ```css
 button:focus-visible {
@@ -208,90 +208,90 @@ button:focus-visible {
 }
 ```
 
-### Screen Readers
+### 屏幕阅读器
 
-Theme toggle is properly labeled:
+主题切换按钮带有正确的标签：
 
 ```tsx
-<button aria-label="Toggle dark mode">{/* Icon */}</button>
+<button aria-label="Toggle dark mode">{/* 图标 */}</button>
 ```
 
-## Best Practices
+## 最佳实践
 
-### Test Both Themes
+### 测试两种主题
 
-Always test your content in both light and dark modes:
+务必在浅色和深色两种模式下测试你的内容：
 
 ```bash
 npm run dev
-# Toggle theme and check:
-# - Text readability
-# - Image visibility
-# - Code block contrast
-# - Link colors
+# 切换主题并检查：
+# - 文字可读性
+# - 图片可见性
+# - 代码块对比度
+# - 链接颜色
 ```
 
-### Use CSS Variables
+### 使用 CSS 变量
 
-Use CSS variables instead of hardcoded colors:
+使用 CSS 变量而不是写死的颜色：
 
 ```css
-✅ Good:
+✅ 好：
 .button {
   background: var(--color-primary);
   color: var(--color-text);
 }
 
-❌ Bad:
+❌ 差：
 .button {
   background: #2563eb;
   color: #1f2937;
 }
 ```
 
-### Avoid Pure Black/White
+### 避免纯黑/纯白
 
-Use slightly off-black and off-white for better readability:
+使用略微偏离纯黑/纯白的颜色，以获得更好的可读性：
 
 ```css
-✅ Good:
---color-background: #111827;  /* Dark gray */
---color-text: #f9fafb;        /* Off-white */
+✅ 好：
+--color-background: #111827;  /* 深灰色 */
+--color-text: #f9fafb;        /* 米白色 */
 
-❌ Bad:
---color-background: #000000;  /* Pure black */
---color-text: #ffffff;        /* Pure white */
+❌ 差：
+--color-background: #000000;  /* 纯黑 */
+--color-text: #ffffff;        /* 纯白 */
 ```
 
-### Test Images
+### 测试图片
 
-Some images may not look good in dark mode. Consider:
+有些图片在深色模式下可能效果不佳。可以考虑：
 
 ```markdown
-<!-- Light mode image -->
+<!-- 浅色模式下的图片 -->
 
-![Screenshot](/images/screenshot-light.png)
+![截图](/images/screenshot-light.png)
 
-<!-- Or use CSS to adjust -->
+<!-- 或者用 CSS 来调整 -->
 <img src="/images/screenshot.png" class="dark:opacity-80" />
 ```
 
-## Troubleshooting
+## 故障排查
 
-### Theme Not Persisting
+### 主题未持久化
 
-If theme doesn't persist across page reloads:
+如果刷新页面后主题没有保留：
 
-1. Check localStorage is enabled
-2. Verify theme is saved: `localStorage.getItem('theme')`
-3. Check for JavaScript errors
-4. Clear browser cache
+1. 检查 localStorage 是否已启用
+2. 确认主题已保存：`localStorage.getItem('theme')`
+3. 检查 JavaScript 错误
+4. 清除浏览器缓存
 
-### Flash of Wrong Theme
+### 错误主题闪烁
 
-If you see a flash of light theme on dark mode:
+如果你在深色模式下看到浅色主题一闪而过：
 
-Add this script to `app/layout.tsx` before content:
+在 `app/layout.tsx` 的内容之前添加这段脚本：
 
 ```tsx
 <script
@@ -306,18 +306,18 @@ Add this script to `app/layout.tsx` before content:
 />
 ```
 
-### Colors Not Changing
+### 颜色不变化
 
-If colors don't change when toggling:
+如果切换主题时颜色没有变化：
 
-1. Check `.dark` class is added to `<html>`
-2. Verify CSS variables are defined
-3. Check for CSS specificity issues
-4. Inspect element in DevTools
+1. 检查 `<html>` 上是否添加了 `.dark` 类
+2. 确认 CSS 变量已定义
+3. 检查 CSS 优先级问题
+4. 在 DevTools 中检查元素
 
-## Examples
+## 示例
 
-### Custom Theme Switcher
+### 自定义主题切换器
 
 ```typescript
 export function ThemeSelector() {
@@ -349,27 +349,27 @@ export function ThemeSelector() {
 }
 ```
 
-### Multiple Color Schemes
+### 多套配色方案
 
 ```css
-/* Blue theme (default) */
+/* 蓝色主题（默认） */
 :root {
   --color-primary: #2563eb;
 }
 
-/* Green theme */
+/* 绿色主题 */
 .theme-green {
   --color-primary: #059669;
 }
 
-/* Purple theme */
+/* 紫色主题 */
 .theme-purple {
   --color-primary: #7c3aed;
 }
 ```
 
-## Next Steps
+## 下一步
 
-- [Customize Theme Colors](/configuration/theme)
-- [Learn About Syntax Highlighting](/features/syntax-highlighting)
-- [[url-strategies|Choose a URL strategy]]
+- [定制主题颜色](/example/configuration/theme)
+- [了解语法高亮](/example/features/syntax-highlighting)
+- [[url-strategies|选择 URL 策略]]

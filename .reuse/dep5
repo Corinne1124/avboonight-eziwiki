@@ -1,0 +1,7 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: Avboonight-eziwiki
+
+
+Files: content/*
+Copyright: 2026 忌夜居民的欢乐时光QQ群（1064792999）
+License: CC-BY-NC-ND-4.0

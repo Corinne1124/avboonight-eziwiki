@@ -3,29 +3,29 @@
   <br/><hr/>
 </div>
 
-<p align="center"><em><strong>A modern, lightweight wiki and documentation generator</strong></em></p>
+<p align="center"><em><strong>一个现代、轻量的 wiki 与文档生成器</strong></em></p>
 
 <p align="center">
-  <a href="https://i3months.com">🌐 Live Demo</a> •
-  <a href="https://eziwiki.vercel.app">🌐 Demo (Vercel)</a> •
-  <a href="https://i3months.github.io/eziwiki">🌐 Demo (GitHub Pages)</a>
+  <a href="https://i3months.com">🌐 在线演示</a> •
+  <a href="https://eziwiki.vercel.app">🌐 演示（Vercel）</a> •
+  <a href="https://i3months.github.io/eziwiki">🌐 演示（GitHub Pages）</a>
 </p>
 
-## Introduction
+## 简介
 
-Write Markdown, get a fast static wiki.
+编写 Markdown，即刻得到一个快速的静态 wiki。
 
-- **A file is a page** — drop a `.md` into `content/` and it is published; folders become sections
-- **Search, contents rail, wiki links, embeds, backlinks, and graph views** — built in, no configuration
-- **Rendered at build time** — no Markdown parser or highlighter ships to the browser
-- **Deploy anywhere** — the output is plain static files
+- **一个文件即一个页面** — 向 `content/` 中放入一个 `.md` 文件即发布；文件夹会变成分区
+- **搜索、目录侧栏、Wiki 链接、嵌入、反向链接和关系图视图** — 内置功能，无需配置
+- **构建时渲染** — 不会向浏览器发送任何 Markdown 解析器或高亮器
+- **随处部署** — 输出就是纯静态文件
 
-## Requirements
+## 环境要求
 
-- Node.js 20 or higher
-- npm (comes with Node.js)
+- Node.js 20 或更高版本
+- npm（随 Node.js 一起安装）
 
-## Quick Start
+## 快速开始
 
 ```bash
 npx create-eziwiki my-docs
@@ -34,9 +34,9 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) to see your wiki.
+打开 [http://localhost:3000](http://localhost:3000) 即可看到你的 wiki。
 
-To work from this repository instead — with the full demo content:
+如果改为直接使用本仓库——包含全部演示内容：
 
 ```bash
 git clone https://github.com/i3months/eziwiki.git
@@ -45,14 +45,13 @@ npm install
 npm run dev
 ```
 
-## Upgrading from an earlier version
+## 从旧版本升级
 
-**Page URLs changed.** Earlier versions addressed every page by a hash
-(`/c432b372-e0e30267-e65e26a1`). The default is now the readable content path
-(`/getting-started/quick-start`), which is indexable and shareable.
+**页面 URL 已更改。** 早期版本通过哈希地址访问每个页面
+（`/c432b372-e0e30267-e65e26a1`）。现在默认使用可读的内容路径
+（`/getting-started/quick-start`），便于索引和分享。
 
-If your site is already published and you need the old links to keep working,
-opt back in from `payload/config.ts`:
+如果你的站点已经发布，需要旧链接继续可用，可在 `payload/config.ts` 中重新开启：
 
 ```typescript
 global: {
@@ -60,334 +59,269 @@ global: {
 }
 ```
 
-Otherwise no action is needed — existing Markdown links keep resolving either
-way, since they are written as content paths and resolved at build time.
+否则无需任何操作——现有 Markdown 链接无论哪种方式都能继续解析，因为它们以内容路径书写，并在构建时解析。
 
-Navigation also became optional: pages under `content/` are now discovered
-automatically. An existing `navigation` array keeps working unchanged.
+导航也变为可选项：`content/` 下的页面现在会自动被发现。已有的 `navigation` 数组无需改动即可继续工作。
 
-## Project Structure
+## 项目结构
 
 ```
 eziwiki/
 ├── payload/
-│   └── config.ts          # Site configuration
-├── content/               # Your Markdown files
+│   └── config.ts          # 站点配置
+├── content/               # 你的 Markdown 文件
 │   ├── intro.md
 │   ├── guides/
 │   ├── api/
 │   └── tutorials/
-├── public/                # Static assets
+├── public/                # 静态资源
 │   ├── images/
 │   └── favicon.svg
-├── out/                   # Built site (auto-generated)
+├── out/                   # 构建产物（自动生成）
 │
-├── app/                   # Next.js pages
-├── components/            # React components
-├── lib/                   # Core utilities
-├── scripts/               # Build scripts
-└── styles/                # Global styles
+├── app/                   # Next.js 页面
+├── components/            # React 组件
+├── lib/                   # 核心工具
+├── scripts/               # 构建脚本
+└── styles/                # 全局样式
 ```
 
-**To get started, edit:**
+**开始上手，需要编辑：**
 
-- `payload/config.ts` - Navigation, theme, SEO
-- `content/` - Your Markdown content
-- `public/` - Images and assets
+- `payload/config.ts` - 导航、主题、SEO
+- `content/` - 你的 Markdown 内容
+- `public/` - 图片和资源
 
-**Want to customize further?** You can modify `components/`, `styles/`, and `lib/` to fit your needs.
+**想进一步定制？** 你可以修改 `components/`、`styles/` 和 `lib/` 来满足自己的需求。
 
-## Configuration
+## 配置
 
-### Edit `payload/config.ts`
+### 编辑 `payload/config.ts`
 
 ```typescript
 import { Payload } from '@/lib/payload/types';
 
 export const payload: Payload = {
   global: {
-    title: 'My Wiki',
-    description: 'My personal knowledge base',
-    lang: 'en', // BCP 47 tag; set it if the wiki is not in English
+    title: '我的 Wiki',
+    description: '我的个人知识库',
+    lang: 'en', // BCP 47 语言标签；如果 wiki 不是英文，请设置此项
     baseUrl: 'https://your-site.com',
-    repoUrl: 'https://github.com/you/your-wiki', // Optional; sidebar link and edit links
-    urlStrategy: 'path', // 'path' (readable, SEO-friendly) | 'hash' (opaque)
-    autoNavigation: true, // Discover content/ files not listed below
+    repoUrl: 'https://github.com/you/your-wiki', // 可选；侧边栏链接和编辑链接
+    urlStrategy: 'path', // 'path'（可读、利于 SEO）| 'hash'（不透明）
+    autoNavigation: true, // 自动发现下方未列出的 content/ 文件
   },
-  // Optional. Omit it entirely and navigation is built from content/.
+  // 可选。完全省略它，导航将根据 content/ 自动构建。
   navigation: [
     {
-      name: 'Introduction',
-      path: 'intro', // Links to content/intro.md
+      name: '简介',
+      path: 'intro', // 链接到 content/intro.md
     },
     {
-      name: 'Guides',
-      color: '#fef08a', // Optional folder color
+      name: '指南',
+      color: '#fef08a', // 可选的文件夹颜色
       children: [
-        { name: 'Quick Start', path: 'guides/quick-start' },
-        { name: 'Configuration', path: 'guides/configuration' },
+        { name: '快速开始', path: 'guides/quick-start' },
+        { name: '配置', path: 'guides/configuration' },
       ],
     },
   ],
-  // Optional. Documents shown as images of their pages rather than in the
-  // viewer — for scans, which have no text to lose. See PDF Embeds below.
+  // 可选。将文档以其页面图片的形式展示，而不是在查看器中显示——
+  // 适用于扫描件，它们没有可丢失的文本。参见下文的 PDF 嵌入。
   documents: {
     raster: ['scans/**'],
   },
   theme: {
-    // Optional - uses defaults if omitted. These set the light palette;
-    // dark mode keeps its own. Also: background, text, sidebarBg, codeBg.
+    // 可选 - 省略时使用默认值。这些设置浅色主题的配色；
+    // 深色模式保留自己的配色。还有：background、text、sidebarBg、codeBg。
     primary: '#2563eb',
     secondary: '#7c3aed',
   },
 };
 ```
 
-### Navigation Options
+### 导航选项
 
-Navigation is optional. Every Markdown file under `content/` is published
-automatically, and any file the config does not mention is appended to the
-section matching its directory. Use `navigation` only to control naming and
-ordering; set `global.autoNavigation: false` to make it exhaustive instead.
+导航是可选的。`content/` 下的每个 Markdown 文件都会自动发布，配置中未提及的文件会被追加到与其目录匹配的分区中。仅当你需要控制命名和排序时才使用 `navigation`；设置 `global.autoNavigation: false` 可改为完全由它决定。
 
-Ordering and presentation can also come from the content itself:
+排序和展示也可以来自内容本身：
 
-**Frontmatter (per page):**
+**Frontmatter（每页）：**
 
 ```markdown
 ---
-title: Quick Start # Sidebar label; falls back to the filename
-description: Get going in 5 minutes
-order: 1 # Sort weight within its directory
-hidden: true # Buildable and linkable, but absent from the sidebar
+title: 快速入门 # 侧边栏标签；未设置时回退到文件名
+description: 5 分钟上手
+order: 1 # 在所在目录内的排序权重
+hidden: true # 可构建、可链接，但不会出现在侧边栏
 ---
 ```
 
-**`_meta.json` (per directory):**
+**`_meta.json`（每目录）：**
 
 ```json
-{ "name": "📚 Getting Started", "order": 1, "color": "#dbeafe" }
+{ "name": "📚 开始使用", "order": 1, "color": "#dbeafe" }
 ```
 
-**Basic page:**
+**基本页面：**
 
 ```typescript
-{ name: 'Getting Started', path: 'intro' }
+{ name: '开始使用', path: 'intro' }
 ```
 
-**Folder with children:**
+**带子项的文件夹：**
 
 ```typescript
 {
-  name: 'Guides',
-  color: '#fef08a',  // Optional
+  name: '指南',
+  color: '#fef08a',  // 可选
   children: [
-    { name: 'Setup', path: 'guides/setup' },
+    { name: '安装', path: 'guides/setup' },
   ],
 }
 ```
 
-**Hidden page:**
+**隐藏页面：**
 
 ```typescript
-{ name: 'Secret', path: 'private/notes', hidden: true }
+{ name: '私密笔记', path: 'private/notes', hidden: true }
 ```
 
-### Add Content
+### 添加内容
 
-Create Markdown files in `content/` matching your paths:
+在 `content/` 中创建与你的路径对应的 Markdown 文件：
 
 **`content/guides/quick-start.md`**
 
 ```markdown
 ---
-title: Quick Start Guide
+title: 快速入门指南
 ---
 
-# Quick Start Guide
+# 快速入门指南
 
-Welcome! Check out the [Configuration Guide](/guides/configuration).
+欢迎！请查看[配置指南](/guides/configuration)。
 ```
 
-Frontmatter is optional.
+Frontmatter 是可选的。
 
-## Export
+## 导出
 
-Build your wiki as static files:
+将你的 wiki 构建为静态文件：
 
 ```bash
 npm run build
 ```
 
-Deploy the `out/` directory to Netlify, Vercel, Github pages
+将 `out/` 目录部署到 Netlify、Vercel、GitHub Pages。
 
-## Features
+## 功能特性
 
-### Search
+### 搜索
 
-Press <kbd>⌘K</kbd> (<kbd>Ctrl K</kbd> on Windows and Linux) anywhere, or click the
-search box in the sidebar.
+在任意位置按 <kbd>⌘K</kbd>（在 Windows 和 Linux 上是 <kbd>Ctrl K</kbd>），或点击侧边栏中的搜索框。
 
-Full-text search covers page titles, every heading, and page contents. Results
-link straight to the matching section rather than the top of the page. The index
-is generated at build time into `public/search-index.json` and searched entirely
-in the browser — no server, no third-party service, works on any static host.
+全文搜索覆盖页面标题、每个标题和页面内容。搜索结果直接链接到匹配的小节，而不是页面顶部。索引在构建时生成到 `public/search-index.json`，并完全在浏览器中检索——无需服务器、无需第三方服务，可在任何静态主机上运行。
 
-It is fetched the first time you search, so pages that are only read never
-download it.
+索引在第一次搜索时才加载，因此只浏览不搜索的页面永远不会下载它。
 
-Korean, Japanese, and Chinese content is indexed by character bigrams, so
-searching `위키` matches `위키문서를` — which whitespace tokenisation alone would
-miss.
+韩语、日语和中文内容按字符二元组（bigram）建立索引，因此搜索 `위키` 能匹配 `위키문서를`——仅靠空格分词会漏掉这些情况。
 
-### Table of Contents
+### 目录
 
-Every page gets an automatic contents rail on wide screens, built from its `h2`
-through `h4` headings, with the current section highlighted as you scroll. It is
-rendered at build time, so it is in the HTML rather than assembled by script.
+在宽屏上，每个页面都会自动生成目录侧栏，由页面的 `h2` 到 `h4` 标题构建而成，滚动时会高亮当前所在的小节。它是在构建时渲染的，因此直接包含在 HTML 中，而不是由脚本拼装。
 
-### Heading Anchors
+### 标题锚点
 
-Every heading below the title carries a link to itself, shown on hover or
-keyboard focus, so a section can be shared without reading an id out of the
-address bar.
+标题下方的每个标题都带有指向自身的链接，在悬停或键盘聚焦时显示，这样无需从地址栏复制 id 即可分享某个小节。
 
-### Wiki Links
+### Wiki 链接
 
-Link to a page by name, without knowing where it lives:
+按名称链接到页面，无需知道它存放在哪里：
 
 ```markdown
-[[quick-start]] # by file name
-[[Quick Start]] # by title
-[[getting-started/quick-start]] # by full path
-[[quick-start#prerequisites|Step one]] # anchor and label
+[[quick-start]] # 按文件名
+[[快速入门]] # 按标题
+[[getting-started/quick-start]] # 按完整路径
+[[quick-start#prerequisites|第一步]] # 锚点与标签
 ```
 
-A shorthand matching several pages is refused rather than guessed at, and a
-target matching nothing renders as visibly broken text instead of a dead link.
-`npm run check:links` lists them all — along with an anchor naming a heading
-the page does not have, an ordinary `[link](/page)` to a page that does not
-exist, and a page published at an address the site keeps for itself
-(`/graph/`, `/tags/…`). With `--strict`, as CI runs it, any of these fails the
-build.
+若一个简写匹配多个页面，会拒绝而非猜测；若目标什么都不匹配，会渲染成明显的破损文本，而不是死链接。`npm run check:links` 会列出所有这类问题——包括指向页面没有的标题的锚点、指向不存在页面的普通 `[link](/page)`，以及发布在站点自留地址（`/graph/`、`/tags/…`）上的页面。配合 CI 使用的 `--strict` 选项，以上任何一项都会导致构建失败。
 
-Rest on any wiki link and a card shows the target's title and opening lines.
-Both are written onto the link during the build, so the card costs no request —
-and keyboard users get it on focus, dismissed with <kbd>Esc</kbd>.
+悬停在任意 wiki 链接上，卡片会显示目标的标题和开头几行。两者都在构建时写入链接，因此卡片不产生任何请求——键盘用户聚焦时也能看到，按 <kbd>Esc</kbd> 关闭。
 
-### Embeds and Transclusion
+### 嵌入与引用（包含）
 
-A leading `!` shows the target instead of linking to it, the way a vault does:
+开头的 `!` 会直接显示目标内容而不是链接过去，就像笔记库（vault）那样：
 
 ```markdown
-![[diagram.png]] # an image from public/, by name or by path
-![[diagram.png|Architecture]] # the label becomes alt text
-![[manual.pdf]] # a PDF, in a viewer
-![[quick-start]] # another page's text, inline
-![[quick-start#prerequisites]] # just that section
+![[diagram.png]] # public/ 中的图片，按名称或路径引用
+![[diagram.png|架构]] # 标签会变成 alt 文本
+![[manual.pdf]] # PDF，在查看器中显示
+![[quick-start]] # 另一页面的文本，内联显示
+![[quick-start#prerequisites]] # 仅该小节
 ```
 
-An included page is boxed and carries a link back to where it is maintained, so
-a passage can live in one document and appear wherever it is needed rather than
-being copied.
+被包含的页面会被加框显示，并带有返回其维护位置的链接，这样一段内容可以只存在于一个文档中，在需要的地方出现，而无需复制。
 
-Transclusion applies when the embed is alone in its paragraph — blocks cannot
-sit inside a sentence — and a page cannot include itself, directly or through a
-chain. Nesting stops after three levels. Included headings stay out of the
-contents rail, which describes the page you are on.
+仅当嵌入单独占据一个段落时才进行引用（包含）——块不能放在句子中间——并且页面不能直接或通过链条间接包含自身。嵌套最多三层。被包含的标题不会进入目录侧栏，目录描述的是你正在浏览的页面。
 
-### PDF Embeds
+### PDF 嵌入
 
-A PDF embedded on its own line is shown as its first page, drawn to WebP during
-the build. Press Open and it becomes a viewer that follows the theme: pages
-drawn as you reach them, a counter that follows the scroll, zoom, download, and
-full screen.
+单独一行嵌入的 PDF 会显示为第一页，在构建时渲染为 WebP。点击「打开」后它会变成一个跟随主题的查看器：翻到哪页绘制哪页、跟随滚动的页码计数器、缩放、下载和全屏。
 
-pdf.js — a megabyte of parser — is fetched only when a reader actually opens a
-document, so passing one by costs a single image. What the build emits is that
-image and a link to the file, which is also what a reader without JavaScript is
-left with.
+pdf.js——一个 1 MB 的解析器——只在读者真正打开文档时才加载，因此浏览经过时只消耗一张图片。构建产出的就是这张图片和文件链接，禁用 JavaScript 的读者看到的也是这些。
 
-Posters need `npm i -D @napi-rs/canvas`, which is not installed by default; the
-build says so when it finds a PDF without it, and documents open either way. The
-data pdf.js fetches for character maps, standard fonts, and image codecs is
-staged into `public/pdfjs/` — but only when the wiki contains a PDF, so a wiki
-without one deploys nothing extra.
+封面图需要 `npm i -D @napi-rs/canvas`，默认并未安装；构建在发现 PDF 缺少它时会给出提示，而且文档无论如何都能打开。pdf.js 为字符映射、标准字体和图像编解码器获取的数据会被暂存到 `public/pdfjs/`——但仅当 wiki 中包含 PDF 时才如此，所以不含 PDF 的 wiki 不会部署任何额外内容。
 
-Scans are the exception, and they opt in:
+扫描件是例外，需要显式开启：
 
 ```typescript
 documents: {
-  raster: ['scans/**'], // paths under public/; * ** ? understood
+  raster: ['scans/**'], // public/ 下的路径；支持 * ** ?
 }
 ```
 
-Those documents get every page drawn instead, and are shown as those images —
-no viewer, no pdf.js, no script at all. A scanned page is already a picture and
-carries no text to select or search, so nothing is lost, and the demo scan is
-_smaller_ that way: 247 kB as a PDF, 90 kB as images.
+这些文档会改为逐页绘制，并以这些图片的形式展示——没有查看器、没有 pdf.js、没有任何脚本。扫描页本身已经是图片，没有可选中或可搜索的文本，所以不会有任何损失，而且示例扫描件这样反而_更小_：作为 PDF 是 247 kB，作为图片是 90 kB。
 
-It stays opt-in because the same treatment ruins a text document — a six-page
-text PDF of 33 kB becomes 1.3 MB of WebP and loses its text layer with it — and
-nothing about a file says reliably which kind it is.
+之所以保持默认关闭，是因为同样的处理会毁掉文本文档——一个 33 kB 的六页文本 PDF 会变成 1.3 MB 的 WebP，并随之丢失文本层——而且从文件本身无法可靠判断它是哪种类型。
 
-### Tags
+### 标签
 
-A file sits in one folder, so the sidebar shows one arrangement. `tags` in
-frontmatter give the other:
+一个文件只属于一个文件夹，所以侧边栏只显示一种组织方式。frontmatter 中的 `tags` 提供另一种：
 
 ```markdown
 ---
-title: Deploying to Vercel
+title: 部署到 Vercel
 tags: [deployment, hosting]
 ---
 ```
 
-Each subject gets a page at `/tags/<name>`, `/tags` lists them all, and every
-tagged page shows what it belongs to. Hidden pages stay out.
+每个主题在 `/tags/<name>` 下都有对应页面，`/tags` 列出全部主题，每个带标签的页面都会显示它所属的主题。隐藏页面不会出现。
 
-### Crawlers and Answer Engines
+### 爬虫与答案引擎
 
-Every page carries a canonical URL, Open Graph and Twitter cards, `Article`
-structured data, and a `BreadcrumbList` matching the trail the page actually
-shows — a trail stated but not shown is the kind of mismatch that costs more
-than the markup gains.
+每个页面都带有 canonical URL、Open Graph 和 Twitter 卡片、`Article` 结构化数据，以及与页面实际显示的路径一致的 `BreadcrumbList`——声明了却不显示的路径，这种不一致带来的损失超过标记带来的收益。
 
-`sitemap.xml` dates each page from the commit that last touched it. That is the
-whole point of the field: a sitemap that stamps every page with the moment the
-site was published tells a crawler that all of it changed, every deploy, until
-the crawler stops believing the field. A page with no history yet carries no
-date rather than a guess, and an index page carries the newest date among the
-pages it lists.
+`sitemap.xml` 以最后一次修改页面的提交来为每个页面标注日期。这正是该字段的意义所在：如果 sitemap 给每个页面都盖上站点发布时刻的时间戳，就等于每次部署都告诉爬虫所有内容都变了，直到爬虫不再相信这个字段。还没有任何历史的页面不带日期，而不是随便猜一个；索引页面则取其所列页面中最新的日期。
 
-`llms.txt` is written for the other kind of reader. An answer engine arriving
-at a page gets navigation it cannot use, a contents rail, a search box, and the
-article somewhere inside; it has to infer what the site is and which pages
-matter, and the sidebar is thirty links while the article is one. The file
-states it instead — the wiki's name, what it is, and every page with a sentence
-about it, in reading order:
+`llms.txt` 是为另一种读者准备的。答案引擎到达一个页面时，看到的是它用不上的导航、目录侧栏、搜索框，以及藏在某个角落的文章；它必须自己推断站点是什么、哪些页面重要——侧边栏有三十个链接，而文章只有一个。这个文件直接把这些讲清楚——wiki 的名称、它是什么、每个页面的一句话介绍，按阅读顺序排列：
 
 ```markdown
-# My Wiki
+# 我的 Wiki
 
-> My personal knowledge base
+> 我的个人知识库
 
-## Pages
+## 页面
 
-- [Quick Start](https://example.com/getting-started/quick-start/): Get going in 5 minutes.
+- [快速入门](https://example.com/getting-started/quick-start/): 5 分钟上手。
 ```
 
-It is generated from the same registry the sitemap uses, so a page added,
-renamed or re-described appears there without anyone maintaining a second list.
-Hidden pages are left out of both.
+它由 sitemap 使用的同一注册表生成，因此新增、重命名或改写描述的页面会自动出现在其中，无需任何人维护第二份列表。两个文件都不会包含隐藏页面。
 
-### Wanted Pages
+### 待建页面
 
-A link to a page that does not exist yet is how a wiki grows: someone writes
-`[[deploying to fly]]` while writing about something else, because that is when
-they know the page is needed. `npm run check:links` collects those from the
-other end — by the page being asked for rather than by the page asking — so the
-report is a list of things to write, most-wanted first:
+链接到一个尚不存在的页面正是 wiki 成长的方式：有人在写别的内容时写下 `[[deploying to fly]]`，因为正是在那一刻他们知道这个页面是需要的。`npm run check:links` 从另一端收集这些链接——按被请求的页面而非发起请求的页面统计——因此报告就是一份待写内容清单，按需求热度排序：
 
 ```
 Wanted — 1 page linked to but not written, most-wanted first:
@@ -398,8 +332,7 @@ Wanted — 1 page linked to but not written, most-wanted first:
     npm run new deploying-to-fly
 ```
 
-That last line is the whole of it. `npm run new` creates the file with its
-frontmatter, at the path the link implies:
+最后一行就是全部答案。`npm run new` 会按链接所暗示的路径创建文件及其 frontmatter：
 
 ```bash
 npm run new guides/deploying
@@ -407,34 +340,23 @@ npm run new "Deploying to Fly"                    # → deploying-to-fly.md
 npm run new guides/setup -- --title "Set it up"   # npm needs the `--`
 ```
 
-A target written as a title keeps its capitalisation, which is what makes the
-link that asked for it resolve. Nothing else is needed — the page is published
-on the next build. An existing file is never overwritten.
+以标题形式书写的目标会保留其大小写，这正是让请求它的链接得以解析的原因。除此之外无需任何操作——页面会在下一次构建时发布。已有文件永远不会被覆盖。
 
-`/graph` lists the same wanted pages, so the gap is visible from the site as
-well as from the terminal.
+`/graph` 也会列出同样的待建页面，因此这个缺口在站点和终端里都能看到。
 
-### Wiki Health
+### Wiki 健康检查
 
-`npm run check:links` also reports the two problems a link check cannot see,
-because they are about links that are missing rather than links that are wrong:
-**orphans** (nothing links here) and **dead ends** (no links out). Neither fails
-the build — a correct wiki can have both — but neither is visible from inside a
-single page either.
+`npm run check:links` 还会报告两种链接检查无法发现的问题，因为它们关乎缺失的链接而非错误的链接：**孤页（orphans）**（没有任何链接指向）和**死胡同（dead ends）**（没有向外链接）。两者都不会导致构建失败——一个正确的 wiki 完全可以同时存在这两种情况——但它们也无法从单个页面内部看到。
 
-### Diagrams
+### 图表
 
-A ```mermaid fence is drawn during the build and arrives as an SVG — no
-renderer ships to the browser, nothing shifts as the page loads, and a crawler
-sees the diagram. Colours come from the stylesheet, so it follows dark mode.
+一个 ```mermaid 围栏会在构建时被绘制并输出为 SVG——不会向浏览器发送任何渲染器，页面加载时不会发生布局位移，爬虫也能看到图表。颜色来自样式表，因此会跟随深色模式。
 
-`flowchart`, `sequenceDiagram`, `stateDiagram-v2`, `classDiagram` and
-`erDiagram` are supported; anything else stays a code block rather than
-stopping the build.
+支持 `flowchart`、`sequenceDiagram`、`stateDiagram-v2`、`classDiagram` 和 `erDiagram`；其他类型会保持为代码块，而不会中断构建。
 
-### Code Blocks
+### 代码块
 
-A fence can say more than its language:
+一个围栏能表达的比它的语言更多：
 
 ````markdown
 ```typescript title="lib/greet.ts" {2,4-6} showLineNumbers
@@ -442,102 +364,78 @@ A fence can say more than its language:
 ```
 ````
 
-`title=` (or `file=`) replaces the language in the bar, since a filename says
-more than "TypeScript" does. `{2,4-6}` marks the lines being discussed, so
-prose does not have to ask the reader to count. `showLineNumbers` runs a gutter
-down the left, drawn by a CSS counter rather than written into the markup —
-which is what keeps the numbers out of what gets copied.
+`title=`（或 `file=`）会替换栏中的语言名，因为文件名比「TypeScript」更能说明问题。`{2,4-6}` 标记正在讨论的行，这样正文就不必让读者自己数行号。`showLineNumbers` 在左侧生成一个行号槽，由 CSS 计数器绘制而不是写进标记里——这正是复制时不会带上行号的原因。
 
-All of it is resolved during the build. An annotation meant for some other tool
-is ignored rather than rejected, so a document written elsewhere still renders
-as the code it is.
+这一切都在构建时完成。为其他工具准备的注解会被忽略而不是报错，因此从别处写好的文档仍会按其代码原样渲染。
 
-### Maths
+### 数学公式
 
-`$…$` and `$$…$$` are typeset with [KaTeX](https://katex.org) during the build,
-so the browser receives finished markup — no formula parser is downloaded and
-nothing reflows once the page settles.
+`$…$` 和 `$$…$$` 会在构建时用 [KaTeX](https://katex.org) 排版，因此浏览器收到的是排好的标记——无需下载公式解析器，页面稳定后也不会再发生重排。
 
 ```markdown
-The mass–energy relation is $E = mc^2$.
+质能关系是 $E = mc^2$。
 
 $$
 \int_0^1 x^2 \, dx = \frac{1}{3}
 $$
 ```
 
-Inline maths sits inside a sentence; a `$$` block stands alone and is centred.
-The only standing cost is KaTeX's stylesheet, 3.6 kB gzipped and shared by
-every page; its fonts are fetched only by the pages that actually draw a
-formula.
+行内公式位于句子之中；`$$` 块独立成行并居中。唯一常驻的开销是 KaTeX 的样式表，gzip 后 3.6 kB，由每个页面共享；它的字体只有真正绘制公式的页面才会加载。
 
-### GitHub Flavored Markdown
+### GitHub 风格 Markdown
 
-Tables, task lists, footnotes, strikethrough and bare URLs behave as they do on
-GitHub:
+表格、任务列表、脚注、删除线和裸 URL 的行为与在 GitHub 上一致：
 
 ```markdown
-| Option | Default |
+| 选项 | 默认值 |
 | ------ | ------: |
 | `lang` |    `en` |
 
-- [x] Written
-- [ ] Reviewed
+- [x] 已撰写
+- [ ] 已审阅
 
-A claim worth sourcing[^1]. ~~Struck out.~~ <https://example.com>
+需要注明来源的说法[^1]。~~已划掉。~~ <https://example.com>
 
-[^1]: Footnotes collect at the foot of the page, each linking back.
+[^1]: 脚注会集中出现在页面底部，每条都链接回正文。
 ```
 
-Emoji shortcodes such as `:smile:` are not expanded — write the character
-itself, 😊, which needs no build step and reads the same in the source file.
+诸如 `:smile:` 之类的 emoji 简写不会被展开——直接写字符本身，😊，无需构建步骤，在源文件中读起来也一样。
 
-### Callouts
+### 提示框
 
-A blockquote opening with `[!KIND]` becomes a callout, using the syntax GitHub
-and Obsidian share:
+以 `[!KIND]` 开头的引用块会变成提示框，使用 GitHub 和 Obsidian 共有的语法：
 
 ```markdown
-> [!WARNING] Mind the gap
-> A title on the marker line replaces the default.
+> [!WARNING] 注意空隙
+> 标记行上的标题会替换默认标题。
 
-> [!TIP]- Folded away
-> A trailing `-` makes it a `<details>`, which needs no script.
+> [!TIP]- 折叠收起
+> 末尾的 `-` 会将其变成 `<details>`，无需任何脚本。
 ```
 
-`note`, `tip`, `important`, `warning` and `caution` each carry a colour, and
-Obsidian's longer list maps onto the nearest of them. An unrecognised kind
-stays an ordinary quote.
+`note`、`tip`、`important`、`warning` 和 `caution` 各有对应的颜色，Obsidian 更长的类型列表会映射到其中最近的一个。无法识别的类型保持为普通引用。
 
-### Aliases
+### 别名
 
-Pages move. Since a URL comes from a file's path, moving one breaks every link
-to the old address — declare it and the old URL keeps answering:
+页面会移动。由于 URL 来自文件的路径，移动页面会破坏所有指向旧地址的链接——声明别名后，旧 URL 会继续响应：
 
 ```markdown
 ---
-title: Setup
+title: 安装
 aliases:
   - guides/setup
 ---
 ```
 
-Each alias is built as a page that forwards, `noindex`, with its canonical
-pointing at the destination. An alias that shadows a real page, or that two
-pages claim, stops the build.
+每个别名都会构建成一个转发页面，标记为 `noindex`，其 canonical 指向目标页面。若别名遮蔽了真实页面，或被两个页面同时声明，构建会中止。
 
-### Reading Order
+### 阅读顺序
 
-Every page ends with links to the previous and next page. The sequence is the
-sidebar flattened, so it follows `order` and `_meta.json` without separate
-configuration, and hidden pages are skipped. The links carry `rel="prev"` and
-`rel="next"`.
+每个页面末尾都有上一篇和下一篇的链接。顺序是侧边栏的扁平化结果，因此无需额外配置即可遵循 `order` 和 `_meta.json`，隐藏页面会被跳过。链接带有 `rel="prev"` 和 `rel="next"`。
 
-### Interface Language
+### 界面语言
 
-The pages are in whatever language they were written in, and so is the wiki
-around them. Set `global.lang` and the search box, the contents rail, the
-previous/next links and the rest follow:
+页面使用其书写时所用的语言，wiki 周围的界面也如此。设置 `global.lang` 后，搜索框、目录侧栏、上一篇/下一篇链接等都会随之切换：
 
 ```typescript
 global: {
@@ -545,8 +443,7 @@ global: {
 }
 ```
 
-English and Korean are translated. Any other language writes its own words,
-one key at a time, and keeps the English for whatever it leaves out:
+英语、韩语和中文已内置翻译。其余语言可以通过 `global.strings` 逐项自定义，未覆盖的部分会保留英文。
 
 ```typescript
 global: {
@@ -555,21 +452,15 @@ global: {
 }
 ```
 
-The keys are those of `Strings` in `lib/i18n/strings.ts`. Dates follow `lang`
-too, so a Korean wiki reads `2026년 8월 3일` rather than `August 3, 2026`.
+键与 `lib/i18n/strings.ts` 中 `Strings` 的键一致。日期也跟随 `lang`，因此韩语 wiki 会显示 `2026년 8월 3일` 而不是 `August 3, 2026`。
 
-Resolved during the build and passed to the page as plain data: a reader
-downloads the one language the wiki is in, not every language it has been
-translated into.
+在构建时解析，并以纯数据的形式传给页面：读者下载的是 wiki 所用的一种语言，而不是它翻译过的所有语言。
 
-### Last Updated
+### 最后更新时间
 
-Every page says when it last changed. Nothing has to be maintained for that to
-be true: the date comes from the last commit that touched the file, which is
-the one record of a page's age that cannot fall out of step with the page.
+每个页面都会显示最后修改时间。要做到这一点无需维护任何东西：日期来自最后一次修改文件的提交，这是唯一不会与页面脱节的页面年龄记录。
 
-Override it from the frontmatter when the commit is not the story — a typo
-fixed today does not make a page from March any newer:
+当提交不能说明问题时，可以从 frontmatter 覆盖它——今天修一个错别字并不会让三月的页面变得更新：
 
 ```markdown
 ---
@@ -577,116 +468,88 @@ updated: 2026-03-14
 ---
 ```
 
-A page not yet committed carries no date rather than the build time, which
-would claim every page was revised the moment the site was published. Since the
-history is what supplies the dates, a shallow clone can only date the pages
-touched within the commits it has; older ones are left undated rather than
-dated wrongly. On GitHub Actions, check out with `fetch-depth: 0`; on Vercel,
-set the `VERCEL_DEEP_CLONE` environment variable to `true`.
+尚未提交的页面不显示日期，而不是显示构建时间——构建时间会声称每个页面都在站点发布那一刻被修订过。由于日期来自提交历史，浅克隆只能为它拥有的提交所涉及的页面标注日期；更早的页面保持无日期状态，而不是被错误标注。在 GitHub Actions 上，请使用 `fetch-depth: 0` 检出；在 Vercel 上，将 `VERCEL_DEEP_CLONE` 环境变量设置为 `true`。
 
-The same date reaches structured data as `dateModified`, so a reader and a
-crawler are never told different things.
+同一个日期也会以 `dateModified` 进入结构化数据，因此读者和爬虫永远不会得到不同的信息。
 
-### Edit This Page
+### 编辑本页
 
-A wiki is worth more when whoever spots the mistake can fix it, and most of
-what decides whether they do is the distance between the two. Set `repoUrl` and
-every page carries a link straight to its own source:
+当发现错误的人能够修复它时，wiki 才更有价值，而决定他们是否动手的关键往往是两者之间的距离。设置 `repoUrl` 后，每个页面都会带有直达其源码的链接：
 
 ```typescript
 global: {
   repoUrl: 'https://github.com/you/your-wiki',
-  editBranch: 'main', // optional; 'main' unless said otherwise
+  editBranch: 'main', // 可选；除非另行指定，默认为 'main'
 }
 ```
 
-github.com and gitlab.com are recognised from the URL alone. For anything else
-— a self-hosted forge, a different content directory — give the shape directly,
-with `{path}` where the file goes:
+仅凭 URL 即可识别 github.com 和 gitlab.com。对于其他情况——自托管的代码托管平台、不同的内容目录——直接给出模板，用 `{path}` 表示文件位置：
 
 ```typescript
 editUrl: 'https://git.example.com/wiki/-/edit/main/content/{path}';
 ```
 
-Configure neither and no page offers a link, which is what a private or
-unpublished wiki wants.
+两者都不配置，就没有页面会提供链接——这正是私有或未发布的 wiki 想要的。
 
-### Backlinks and Graph
+### 反向链接与关系图
 
-Every page ends with the pages that link to it, gathered from both wiki links
-and ordinary Markdown links, and with a small graph of its own neighbourhood:
-the page, everything one link away in either direction, and the links among
-those neighbours.
+每个页面末尾都会列出链接到它的页面——同时来自 Wiki 链接和普通 Markdown 链接——以及一张展示其周边关系的小型关系图：该页面、双向一步链接可达的所有页面，以及这些邻居之间的链接。
 
-The `/graph` page draws the whole site — node size by link count, hover to
-isolate a neighbourhood, click to navigate. It is plain SVG with a small
-force-directed layout, so no charting library is downloaded anywhere.
+`/graph` 页面绘制整个站点——节点大小按链接数计算，悬停可隔离某个邻域，点击可导航。它是纯 SVG 加一个简单的力导向布局，因此任何地方都无需下载图表库。
 
-### URL Strategies
+### URL 策略
 
-Set `global.urlStrategy` in `payload/config.ts`:
+在 `payload/config.ts` 中设置 `global.urlStrategy`：
 
 ```
-'path' (default)  guides/setup → /guides/setup
-'hash'            guides/setup → /c432b372-e0e30267-e65e26a1
+'path'（默认）  guides/setup → /guides/setup
+'hash'          guides/setup → /c432b372-e0e30267-e65e26a1
 ```
 
-`path` gives readable, indexable, shareable URLs. `hash` conceals the content
-structure, at the cost of SEO and of URLs anyone can interpret — reach for it
-only when obscurity is the point.
+`path` 提供可读、可索引、可分享的 URL。`hash` 会隐藏内容结构，代价是 SEO 和任何人都能看懂的 URL——只有在需要隐藏时才用它。
 
-Either way, write ordinary paths in Markdown and they resolve automatically:
+无论哪种方式，在 Markdown 中写普通路径都会自动解析：
 
 ```markdown
-[Setup Guide](/guides/setup)
+[安装指南](/guides/setup)
 ```
 
-List every page and its URL: `npm run show-urls`
+列出每个页面及其 URL：`npm run show-urls`
 
-### Build-Time Rendering
+### 构建时渲染
 
-Markdown is compiled to HTML during the build — parsed, syntax-highlighted with
-[Shiki](https://shiki.style), and link-resolved — so no Markdown parser or
-highlighter is shipped to the browser. Content pages load **88 kB** of JS
-instead of the 314 kB a runtime renderer required.
+Markdown 在构建时被编译为 HTML——解析、用 [Shiki](https://shiki.style) 做语法高亮、解析链接——因此不会向浏览器发送任何 Markdown 解析器或高亮器。内容页面加载 **88 kB** 的 JS，而运行时渲染器需要 314 kB。
 
-Shiki bundles grammars for over a hundred languages, and loading all of them
-costs ~20s before the first page renders. eziwiki scans your content and loads
-only the languages it actually contains, plus common defaults — initialisation
-drops to under a second. Unrecognised fences render as plain text rather than
-failing the build.
+Shiki 内置了一百多种语言的语法定义，全部加载需要约 20 秒才能渲染出第一页。eziwiki 会扫描你的内容，只加载实际用到的语言，再加上一些常用默认项——初始化时间降到一秒以内。无法识别的围栏会渲染为纯文本，而不是导致构建失败。
 
-### Automatic Navigation
+### 自动导航
 
-There is no navigation array to maintain — this repository's own
-`payload/config.ts` has none. Pages are discovered under `content/`, grouped by
-folder, and ordered by frontmatter `order` and per-folder `_meta.json`:
+没有需要维护的 navigation 数组——本仓库自己的 `payload/config.ts` 中就没有。页面在 `content/` 下被自动发现，按文件夹分组，并按 frontmatter 的 `order` 和每个文件夹的 `_meta.json` 排序：
 
 ```json
-{ "name": "📚 Getting Started", "order": 2, "color": "#dbeafe" }
+{ "name": "📚 开始使用", "order": 2, "color": "#dbeafe" }
 ```
 
-Add a `navigation` array when you want manual control; it does not have to be
-exhaustive, since undeclared pages are still discovered and appended.
+当你想要手动控制时，添加 `navigation` 数组即可；它不必面面俱到，因为未声明的页面仍会被发现并追加进来。
 
-## Commands
+## 命令
 
 ```bash
-npm run dev              # Development server
-npm run build            # Build for production
-npm run validate:payload # Check configuration
-npm run check:links      # Report unresolved links and pages worth writing
-npm run new <path>       # Create a page, frontmatter and all
-npm run build:search     # Regenerate the search index
-npm run show-urls        # List every page and its URL
-npm run build:template   # Rebuild the create-eziwiki template
-npm test                 # Run the test suite
+npm run dev              # 开发服务器
+npm run build            # 构建生产版本
+npm run validate:payload # 检查配置
+npm run check:links      # 报告未解析的链接和值得撰写的页面
+npm run new <path>       # 创建页面，含 frontmatter
+npm run build:search     # 重新生成搜索索引
+npm run show-urls        # 列出每个页面及其 URL
+npm run build:template   # 重新构建 create-eziwiki 模板
+npm test                 # 运行测试套件
 ```
 
-## Contributing
+## 参与贡献
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+参与指南请参阅 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
-## License
+## 许可证
 
-MIT License - see [LICENSE](LICENSE) for details.
+MIT 许可证——详情请参阅 [LICENSE](LICENSE)。

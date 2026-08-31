@@ -1,26 +1,26 @@
-# Images Directory
+# 图片目录
 
-This folder stores images used in documentation.
+此文件夹存放文档中使用的图片。
 
-## Structure
+## 结构
 
-- `docs/` - Documentation images (diagrams, explanatory images, etc.)
-- `screenshots/` - Screenshots
-- `icons/` - Icons and small images
+- `docs/` - 文档图片（示意图、说明图等）
+- `screenshots/` - 截图
+- `icons/` - 图标和小图片
 
-## Usage
+## 用法
 
-Reference images in markdown files like this:
+在 Markdown 文件中这样引用图片：
 
 ```markdown
-![Description](/images/docs/example.png)
-![Screenshot](/images/screenshots/demo.png)
-![Icon](/images/icons/logo.svg)
+![描述](/images/docs/example.png)
+![截图](/images/screenshots/demo.png)
+![图标](/images/icons/logo.svg)
 ```
 
-## Image Optimization Tips
+## 图片优化建议
 
-- PNG: Screenshots, images requiring transparency
-- JPG: Photos, complex images
-- SVG: Icons, logos, vector graphics
-- WebP: Optimized format for modern browsers
+- PNG：截图、需要透明背景的图片
+- JPG：照片、复杂图片
+- SVG：图标、Logo、矢量图形
+- WebP：面向现代浏览器的优化格式

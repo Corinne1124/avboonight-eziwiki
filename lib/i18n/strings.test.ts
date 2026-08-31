@@ -8,6 +8,7 @@ describe('resolveStrings', () => {
 
   it('translates a language it knows', () => {
     expect(resolveStrings('ko').onThisPage).toBe('이 페이지의 목차');
+    expect(resolveStrings('zh').onThisPage).toBe('本页目录');
   });
 
   it('ignores the region a tag carries', () => {
@@ -46,7 +47,7 @@ describe('translation completeness', () => {
     // A missing key would fall back to English silently, leaving one English
     // word in an otherwise translated interface — the kind of gap that is only
     // ever found by a reader.
-    for (const lang of ['ko']) {
+    for (const lang of ['ko', 'zh']) {
       const table = resolveStrings(lang);
       const missing = KEYS.filter((key) => !table[key]);
 
@@ -57,7 +58,7 @@ describe('translation completeness', () => {
   it('keeps every placeholder a translation is given', () => {
     const placeholders = (value: string) => (value.match(/\{\w+\}/g) ?? []).sort();
 
-    for (const lang of ['ko']) {
+    for (const lang of ['ko', 'zh']) {
       const table = resolveStrings(lang);
 
       for (const key of KEYS) {

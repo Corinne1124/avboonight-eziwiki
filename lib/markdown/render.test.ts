@@ -115,9 +115,7 @@ describe('renderMarkdown', () => {
   });
 
   it('preserves the anchor when resolving an internal link', async () => {
-    const { html } = await renderMarkdown(
-      '[步骤](example/getting-started/quick-start#step-two)\n',
-    );
+    const { html } = await renderMarkdown('[步骤](example/getting-started/quick-start#step-two)\n');
 
     expect(html).toContain('href="/example/getting-started/quick-start/#step-two"');
   });

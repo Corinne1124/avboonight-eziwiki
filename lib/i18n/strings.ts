@@ -178,6 +178,12 @@ export interface Strings {
   graphSummary: string;
   /** How to read the graph */
   graphHint: string;
+  /** Makes the graph bigger */
+  graphZoomIn: string;
+  /** Makes the graph smaller */
+  graphZoomOut: string;
+  /** Returns the graph to its fitted view */
+  graphResetView: string;
   /** Heading above the links that resolve to nothing. `{count}` */
   unresolvedLinks: string;
   /** One unresolved link. `{target}`, `{page}` */
@@ -285,7 +291,11 @@ const EN: Strings = {
   graphEmpty: 'No pages to graph yet.',
   graphSummary:
     '{pages} pages, {links} links. {connected} pages are connected to at least one other.',
-  graphHint: 'Hover a node to isolate its neighbours; click to open the page.',
+  graphHint:
+    'Hover a node to isolate its neighbours; click to open the page, drag to pan, and scroll or pinch to zoom.',
+  graphZoomIn: 'Zoom in',
+  graphZoomOut: 'Zoom out',
+  graphResetView: 'Reset view',
   unresolvedLinks: 'Unresolved links ({count})',
   unresolvedLink: '{target} in {page}',
   unresolvedAmbiguous: 'matches {candidates}',
@@ -381,7 +391,11 @@ const KO: Strings = {
   graphLabel: '문서 {pages}개와 링크 {links}개의 연결 그래프',
   graphEmpty: '아직 그릴 문서가 없습니다.',
   graphSummary: '문서 {pages}개, 링크 {links}개. 그중 {connected}개가 다른 문서와 이어져 있습니다.',
-  graphHint: '노드에 마우스를 올리면 이웃만 남고, 클릭하면 해당 문서로 이동합니다.',
+  graphHint:
+    '노드에 마우스를 올리면 이웃만 남고, 클릭하면 해당 문서로 이동합니다. 드래그로 이동하고, 스크롤이나 두 손가락으로 확대·축소할 수 있습니다.',
+  graphZoomIn: '확대',
+  graphZoomOut: '축소',
+  graphResetView: '보기 초기화',
   unresolvedLinks: '연결되지 않은 링크 ({count})',
   unresolvedLink: '{page}의 {target}',
   unresolvedAmbiguous: '{candidates}에 모두 해당',
@@ -476,7 +490,10 @@ const ZH: Strings = {
   graphLabel: '{pages} 个页面，{links} 条链接的关系图',
   graphEmpty: '暂无页面可绘制关系图。',
   graphSummary: '共 {pages} 个页面，{links} 条链接，其中 {connected} 个页面至少与其他页面相连。',
-  graphHint: '悬停节点可高亮其相邻节点，点击节点可打开对应页面。',
+  graphHint: '悬停节点可高亮其相邻节点，点击可打开页面，拖动可平移视角，滚动或双指可缩放。',
+  graphZoomIn: '放大',
+  graphZoomOut: '缩小',
+  graphResetView: '重置视图',
   unresolvedLinks: '断链（{count}）',
   unresolvedLink: '{page} 中的 {target}',
   unresolvedAmbiguous: '匹配到 {candidates} 个候选',

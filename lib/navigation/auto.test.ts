@@ -28,6 +28,18 @@ function findSectionContaining(items: NavigationItem[], path: string): Navigatio
   return null;
 }
 
+/** Finds a navigation node by the content path it publishes, at any depth. */
+function findByPath(items: NavigationItem[], path: string): NavigationItem | null {
+  for (const item of items) {
+    if (item.path === path) return item;
+    if (item.children) {
+      const found = findByPath(item.children, path);
+      if (found) return found;
+    }
+  }
+  return null;
+}
+
 describe('mergeDiscoveredDocs', () => {
   it('builds the whole tree from content when nothing is curated', () => {
     const merged = mergeDiscoveredDocs([]);
@@ -123,5 +135,58 @@ describe('mergeDiscoveredDocs', () => {
     const rootPaths = merged.filter((item) => item.path).map((item) => item.path);
 
     expect(rootPaths).toContain('jiye');
+  });
+
+  it('publishes a folder with index.md as a page holding its siblings', () => {
+    const node = findByPath(mergeDiscoveredDocs([]), 'example/folder-demo');
+
+    expect(node).not.toBeNull();
+    const childPaths = node?.children?.map((child) => child.path) ?? [];
+    expect(childPaths).toContain('example/folder-demo/branch');
+    expect(childPaths).toContain('example/folder-demo/second');
+    // The page must not also appear among its own children.
+    expect(childPaths).not.toContain('example/folder-demo');
+  });
+
+  it('keeps the folder page once in the tree', () => {
+    const paths = extractAllPaths(mergeDiscoveredDocs([]));
+
+    expect(paths.filter((path) => path === 'example/folder-demo')).toHaveLength(1);
+  });
+
+  it('nests folder pages recursively', () => {
+    const node = findByPath(mergeDiscoveredDocs([]), 'example/folder-demo/deeper');
+
+    expect(node).not.toBeNull();
+    expect(node?.children?.map((child) => child.path)).toContain('example/folder-demo/deeper/leaf');
+  });
+
+  it('keeps the folder presentation on the page node', () => {
+    const node = findByPath(mergeDiscoveredDocs([]), 'example/folder-demo');
+
+    // The folder's `_meta.json` hides it from the sidebar...
+    expect(node?.hidden).toBe(true);
+    // ...and the page's own title and icon fill in what the folder does not
+    // declare.
+    expect(node?.name).toBe('文件夹页面演示');
+    expect(node?.icon).toBe('📁');
+  });
+
+  it('keeps a folder holding only index.md an ordinary leaf page', () => {
+    const node = findByPath(mergeDiscoveredDocs([]), 'example/solo-demo');
+
+    expect(node).not.toBeNull();
+    expect(node?.path).toBe('example/solo-demo');
+    expect(node?.children).toBeUndefined();
+    expect(node?.name).toBe('独立目录页示例');
+  });
+
+  it('publishes only the folder page when x.md and x/index.md both exist', () => {
+    const merged = mergeDiscoveredDocs([]);
+    const node = findByPath(merged, 'example/precedence');
+
+    expect(node).not.toBeNull();
+    expect(node?.name).toBe('目录页优先示例');
+    expect(extractAllPaths(merged).filter((path) => path === 'example/precedence')).toHaveLength(1);
   });
 });

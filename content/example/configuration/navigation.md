@@ -67,6 +67,30 @@ content/getting-started/ order: 2   → 第二
 content/configuration/   order: 3   → 第三
 ```
 
+## 文件夹页面：让页面拥有子页面
+
+文件夹默认只是把页面归到一组，组名本身不可点击。想让一个页面拥有子页面——侧边栏里表现为"可点击的父页面 + 展开箭头 + 下方缩进的子页面"——在它的文件夹里放一个 `index.md` 即可：
+
+```
+content/
+├── ailan/
+│   ├── index.md     → 发布为 ailan（URL：/ailan）
+│   ├── story.md     → 作为它的子页面
+│   └── abilities.md → 作为它的子页面
+```
+
+侧边栏中 `ailan` 是一个普通的可点击页面（有自己的内容与 URL `/ailan`），行首带展开箭头，`story.md` 与 `abilities.md` 作为它的子页面挂在下方。**无需任何配置**，也无需维护导航数组。
+
+- **任意深度**：子文件夹同样可以用自己的 `index.md` 继续向下挂，层数不限。
+- **URL 不变**：把现有的 `content/ailan.md` 原样搬进 `ailan/` 并改名为 `index.md`，页面地址仍然是 `/ailan`——已发布到别处的链接不会断。也可以用 `aliases` 让旧地址继续响应。
+- **命名与样式**：父页面的标签取 `index.md` 的 frontmatter `title`。文件夹的 `_meta.json` 仍然生效：`order` 决定位置，`color`/`icon` 决定样式；它们未设置时回退到 `index.md` 的 frontmatter `icon`/`color`。
+- **顺序**：文件夹页面与其它顶级页面、分区在同一条序列中排序。若该目录没有 `_meta.json` 的 `order`，则沿用 `index.md` 自身 frontmatter 的 `order`——因此把根目录页面搬进文件夹不会悄悄改变它的位置。
+- **隐藏**：`_meta.json` 的 `hidden` 会连页面带整个子树一起从侧边栏隐藏；`index.md` 自身的 `hidden: true` 则只是隐藏这一页（其子页面仍会作为普通分区内容出现）。
+- **只放 index.md 的目录**就是普通页面：还没有子页面时它照常发布，不会消失。
+- **并存时目录页优先**：`content/ailan.md` 与 `content/ailan/index.md` 同时存在不会报错——发布的是 `ailan/index.md`（即 `/ailan`），旧的 `ailan.md` 不再作为独立页面渲染，方便迁移过程中新旧文件短暂共存；想保留平铺版就删掉 `ailan/index.md`。
+
+手动 `navigation` 数组同样可以表达"页面 + 子页面"：给一个条目同时写 `path` 与 `children`，它就是可点击的父页面。自动发现遇到"手动分区已覆盖某目录但未写 `path`"时，会把该目录 `index.md` 的路径补到这个条目上，让分区升级为页面；分区原有的标签、颜色与顺序保持不变。
+
 ## 阅读顺序
 
 侧边栏的顺序也就是阅读顺序。每个页面末尾都带有指向前一页和后一页的链接，因此可以一口气读完整个指南，而无需回到侧边栏寻找当前的位置。

@@ -9,6 +9,7 @@ import { useUrlMap } from '@/components/providers/UrlMapProvider';
 import { filterHiddenItems } from '@/lib/navigation/builder';
 import { Github } from 'lucide-react';
 import { useStrings } from '@/components/providers/StringsProvider';
+import { format } from '@/lib/i18n/format';
 import { isLightColor } from '@/lib/color';
 import { Collapse } from './Collapse';
 import { ACTIVE_ON_COLOR_CLASSES, ACTIVE_ON_COLOR_STYLE, pressOverlay } from './sectionSurface';
@@ -60,6 +61,7 @@ function MobileNavigationItem({
   const router = useRouter();
   const { href: urlFor } = useUrlMap();
   const { activeTabId, tabs, addTab } = useTabStore();
+  const t = useStrings();
   const hasChildren = item.children && item.children.length > 0;
   const isActive = item.path === currentPath;
 
@@ -116,75 +118,78 @@ function MobileNavigationItem({
   return (
     <div className={level === 0 ? 'mb-0.5' : ''} style={level === 0 ? getBgStyle(true) : undefined}>
       <div className="flex items-center" style={level > 0 ? getBgStyle(false) : undefined}>
-        {hasChildren ? (
-          <button
-            onClick={handleToggle}
-            className={`flex items-center flex-1 px-2 py-1 rounded-md text-sm transition-colors touch-manipulation ${
-              !bgColor
-                ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 active:bg-gray-200 dark:active:bg-gray-700'
-                : pressOverlay(isLight)
-            }`}
-            style={bgColor ? { color: textColor, ...getLeftMarginStyle() } : getLeftMarginStyle()}
-            // No aria-label: this button already contains the section name, and
-            // labelling it "Expand" replaced that name rather than adding to it,
-            // leaving every section announced identically. `aria-expanded`
-            // carries the state on its own.
-            aria-expanded={isExpanded}
-          >
-            <svg
-              className={`w-4 h-4 mr-2 -ml-1 flex-shrink-0 transition-transform duration-[120ms] ${isExpanded ? 'rotate-90' : ''}`}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+        <div className="flex items-center flex-1 min-w-0" style={getLeftMarginStyle()}>
+          {hasChildren && (
+            <button
+              onClick={handleToggle}
+              className={`mr-1 p-1 rounded transition-colors touch-manipulation flex-shrink-0 ${
+                !bgColor
+                  ? 'text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100 hover:bg-black/5 dark:hover:bg-white/10 active:bg-black/10 dark:active:bg-white/20'
+                  : pressOverlay(isLight)
+              }`}
+              style={bgColor ? { color: textColor } : undefined}
+              // A bare chevron needs a name of its own, and it has to name the
+              // section, or a screen reader announces one indistinguishable
+              // "Expand" per section — the section's own name lives in the
+              // row next to it, not inside this button.
+              aria-label={format(isExpanded ? t.collapseSection : t.expandSection, {
+                name: item.name,
+              })}
+              aria-expanded={isExpanded}
             >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-            <span className="font-semibold">
+              <svg
+                className={`w-4 h-4 transition-transform duration-[120ms] ${isExpanded ? 'rotate-90' : ''}`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </button>
+          )}
+          {item.path ? (
+            <Link
+              href={urlFor(item.path)}
+              onClick={handleLinkClick}
+              aria-current={isActive ? 'page' : undefined}
+              // Over a coloured section the active page is lifted off on a
+              // white surface, as the desktop sidebar does: the fixed blue
+              // clashes with whatever colour the section's `_meta.json` names,
+              // and there is no blue that cannot. The blue stays for the
+              // uncoloured case, where it has nothing to clash with.
+              className={`flex-1 px-2 py-1 rounded-md text-sm transition-colors touch-manipulation ${
+                isActive
+                  ? bgColor
+                    ? ACTIVE_ON_COLOR_CLASSES
+                    : 'bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-100 font-medium'
+                  : !bgColor
+                    ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 active:bg-gray-200 dark:active:bg-gray-700'
+                    : pressOverlay(isLight)
+              }`}
+              style={
+                bgColor ? (isActive ? ACTIVE_ON_COLOR_STYLE : { color: textColor }) : undefined
+              }
+            >
               {item.icon && <span className="mr-2">{item.icon}</span>}
               {item.name}
-            </span>
-          </button>
-        ) : item.path ? (
-          <Link
-            href={urlFor(item.path)}
-            onClick={handleLinkClick}
-            aria-current={isActive ? 'page' : undefined}
-            // Over a coloured section the active page is lifted off on a
-            // white surface, as the desktop sidebar does: the fixed blue
-            // clashes with whatever colour the section's `_meta.json` names,
-            // and there is no blue that cannot. The blue stays for the
-            // uncoloured case, where it has nothing to clash with.
-            className={`flex-1 px-2 py-1 rounded-md text-sm transition-colors touch-manipulation ${
-              isActive
-                ? bgColor
-                  ? ACTIVE_ON_COLOR_CLASSES
-                  : 'bg-blue-100 dark:bg-blue-900 text-blue-900 dark:text-blue-100 font-medium'
-                : !bgColor
-                  ? 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 active:bg-gray-200 dark:active:bg-gray-700'
-                  : pressOverlay(isLight)
-            }`}
-            style={
-              bgColor
-                ? isActive
-                  ? { ...ACTIVE_ON_COLOR_STYLE, ...getLeftMarginStyle() }
-                  : { color: textColor, ...getLeftMarginStyle() }
-                : getLeftMarginStyle()
-            }
-          >
-            {item.icon && <span className="mr-2">{item.icon}</span>}
-            {item.name}
-          </Link>
-        ) : (
-          <div
-            className={`flex-1 px-2 py-1 text-sm font-semibold ${
-              !bgColor ? 'text-gray-900 dark:text-gray-100' : ''
-            }`}
-            style={bgColor ? { color: textColor, ...getLeftMarginStyle() } : getLeftMarginStyle()}
-          >
-            {item.icon && <span className="mr-2">{item.icon}</span>}
-            {item.name}
-          </div>
-        )}
+            </Link>
+          ) : (
+            <div
+              className={`flex-1 px-2 py-1 text-sm font-semibold ${
+                !bgColor ? 'text-gray-900 dark:text-gray-100' : ''
+              }`}
+              style={bgColor ? { color: textColor } : undefined}
+            >
+              {item.icon && <span className="mr-2">{item.icon}</span>}
+              {item.name}
+            </div>
+          )}
+        </div>
       </div>
       {hasChildren && (
         <Collapse expanded={isExpanded} style={getBgStyle(false)}>

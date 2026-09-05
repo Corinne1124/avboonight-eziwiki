@@ -17,8 +17,12 @@ import type { Root, Blockquote, PhrasingContent, BlockContent } from 'mdast';
 /**
  * Marker opening a callout: the kind, an optional fold hint, and an optional
  * title on the same line.
+ *
+ * The kind is any run of non-space, non-bracket characters, so a marker may be
+ * written in the wiki's own language — `[!剧透]` is as valid as `[!note]`. Only
+ * the kinds below are understood; anything else stays an ordinary blockquote.
  */
-const MARKER = /^\[!([A-Za-z]+)\]([-+])?\s*(.*)$/;
+const MARKER = /^\[!([^\]\s]+)\]([-+])?\s*(.*)$/;
 
 /**
  * Callout kinds, and the ones that are the same thing under another name.
@@ -83,7 +87,13 @@ function readMarker(node: Blockquote): Marker | null {
   const match = MARKER.exec(head.trim());
   if (!match) return null;
 
-  const kind = KINDS[match[1].toLowerCase()];
+  // A spoiler is not one of the five coloured kinds: its body is hidden until
+  // the reader asks for it, so it always renders as a closed disclosure. It is
+  // spelled `spoiler` in English and `剧透` in Chinese, whichever reads better
+  // in the wiki.
+  const named = match[1];
+  const spoiler = named === '剧透' || named.toLowerCase() === 'spoiler';
+  const kind = spoiler ? 'spoiler' : KINDS[named.toLowerCase()];
   if (!kind) return null;
 
   const title: PhrasingContent[] = [];
@@ -140,7 +150,18 @@ function readMarker(node: Blockquote): Marker | null {
   return {
     kind,
     title: title.length ? title : [{ type: 'text', value: titleFor(kind) }],
-    fold: match[2] === '-' ? 'closed' : match[2] === '+' ? 'open' : 'none',
+    // A spoiler is hidden until opened, so it folds closed unless the author
+    // wrote `[!spoiler]+` to start it open. The other kinds only fold when
+    // asked: `-` closes, `+` opens.
+    fold: spoiler
+      ? match[2] === '+'
+        ? 'open'
+        : 'closed'
+      : match[2] === '-'
+        ? 'closed'
+        : match[2] === '+'
+          ? 'open'
+          : 'none',
   };
 }
 

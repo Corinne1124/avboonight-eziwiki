@@ -993,3 +993,58 @@ html.dark .ezw-prose a code {
 .ezw-mermaid svg text {
   font-family: inherit;
 }
+
+/* Inline spoilers from `||text||`: a pill masks the text until it is clicked.
+   The reveal is a checkbox wrapped by the label — no script, and the browser
+   already knows how a disclosure works. The text stays in the document (it is
+   selectable once revealed and indexed by search) but `visibility` keeps it out
+   of view and out of the accessibility tree while it is hidden. */
+.ezw-spoiler {
+  position: relative;
+  display: inline-block;
+  border-radius: 0.25rem;
+  padding: 0 0.1em;
+  background: #1f2937; /* slate-800: a mask reads the same in either theme */
+  cursor: pointer;
+  vertical-align: baseline;
+}
+
+.ezw-spoiler__toggle {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.ezw-spoiler__text {
+  visibility: hidden;
+}
+
+.ezw-spoiler__toggle:checked ~ .ezw-spoiler__text {
+  visibility: visible;
+}
+
+/* The pill is the closed state; once revealed the text stands on its own. The
+   checkboxes stay focusable, so the pill is keyboard-operable too. */
+.ezw-spoiler:has(.ezw-spoiler__toggle:checked) {
+  background: transparent;
+}
+
+.ezw-spoiler:has(.ezw-spoiler__toggle:focus-visible) {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* A spoiler callout (`> [!SPOILER]`) is a closed disclosure: slate rather than
+   a signal colour, since the point is that the reader has not seen the body
+   yet. */
+.ezw-callout--spoiler {
+  --ezw-callout-accent: #475569;
+  border-style: dashed;
+  border-left-style: solid;
+}
+
+.dark .ezw-callout--spoiler {
+  --ezw-callout-accent: #94a3b8;
+}

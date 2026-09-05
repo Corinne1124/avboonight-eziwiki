@@ -28,6 +28,7 @@ import {
   type EmbedTarget,
 } from './remark-wikilink';
 import { remarkCallouts } from './remark-callout';
+import { remarkSpoilers } from './remark-spoiler';
 import { rehypeMermaid } from './rehype-mermaid';
 import { transformerLineMarks } from './shiki-transformers';
 import { getUsedLanguages } from './languages';
@@ -136,7 +137,11 @@ function resolveWikiEmbed(target: string): EmbedTarget | null {
 }
 
 /** Parser for included documents; no rendering plugins, so it stays cheap. */
-const transclusionParser = unified().use(remarkParse).use(remarkGfm).use(remarkMath);
+const transclusionParser = unified()
+  .use(remarkParse)
+  .use(remarkGfm)
+  .use(remarkMath)
+  .use(remarkSpoilers);
 
 /**
  * Narrows a document's nodes to the section a heading names.
@@ -193,6 +198,9 @@ function resolveWikiTransclusion(target: string, anchor?: string): TranscludeTar
  * - `remarkCallouts` must run before the wiki-link pass, so that a link written
  *   inside a callout is resolved like any other rather than being left in the
  *   text the marker was read from.
+ * - `remarkSpoilers` must run before the wiki-link pass too, so that a link
+ *   written inside `||spoiler||` is still resolved; it runs after the callout
+ *   pass so that spoilers inside callout bodies are caught.
  * - `remarkWikiLinks` must run while the tree is still Markdown, so the links
  *   it produces are processed like any other link downstream.
  * - `rehype-raw` must follow `remark-rehype` with `allowDangerousHtml`, so that
@@ -214,6 +222,7 @@ function createProcessor(): Processor {
     .use(remarkGfm)
     .use(remarkMath)
     .use(remarkCallouts)
+    .use(remarkSpoilers)
     .use(remarkWikiLinks, {
       link: resolveWikiLink,
       embed: resolveWikiEmbed,
@@ -270,6 +279,7 @@ function createHeadingProcessor(): Processor {
     .use(remarkGfm)
     .use(remarkMath)
     .use(remarkCallouts)
+    .use(remarkSpoilers)
     .use(remarkWikiLinks, {
       link: resolveWikiLink,
       embed: resolveWikiEmbed,

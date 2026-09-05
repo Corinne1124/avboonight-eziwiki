@@ -22,9 +22,7 @@ order: 38
   <tr>
     <th>外观</th>
     <td style="text-align: left;">
-
-       ||至少看上去很年轻，不是吗？||
-
+       <span> ||至少看上去很年轻，不是吗？|| </span>
     </td>
   </tr>
   <tr>

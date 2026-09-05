@@ -29,6 +29,7 @@ import {
 } from './remark-wikilink';
 import { remarkCallouts } from './remark-callout';
 import { remarkSpoilers } from './remark-spoiler';
+import { remarkMarkdownInHtml } from './remark-markdown-in-html';
 import { rehypeMermaid } from './rehype-mermaid';
 import { transformerLineMarks } from './shiki-transformers';
 import { getUsedLanguages } from './languages';
@@ -144,6 +145,53 @@ const transclusionParser = unified()
   .use(remarkSpoilers);
 
 /**
+ * Inline-only renderer for text found inside raw HTML.
+ *
+ * Markdown written between tags of a self-contained HTML block — a `||spoiler||`
+ * inside a `<td>`, say — is processed here rather than by the main pipeline,
+ * which never sees it. Shares the same passes as the full processor — spoilers,
+ * wiki links, emphasis, GFM, maths — so a run renders exactly as it would in
+ * body prose. Only a single-paragraph run is handled; anything else (a list, a
+ * heading, a fence) is refused and the caller leaves the text as written.
+ */
+let inlineProcessor: Processor | null = null;
+
+function getInlineProcessor(): Processor {
+  inlineProcessor ??= unified()
+    .use(remarkParse)
+    .use(remarkGfm)
+    .use(remarkMath)
+    .use(remarkSpoilers)
+    .use(remarkWikiLinks, { link: resolveWikiLink })
+    .use(remarkRehype, { allowDangerousHtml: true })
+    .use(rehypeKatex)
+    .use(rehypeStringify, { allowDangerousHtml: true }) as unknown as Processor;
+  return inlineProcessor;
+}
+
+async function renderHtmlText(text: string): Promise<string | null> {
+  const processor = getInlineProcessor();
+  const tree = processor.parse(text) as Root;
+
+  if (tree.children.length !== 1 || tree.children[0].type !== 'paragraph') return null;
+
+  const hast = (await processor.run(tree)) as unknown as {
+    children: Array<{ type: string; tagName?: string; children?: unknown[] }>;
+  };
+  const [first] = hast.children;
+
+  if (!first || first.type !== 'element' || first.tagName !== 'p') return null;
+
+  // The paragraph's own children, without the `<p>` wrapper the run sits in.
+  return String(
+    processor.stringify({
+      type: 'root',
+      children: first.children ?? [],
+    } as never),
+  );
+}
+
+/**
  * Narrows a document's nodes to the section a heading names.
  *
  * The section runs from the matching heading to the next one at the same level
@@ -228,6 +276,7 @@ function createProcessor(): Processor {
       embed: resolveWikiEmbed,
       transclude: resolveWikiTransclusion,
     })
+    .use(remarkMarkdownInHtml, { renderInline: renderHtmlText })
     .use(remarkRehype, { allowDangerousHtml: true })
     .use(rehypeCodeMetastring)
     .use(rehypeRaw)

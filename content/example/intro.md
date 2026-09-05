@@ -1,7 +1,7 @@
 ---
 title: 欢迎使用 eziwiki
 description: 一个简洁美观的 Wiki 与文档站点生成器
-order: 1
+order: 999
 ---
 
 # 欢迎使用 eziwiki 👋

@@ -1,68 +1,15 @@
 <div align="center">
-  <img src="eziwiki.webp" alt="EziWiki">
+  <!--<img src="eziwiki.webp" alt="EziWiki">-->
   <br/><hr/>
 </div>
 
-<p align="center"><em><strong>一个现代、轻量的 wiki 与文档生成器</strong></em></p>
-
+<p align="center"><em><strong>基于eziwki的wiki网站</strong></em></p>
+<!--
 <p align="center">
   <a href="https://i3months.com">🌐 在线演示</a> •
-  <a href="https://eziwiki.vercel.app">🌐 演示（Vercel）</a> •
-  <a href="https://i3months.github.io/eziwiki">🌐 演示（GitHub Pages）</a>
+  <a href="https://eziwiki.vercel.app">🌐 演示（Vercel）</a>
 </p>
-
-## 简介
-
-编写 Markdown，即刻得到一个快速的静态 wiki。
-
-- **一个文件即一个页面** — 向 `content/` 中放入一个 `.md` 文件即发布；文件夹会变成分区
-- **搜索、目录侧栏、Wiki 链接、嵌入、反向链接和关系图视图** — 内置功能，无需配置
-- **构建时渲染** — 不会向浏览器发送任何 Markdown 解析器或高亮器
-- **随处部署** — 输出就是纯静态文件
-
-## 环境要求
-
-- Node.js 20 或更高版本
-- npm（随 Node.js 一起安装）
-
-## 快速开始
-
-```bash
-npx create-eziwiki my-docs
-cd my-docs
-npm install
-npm run dev
-```
-
-打开 [http://localhost:3000](http://localhost:3000) 即可看到你的 wiki。
-
-如果改为直接使用本仓库——包含全部演示内容：
-
-```bash
-git clone https://github.com/i3months/eziwiki.git
-cd eziwiki
-npm install
-npm run dev
-```
-
-## 从旧版本升级
-
-**页面 URL 已更改。** 早期版本通过哈希地址访问每个页面
-（`/c432b372-e0e30267-e65e26a1`）。现在默认使用可读的内容路径
-（`/getting-started/quick-start`），便于索引和分享。
-
-如果你的站点已经发布，需要旧链接继续可用，可在 `payload/config.ts` 中重新开启：
-
-```typescript
-global: {
-  urlStrategy: 'hash',
-}
-```
-
-否则无需任何操作——现有 Markdown 链接无论哪种方式都能继续解析，因为它们以内容路径书写，并在构建时解析。
-
-导航也变为可选项：`content/` 下的页面现在会自动被发现。已有的 `navigation` 数组无需改动即可继续工作。
-
+-->
 ## 项目结构
 
 ```

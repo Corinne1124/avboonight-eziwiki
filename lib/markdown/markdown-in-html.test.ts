@@ -63,9 +63,7 @@ describe('markdown inside raw HTML', () => {
   });
 
   it('keeps an attribute with a > inside its quotes intact', async () => {
-    const { html } = await renderMarkdown(
-      '<div data-x="a > b">**bold**</div>\n',
-    );
+    const { html } = await renderMarkdown('<div data-x="a > b">**bold**</div>\n');
 
     expect(html).toContain('data-x="a > b"');
     expect(html).toContain('<strong>bold</strong>');

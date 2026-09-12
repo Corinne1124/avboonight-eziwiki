@@ -24,6 +24,12 @@
  * Runs before `next dev` and `next build`. During `dev` that means adding the
  * first PDF to an already-running server needs a restart; the message below
  * says so.
+ *
+ * Copying four megabytes and then weighing them is the most expensive thing a
+ * `npm run dev` does before Next starts, and it is almost always copying what
+ * is already there — the package only changes when it is upgraded. Each copied
+ * file's size and modification time are compared first, so an unchanged stage
+ * costs one `stat` per file instead of a read and a write.
  */
 
 import fs from 'fs/promises';
@@ -93,6 +99,77 @@ async function sizeOf(dir: string): Promise<number> {
   return total;
 }
 
+/**
+ * Collects the files a stage would have to contain, and what each looks like.
+ *
+ * Relative paths rather than absolute ones, so the comparison below does not
+ * care which of the two directories it is walking.
+ *
+ * @param root - Directory to walk
+ * @param relative - Path from `root` to this directory, '' at the top
+ * @returns Each file mapped to its size and modification time
+ */
+async function stampTree(root: string, relative = ''): Promise<Map<string, string>> {
+  const found = new Map<string, string>();
+  let entries;
+
+  try {
+    entries = await fs.readdir(path.join(root, relative), { withFileTypes: true });
+  } catch {
+    return found;
+  }
+
+  for (const entry of entries) {
+    const child = relative ? `${relative}/${entry.name}` : entry.name;
+
+    if (entry.isDirectory()) {
+      for (const [file, stamp] of await stampTree(root, child)) found.set(file, stamp);
+      continue;
+    }
+
+    if (!entry.isFile()) continue;
+
+    const stat = await fs.stat(path.join(root, child));
+    found.set(child, `${stat.size}:${stat.mtimeMs}`);
+  }
+
+  return found;
+}
+
+/**
+ * Reports whether the staged copy already matches what would be staged.
+ *
+ * Both sides come from files the build copied rather than created, and `fs.cp`
+ * keeps the source's modification time, so an unchanged package produces an
+ * unchanged stamp on each file. A file that was deleted or touched on one side
+ * only breaks the match and the stage is redone.
+ *
+ * @param source - Directory the files are copied from
+ * @param target - Directory they are copied into
+ * @returns True when every file is present on both sides with the same stamp
+ */
+async function isStaged(source: string, target: string): Promise<boolean> {
+  const wanted = new Map<string, string>();
+
+  for (const dir of NEEDED) {
+    for (const [file, stamp] of await stampTree(path.join(source, dir))) {
+      wanted.set(`${dir}/${file}`, stamp);
+    }
+  }
+
+  const worker = await fs.stat(path.join(source, WORKER));
+  wanted.set(path.basename(WORKER), `${worker.size}:${worker.mtimeMs}`);
+
+  const staged = await stampTree(target);
+  if (staged.size !== wanted.size) return false;
+
+  for (const [file, stamp] of wanted) {
+    if (staged.get(file) !== stamp) return false;
+  }
+
+  return true;
+}
+
 async function main() {
   if (!(await hasPdf(PUBLIC_DIR))) {
     await fs.rm(TARGET, { recursive: true, force: true });
@@ -100,6 +177,11 @@ async function main() {
   }
 
   const source = path.dirname(require.resolve('pdfjs-dist/package.json'));
+
+  if (await isStaged(source, TARGET)) {
+    console.log('📄 pdf.js document data is already staged in public/pdfjs\n');
+    return;
+  }
 
   // Replaced rather than merged: an upgrade that renames or drops a file would
   // otherwise leave the old one behind to be served forever.

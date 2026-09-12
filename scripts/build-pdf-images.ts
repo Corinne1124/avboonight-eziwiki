@@ -18,18 +18,45 @@
  * payload says.
  *
  * Runs before `next dev` and `next build`, and redraws only what changed.
+ *
+ * "Only what changed" is decided twice, at two scales. Within a run, a
+ * document whose modification time and drawing mode are what the manifest
+ * records is kept. Across runs, a content generation the manifest already
+ * carries means nothing under `public/` moved, so there is nothing to compare
+ * and the walk is skipped entirely — worth having because the walk stats every
+ * file under `public/`, and because drawing needs a native canvas.
  */
 
 import fs from 'fs/promises';
 import path from 'path';
 import { payload } from '../payload/config';
 import { matchesAny } from '../lib/content/glob';
+import { sourceSignature } from '../lib/cache';
+import {
+  clearStepManifest,
+  readStepManifest,
+  stepIsCurrent,
+  stepRecorder,
+} from '../lib/build/manifest';
 
 /** Where images are written, relative to `public/`. */
 const IMAGE_DIR = 'pdf-images';
 
 /** Manifest the render pipeline reads to find what was drawn. */
 const MANIFEST = 'index.json';
+
+/** Name this step's record goes under, in the build cache. */
+const STEP = 'pdf-images';
+
+/**
+ * Revision of how pages are drawn.
+ *
+ * The per-document check compares the source PDF, which says nothing about the
+ * widths and quality the pages were drawn at. Bump this whenever a drawing
+ * setting or the drawing code changes, or the images it produced would be kept
+ * as though they were current.
+ */
+const REVISION = 1;
 
 /**
  * Width a first-page poster is drawn at, in pixels.
@@ -183,10 +210,20 @@ async function removeImages(entry: Entry): Promise<void> {
 }
 
 async function main() {
+  const signature = sourceSignature();
+
+  // Nothing to redraw: the last run recorded sources that have not moved, and
+  // everything it wrote is still in place. The walk below is skipped with it,
+  // which is the point — it reads every directory under `public/`.
+  if (stepIsCurrent(readStepManifest(STEP), REVISION, signature)) {
+    return;
+  }
+
   const pdfs = await findPdfs(PUBLIC_DIR);
 
   if (pdfs.length === 0) {
     await fs.rm(TARGET, { recursive: true, force: true });
+    clearStepManifest(STEP);
     return;
   }
 
@@ -198,6 +235,10 @@ async function main() {
     console.log('   Without it a document still opens — the viewer draws its pages in');
     console.log('   the browser, which costs the reader the parser to do it. A document');
     console.log('   listed under `documents.raster` needs the renderer to be shown at all.\n');
+
+    // Nothing was drawn, so nothing about this run is worth remembering: the
+    // next one has to look again, in case the renderer has been installed.
+    clearStepManifest(STEP);
     return;
   }
 
@@ -217,10 +258,23 @@ async function main() {
   // The legacy build, because this is Node: the modern one reaches for browser
   // globals at import time and never gets as far as being asked to render.
   const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs');
-  const standardFontDataUrl = path.join(
-    path.dirname(require.resolve('pdfjs-dist/package.json')),
-    'standard_fonts/',
-  );
+
+  // Separators normalised to forward slashes, which `path.join` does not do on
+  // Windows: every path it builds there ends in `\`, and pdf.js reads each of
+  // these options as a URL and refuses one that does not end in a literal `/`.
+  // The error it throws — "Invalid factory url … must include trailing slash"
+  // — names a slash that is visibly already there, and it is thrown for the
+  // first document, taking the whole run down with it: on Windows no page was
+  // ever drawn, and the failure was reported per document as though the
+  // document were at fault.
+  //
+  // The separators are the whole of the problem, not the shape: a `pathToFileURL`
+  // URL also ends in `/` and is accepted, but pdf.js then fails to load the
+  // fonts it names, one warning each, and draws the page without them.
+  const standardFontDataUrl = `${path
+    .dirname(require.resolve('pdfjs-dist/package.json'))
+    .split(path.sep)
+    .join('/')}/standard_fonts/`;
 
   /**
    * How pdf.js is to make scratch canvases of its own.
@@ -368,6 +422,17 @@ async function main() {
   }
 
   await fs.writeFile(path.join(TARGET, MANIFEST), JSON.stringify(manifest), 'utf-8');
+
+  // Everything the manifest names, so the next run can tell at a glance
+  // whether the images it describes are still the ones on disk.
+  const recorder = stepRecorder(STEP, REVISION, signature);
+  recorder.recorded(path.join(TARGET, MANIFEST));
+  for (const entry of Object.values(manifest)) {
+    for (const image of entry.images) {
+      recorder.recorded(path.join(PUBLIC_DIR, image.url.replace(/^\/+/, '')));
+    }
+  }
+  recorder.write();
 
   const rastered = Object.values(manifest).filter((entry) => entry.mode === 'raster').length;
   const parts = [`${drawn} drawn`, reused > 0 ? `${reused} unchanged` : null].filter(Boolean);

@@ -1,5 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { renderDoc, renderMarkdown } from './render';
+import { getStrings } from '../site';
+import { format } from '../i18n/format';
 
 describe('renderMarkdown', () => {
   it('renders headings with anchor ids and collects them', async () => {
@@ -411,8 +413,14 @@ describe('document embeds', () => {
     const { html } = await renderMarkdown('![[field-notebook.pdf]]\n');
     if (!html.includes('ezw-pdf--raster')) return;
 
-    expect(html).toContain('alt="Page 1 of 2"');
-    expect(html).toContain('alt="Page 2 of 2"');
+    // From the site's own strings rather than written out here: the wording
+    // follows `global.lang`, and these assertions used to spell it in English
+    // while this wiki renders in Chinese. They passed only while the pages were
+    // not being drawn at all — the guard above returned before reaching them.
+    const strings = getStrings();
+
+    expect(html).toContain(`alt="${format(strings.pdfPageOf, { page: 1, pages: 2 })}"`);
+    expect(html).toContain(`alt="${format(strings.pdfPageOf, { page: 2, pages: 2 })}"`);
   });
 
   it('lets the label name a scan in its header', async () => {

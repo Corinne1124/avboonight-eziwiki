@@ -492,14 +492,23 @@ content/ailan/abilities.md  → 子页面
 ```bash
 npm run dev              # 开发服务器
 npm run build            # 构建生产版本
-npm run validate:payload # 检查配置
-npm run check:links      # 报告未解析的链接和值得撰写的页面
+npm run check            # 校验配置 + 检查链接与类型（CI 用 -- --strict）
+npm run validate:payload # 只检查配置
+npm run check:links      # 只报告未解析的链接和值得撰写的页面
 npm run new <path>       # 创建页面，含 frontmatter
 npm run build:search     # 重新生成搜索索引
 npm run show-urls        # 列出每个页面及其 URL
 npm run build:template   # 重新构建 create-eziwiki 模板
 npm test                 # 运行测试套件
 ```
+
+`npm run build` 与 `npm run dev` 都由 `scripts/build.cjs` 驱动，而不是一串 `&&`。几个前置步骤（搜索索引、pdf.js 资源、PDF 页面图）读的是同一份 payload，写的是 `public/` 下互不相干的目录，所以它们并行执行；配置校验、链接检查与类型检查合并为一次 `npm run check`，与生成步骤同时开始。每一步都会把自己的产物记录在 `.build-cache/` 下，源文件与产物都没变时直接跳过——因此第二次 `npm run dev` 几乎不花时间在这上面。
+
+开发模式不做校验与链接检查：它们是检查而非产物，存在意义是拦住一次部署，而部署是 `npm run build`。需要时用 `npm run check`。
+
+`next build` 自身不再重复运行 ESLint 与 TypeScript——两者都已在上面的并行阶段跑过，`npm run lint` 与 `npm run type-check` 也随时可用。
+
+构建 ID 由内容派生（`next.config.js` 中的 `generateBuildId`），而不是每次随机。同样的内容构建两次，产物逐字节相同：浏览器与 CDN 不必为一个没有任何变化的部署重新拉取资源，增量托管平台也能认出它已经有的输出。
 
 ## 参与贡献
 

@@ -45,6 +45,22 @@ export const PUBLIC_DIR = path.join(process.cwd(), 'public');
  */
 export const PUBLIC_SKIP_DIRS = new Set(['fonts', 'pdfjs', 'pdf-images']);
 
+/**
+ * Generated files directly under `public/` that no source signature contains.
+ *
+ * The directories above are skipped for the same reason, but these sit beside
+ * the real assets rather than in a directory of their own. Leaving one in the
+ * signature is a feedback loop with a one-run delay: a build step writes its
+ * output, the next run notices the output it wrote, decides its input has
+ * changed, and rebuilds — forever, for a reason that is its own last run.
+ *
+ * `search-index.json` is written by `build:search` and `index.json` by
+ * `build:pdf-images`. The second is the PDF manifest, which the generation
+ * reads deliberately — so it is added back there, and only there, rather than
+ * being part of what the sources are said to consist of.
+ */
+export const PUBLIC_SKIP_FILES = new Set(['search-index.json', 'index.json']);
+
 const SOURCE_DIRS = [CONTENT_DIR, PUBLIC_DIR];
 
 /**
@@ -92,6 +108,8 @@ function scan(dir: string, parts: string[]): string[] {
       continue;
     }
 
+    if (dir === PUBLIC_DIR && PUBLIC_SKIP_FILES.has(entry.name)) continue;
+
     try {
       const stat = fs.statSync(full);
       parts.push(`${full}:${stat.size}:${stat.mtimeMs}`);
@@ -102,6 +120,18 @@ function scan(dir: string, parts: string[]): string[] {
   }
 
   return parts;
+}
+
+/**
+ * Every file under the source directories, named with its size and mtime.
+ *
+ * One walk, shared by the two ways of summarising it: the generation a memo
+ * compares against, and the signature a build step records for the next run.
+ *
+ * @returns One entry per file, in whatever order the directories offered them
+ */
+function sourceFiles(): string[] {
+  return SOURCE_DIRS.flatMap((dir) => scan(dir, []));
 }
 
 /**
@@ -126,17 +156,19 @@ export function contentGeneration(): number {
   if (now - checkedAt < RECHECK_MS) return generation;
   checkedAt = now;
 
-  const parts = SOURCE_DIRS.flatMap((dir) => scan(dir, []));
+  // The manifest the PDF step writes as well as the sources: rerunning that
+  // step mid-session has to move the generation, or the embeds keep describing
+  // the pages the previous run drew. It is added here rather than to the
+  // signature because a signature that contains it would contain the step's
+  // own output — which is the one thing its next run must not react to.
+  const parts = sourceFiles();
+  const manifest = path.join(PUBLIC_DIR, 'pdf-images', 'index.json');
 
-  // The one file under a skipped directory that a memo does read: the page
-  // manifest the PDF step writes. Rerunning that step mid-session has to
-  // move the generation, or the embeds keep describing the old pages.
   try {
-    const manifest = path.join(PUBLIC_DIR, 'pdf-images', 'index.json');
     const stat = fs.statSync(manifest);
     parts.push(`${manifest}:${stat.size}:${stat.mtimeMs}`);
   } catch {
-    // No manifest yet; its arrival will change the signature.
+    // No manifest yet; its arrival will move the generation.
   }
 
   const next = parts.sort().join('\n');
@@ -146,6 +178,28 @@ export function contentGeneration(): number {
   }
 
   return generation;
+}
+
+/**
+ * Everything the derived data is built from, summarised as one string.
+ *
+ * The same walk {@link contentGeneration} makes, without the generated page
+ * manifest, and exposed for the build steps that run in their own process: a
+ * step records the signature it built from, and the next run compares — which
+ * is how a step that shares no memory with the last one can still tell that
+ * its output is current.
+ *
+ * Only the two source directories are read, and `public/` skips the
+ * directories this module skips. That is what keeps the answer a statement
+ * about the sources rather than about the artifacts: a build that rewrites
+ * `public/search-index.json` or draws pages into `public/pdf-images/` is not a
+ * change to what any of them is derived from, and treating it as one would
+ * have every step invalidate itself on the run that produced it.
+ *
+ * @returns A signature that changes whenever a source file does
+ */
+export function sourceSignature(): string {
+  return sourceFiles().sort().join('\n');
 }
 
 /**

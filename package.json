@@ -7,8 +7,8 @@
     "node": ">=20"
   },
   "scripts": {
-    "dev": "npm run build:search && npm run build:pdfjs && npm run build:pdf-images && next dev",
-    "build": "npm run validate:payload && npm run check:links && npm run build:search && npm run build:pdfjs && npm run build:pdf-images && next build",
+    "dev": "node scripts/build.cjs dev",
+    "build": "node scripts/build.cjs build",
     "export": "npm run build",
     "start": "next start",
     "lint": "eslint . --ext .ts,.tsx",
@@ -22,6 +22,7 @@
     "build:search": "tsx scripts/build-search-index.ts",
     "build:pdfjs": "tsx scripts/copy-pdfjs-assets.ts",
     "build:pdf-images": "tsx scripts/build-pdf-images.ts",
+    "check": "tsx scripts/check.ts",
     "check:links": "tsx scripts/check-links.ts",
     "build:template": "tsx scripts/build-template.ts",
     "lint:fix": "eslint . --ext .ts,.tsx --fix",

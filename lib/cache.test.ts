@@ -1,5 +1,15 @@
 import { describe, it, expect } from 'vitest';
-import { CACHE_DERIVED_CONTENT, cached, currentMap, stamp, contentGeneration } from './cache';
+import fs from 'fs';
+import path from 'path';
+import {
+  CACHE_DERIVED_CONTENT,
+  CONTENT_DIR,
+  cached,
+  currentMap,
+  sourceSignature,
+  stamp,
+  contentGeneration,
+} from './cache';
 import { getContentRegistry } from './content/registry';
 import { getUrlMap } from './navigation/urlMap';
 import { getLinkGraph } from './graph/build';
@@ -23,6 +33,51 @@ describe('cached', () => {
     s.at = contentGeneration() + 1000;
 
     expect(cached('stale', s)).toBe(CACHE_DERIVED_CONTENT ? 'stale' : null);
+  });
+});
+
+describe('sourceSignature', () => {
+  // The build steps run in their own processes, so they cannot share the
+  // generation above: they record this string and compare it on the next run.
+  // What makes that sound is that it is a statement about the sources alone.
+  it('answers the same thing twice for an unchanged tree', () => {
+    expect(sourceSignature()).toBe(sourceSignature());
+  });
+
+  it('moves when a source file appears', () => {
+    // Not a dot-file: the walk skips those, and the point here is a file the
+    // wiki would publish.
+    const probe = path.join(CONTENT_DIR, 'signature-probe.md');
+    const before = sourceSignature();
+
+    try {
+      fs.writeFileSync(probe, '# Probe\n', 'utf-8');
+      expect(sourceSignature()).not.toBe(before);
+    } finally {
+      fs.rmSync(probe, { force: true });
+    }
+
+    expect(sourceSignature()).toBe(before);
+  });
+
+  it('ignores the files the build itself writes', () => {
+    // Otherwise every step would invalidate itself on the run that produced
+    // its output, and nothing would ever be current.
+    const generated = path.join(process.cwd(), 'public', 'search-index.json');
+
+    if (!fs.existsSync(generated)) return;
+
+    const before = sourceSignature();
+    const original = fs.readFileSync(generated, 'utf-8');
+
+    try {
+      fs.writeFileSync(generated, `${original} `, 'utf-8');
+      expect(sourceSignature()).toBe(before);
+    } finally {
+      fs.writeFileSync(generated, original, 'utf-8');
+    }
+
+    expect(sourceSignature()).toBe(before);
   });
 });
 

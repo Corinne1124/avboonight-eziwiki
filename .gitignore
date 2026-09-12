@@ -33,6 +33,10 @@ yarn-error.log*
 next-env.d.ts
 
 .kiro
+
+# Build step bookkeeping: what each step produced, and from what
+/.build-cache/
+
 # Generated search index
 /public/search-index.json
 

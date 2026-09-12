@@ -15,31 +15,11 @@
  * other twenty, and content is often written before the page it references.
  */
 
+import { isEntryPoint } from '../lib/build/entryPoint';
 import { getLinkGraph } from '../lib/graph/build';
 import { getWantedPages, getWikiHealth } from '../lib/graph/health';
 import { findRouteCollisions, RESERVED_SEGMENTS } from '../lib/navigation/routes';
 import type { GraphNode } from '../lib/graph/build';
-
-const strict = process.argv.includes('--strict');
-const { broken, nodes, edges } = getLinkGraph();
-
-// Checked here rather than in its own step because it is the same kind of
-// finding: a reference the site cannot honour. A page at one of these
-// addresses builds, is listed everywhere, and is answered by the app's own
-// view — the one failure a reader cannot see from any page.
-const collisions = findRouteCollisions();
-
-if (collisions.length > 0) {
-  const routes = RESERVED_SEGMENTS.map((segment) => `/${segment}/`).join(' and ');
-  console.log(
-    `\n🚧 ${collisions.length} page${collisions.length === 1 ? '' : 's'} at a reserved address\n`,
-  );
-  console.log(
-    `  ${routes} are views of their own, served before any page. Rename the file or folder:\n`,
-  );
-  for (const path of collisions) console.log(`    content/${path}.md`);
-  console.log();
-}
 
 /**
  * Prints a list of pages under a heading, or nothing when there are none.
@@ -62,74 +42,131 @@ function report(
   console.log();
 }
 
-const ambiguous = broken.filter((link) => link.reason === 'ambiguous');
-const anchors = broken.filter((link) => link.reason === 'anchor');
-
-if (broken.length > 0) {
-  console.log(`\n🔗 ${broken.length} unresolved link${broken.length === 1 ? '' : 's'}\n`);
-
-  // Ambiguous links are a fault in the link and are listed where they are
-  // written, since that is where the fix goes.
-  if (ambiguous.length > 0) {
-    console.log('  Ambiguous — use the full path to say which page is meant:\n');
-
-    for (const link of ambiguous) {
-      console.log(`    content/${link.from}.md`);
-      console.log(`      [[${link.target}]] matches ${link.candidates?.join(', ')}`);
-    }
-
-    console.log();
-  }
-
-  // An anchor to a heading the page does not have is a fault in the link too,
-  // and is listed where it is written.
-  if (anchors.length > 0) {
-    console.log('  Anchors — the page exists, the heading does not:\n');
-
-    for (const link of anchors) {
-      console.log(`    content/${link.from}.md`);
-      console.log(`      [[${link.target}]]`);
-    }
-
-    console.log();
-  }
-
-  // A link to a page that does not exist is listed the other way round: by the
-  // page being asked for, so that the report is a list of things to write
-  // rather than a list of things that are wrong.
-  const wanted = getWantedPages();
-
-  if (wanted.length > 0) {
-    const count = `${wanted.length} page${wanted.length === 1 ? '' : 's'}`;
-    console.log(`  Wanted — ${count} linked to but not written, most-wanted first:\n`);
-
-    for (const page of wanted) {
-      const askers = page.wantedBy.length;
-      console.log(`    [[${page.target}]] — wanted by ${askers} page${askers === 1 ? '' : 's'}`);
-      for (const asker of page.wantedBy) console.log(`      content/${asker}.md`);
-      console.log(`      npm run new ${page.suggestedPath}`);
-      console.log();
-    }
-  }
-} else {
-  console.log(`\n🔗 Links OK — ${edges.length} links across ${nodes.length} pages\n`);
+/**
+ * What the report found, for a caller that has to decide what to do about it.
+ */
+export interface LinkReport {
+  /** Whether every reference resolved and no page sits at a reserved address */
+  ok: boolean;
+  /** References that pointed at nothing, a heading that is not there, or both */
+  broken: number;
+  /** Pages published at an address the app answers itself */
+  collisions: number;
 }
 
-const { orphans, deadEnds } = getWikiHealth();
+/**
+ * Writes the link report and says what it found.
+ *
+ * Exported so that `check.ts` can run this and the payload validation in one
+ * process. Both read the same payload, and starting two `tsx` processes to read
+ * one file twice costs seconds before either has done anything.
+ *
+ * @returns What was found; whether it is fatal is the caller's business
+ */
+export function reportLinks(): LinkReport {
+  const { broken, nodes, edges } = getLinkGraph();
 
-report(
-  { one: 'orphaned page', many: 'orphaned pages' },
-  'nothing links here, so a reader can only arrive from the sidebar',
-  orphans,
-);
+  // Checked here rather than in its own step because it is the same kind of
+  // finding: a reference the site cannot honour. A page at one of these
+  // addresses builds, is listed everywhere, and is answered by the app's own
+  // view — the one failure a reader cannot see from any page.
+  const collisions = findRouteCollisions();
 
-report(
-  { one: 'dead end', many: 'dead ends' },
-  'no links out, so a reader arrives with nowhere to go',
-  deadEnds,
-);
+  if (collisions.length > 0) {
+    const routes = RESERVED_SEGMENTS.map((segment) => `/${segment}/`).join(' and ');
+    console.log(
+      `\n🚧 ${collisions.length} page${collisions.length === 1 ? '' : 's'} at a reserved address\n`,
+    );
+    console.log(
+      `  ${routes} are views of their own, served before any page. Rename the file or folder:\n`,
+    );
+    for (const path of collisions) console.log(`    content/${path}.md`);
+    console.log();
+  }
 
-if ((broken.length > 0 || collisions.length > 0) && strict) {
-  console.error('❌ Failing because --strict was passed.\n');
-  process.exit(1);
+  const ambiguous = broken.filter((link) => link.reason === 'ambiguous');
+  const anchors = broken.filter((link) => link.reason === 'anchor');
+
+  if (broken.length > 0) {
+    console.log(`\n🔗 ${broken.length} unresolved link${broken.length === 1 ? '' : 's'}\n`);
+
+    // Ambiguous links are a fault in the link and are listed where they are
+    // written, since that is where the fix goes.
+    if (ambiguous.length > 0) {
+      console.log('  Ambiguous — use the full path to say which page is meant:\n');
+
+      for (const link of ambiguous) {
+        console.log(`    content/${link.from}.md`);
+        console.log(`      [[${link.target}]] matches ${link.candidates?.join(', ')}`);
+      }
+
+      console.log();
+    }
+
+    // An anchor to a heading the page does not have is a fault in the link too,
+    // and is listed where it is written.
+    if (anchors.length > 0) {
+      console.log('  Anchors — the page exists, the heading does not:\n');
+
+      for (const link of anchors) {
+        console.log(`    content/${link.from}.md`);
+        console.log(`      [[${link.target}]]`);
+      }
+
+      console.log();
+    }
+
+    // A link to a page that does not exist is listed the other way round: by the
+    // page being asked for, so that the report is a list of things to write
+    // rather than a list of things that are wrong.
+    const wanted = getWantedPages();
+
+    if (wanted.length > 0) {
+      const count = `${wanted.length} page${wanted.length === 1 ? '' : 's'}`;
+      console.log(`  Wanted — ${count} linked to but not written, most-wanted first:\n`);
+
+      for (const page of wanted) {
+        const askers = page.wantedBy.length;
+        console.log(`    [[${page.target}]] — wanted by ${askers} page${askers === 1 ? '' : 's'}`);
+        for (const asker of page.wantedBy) console.log(`      content/${asker}.md`);
+        console.log(`      npm run new ${page.suggestedPath}`);
+        console.log();
+      }
+    }
+  } else {
+    console.log(`\n🔗 Links OK — ${edges.length} links across ${nodes.length} pages\n`);
+  }
+
+  const { orphans, deadEnds } = getWikiHealth();
+
+  report(
+    { one: 'orphaned page', many: 'orphaned pages' },
+    'nothing links here, so a reader can only arrive from the sidebar',
+    orphans,
+  );
+
+  report(
+    { one: 'dead end', many: 'dead ends' },
+    'no links out, so a reader arrives with nowhere to go',
+    deadEnds,
+  );
+
+  return {
+    ok: broken.length === 0 && collisions.length === 0,
+    broken: broken.length,
+    collisions: collisions.length,
+  };
+}
+
+// Guarded, so that `check.ts` can import the report without the module
+// deciding on an exit code the moment it is read.
+if (isEntryPoint(import.meta.url)) {
+  const report = reportLinks();
+
+  // Without `--strict` the report is a report: a dangling link is how a wiki
+  // grows, and failing a build over one would be the wrong trade.
+  if (!report.ok && process.argv.includes('--strict')) {
+    console.error('❌ Failing because --strict was passed.\n');
+    process.exit(1);
+  }
 }

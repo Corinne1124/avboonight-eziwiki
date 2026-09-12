@@ -35,6 +35,71 @@ export const EMPTY_URL_MAP: UrlMap = {
 };
 
 /**
+ * The map in the form that crosses to the browser.
+ *
+ * A {@link UrlMap} is two lookup tables holding the same names twice. Under the
+ * `path` strategy they are literally the same key on both sides; under `hash`
+ * one side holds a digest per document. Sent as it stands, every page carried
+ * both copies — on this wiki about thirteen kilobytes of the navigation
+ * payload, on every page and again on every client-side navigation.
+ *
+ * A list of pairs says the same thing once. The browser rebuilds whichever
+ * direction it needs, and neither direction is derivable per lookup: it is the
+ * listing itself that is the information.
+ */
+export interface PackedUrlMap {
+  /** Strategy the map was built with */
+  strategy: UrlStrategy;
+  /**
+   * One entry per document, as `[contentPath, urlSegment]`.
+   *
+   * Pairs rather than two parallel arrays because the two are written together
+   * and read together, and a pair cannot fall out of step with itself.
+   */
+  entries: Array<[docPath: string, url: string]>;
+}
+
+/**
+ * Narrows a built map to what the browser has to be told.
+ *
+ * @param map - The full mapping, as built on the server
+ * @returns The same information in its smallest form
+ *
+ * @example
+ * ```typescript
+ * packUrlMap(getUrlMap());
+ * // { strategy: 'path', entries: [['intro', 'intro'], …] }
+ * ```
+ */
+export function packUrlMap(map: UrlMap): PackedUrlMap {
+  return {
+    strategy: map.strategy,
+    entries: Object.entries(map.toUrl) as Array<[string, string]>,
+  };
+}
+
+/**
+ * Rebuilds the lookup tables from the packed form.
+ *
+ * The inverse of {@link packUrlMap}, and where both directions come from: the
+ * pairs are the only statement about how paths and segments correspond.
+ *
+ * @param packed - The map as it crossed the boundary
+ * @returns A map the helpers in this module can use
+ */
+export function unpackUrlMap(packed: PackedUrlMap): UrlMap {
+  const toUrl: Record<string, string> = {};
+  const toPath: Record<string, string> = {};
+
+  for (const [docPath, url] of packed.entries) {
+    toUrl[docPath] = url;
+    toPath[url] = docPath;
+  }
+
+  return { strategy: packed.strategy, toUrl, toPath };
+}
+
+/**
  * Strips leading and trailing slashes from a URL fragment.
  *
  * Route params arrive in several shapes depending on `trailingSlash` and on

@@ -111,37 +111,71 @@ describe('getBacklinks', () => {
 });
 
 describe('getLocalGraph', () => {
-  it('centres on the page and includes its neighbours', () => {
-    const { nodes } = getLocalGraph('example/features/wiki-links');
+  /**
+   * A page with neighbours on both sides, chosen from the graph itself.
+   *
+   * The tests below used to name a page of the shipped documentation, which
+   * makes them a statement about that page rather than about the neighbourhood
+   * they are testing — renaming it broke three of them at once. Picking the
+   * busiest page asks the same questions of whatever content is present.
+   *
+   * @returns A content path with at least one link in and one out
+   */
+  function busiestPage(): string | null {
+    const { backlinks, outbound } = getLinkGraph();
 
-    expect(nodes.some((node) => node.path === 'example/features/wiki-links')).toBe(true);
+    let best: string | null = null;
+    let bestSize = 0;
+
+    for (const [path, incoming] of backlinks) {
+      const outgoing = outbound.get(path) ?? [];
+      if (incoming.length === 0 || outgoing.length === 0) continue;
+
+      const size = incoming.length + outgoing.length;
+      if (size > bestSize) {
+        best = path;
+        bestSize = size;
+      }
+    }
+
+    return best;
+  }
+
+  it('centres on the page and includes its neighbours', () => {
+    const path = busiestPage();
+    if (!path) return;
+
+    const { nodes } = getLocalGraph(path);
+
+    expect(nodes.some((node) => node.path === path)).toBe(true);
     expect(nodes.length).toBeGreaterThan(1);
   });
 
   // A fan of unconnected dots would say less than the backlinks list already
   // does; the point is seeing how the neighbours relate to each other.
   it('keeps links between neighbours, not only those touching the page', () => {
-    const { nodes, edges } = getLocalGraph('example/features/wiki-links');
+    const path = busiestPage();
+    if (!path) return;
+
+    const { nodes, edges } = getLocalGraph(path);
     const paths = new Set(nodes.map((node) => node.path));
 
     expect(edges.length).toBeGreaterThan(0);
     expect(edges.every((edge) => paths.has(edge.from) && paths.has(edge.to))).toBe(true);
-    expect(
-      edges.some(
-        (edge) =>
-          edge.from !== 'example/features/wiki-links' && edge.to !== 'example/features/wiki-links',
-      ),
-    ).toBe(true);
+    expect(edges.some((edge) => edge.from !== path && edge.to !== path)).toBe(true);
   });
 
   it('stays within one link of the page', () => {
+    const path = busiestPage();
+    if (!path) return;
+
     const graph = getLinkGraph();
-    const local = getLocalGraph('example/features/wiki-links');
+    const local = getLocalGraph(path);
 
     const neighbours = new Set([
-      'example/features/wiki-links',
-      ...(graph.outbound.get('example/features/wiki-links') ?? []),
-      ...(graph.backlinks.get('example/features/wiki-links') ?? []),
+      path,
+      ...(graph.outbound.get(path) ?? []),
+      ...(graph.backlinks.get(path) ?? []),
     ]);
 
     expect(local.nodes.every((node) => neighbours.has(node.path))).toBe(true);

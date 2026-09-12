@@ -76,6 +76,46 @@ export function filterHiddenItems(items: NavigationItem[]): NavigationItem[] {
 }
 
 /**
+ * Flattens a navigation tree to the label each page carries.
+ *
+ * The sidebar renders the tree; nothing else needs its shape. The tab bar shows
+ * a title for the page a tab is on, and the only statement it makes about the
+ * tree is that a document's label is its name — so it is given that, rather
+ * than the whole hierarchy.
+ *
+ * That matters at the size of a site: the tree is sent to the browser once per
+ * page and again on every client-side navigation, and on this wiki it is around
+ * ninety entries with children arrays, paths, icons and colours, of which the
+ * tab bar reads one string.
+ *
+ * A page that heads a folder appears twice in the tree — once as the folder's
+ * node and once as the page — and the page's own title is the one that belongs
+ * to the document, so children are visited after their parent and win.
+ *
+ * @param items - Navigation tree
+ * @returns Labels keyed by content path
+ *
+ * @example
+ * ```typescript
+ * pageTitles([{ name: 'Guides', children: [{ name: 'Setup', path: 'guides/setup' }] }]);
+ * // { 'guides/setup': 'Setup' }
+ * ```
+ */
+export function pageTitles(items: NavigationItem[]): Record<string, string> {
+  const titles: Record<string, string> = {};
+
+  function traverse(nodes: NavigationItem[]) {
+    for (const node of nodes) {
+      if (node.path) titles[node.path] = node.name;
+      if (node.children) traverse(node.children);
+    }
+  }
+
+  traverse(items);
+  return titles;
+}
+
+/**
  * Recursively searches navigation tree to find the item matching the current path
  *
  * This function is used to highlight the active navigation item in the sidebar.

@@ -5,7 +5,9 @@ import {
   EMPTY_URL_MAP,
   docPathToUrl,
   hrefFor,
+  unpackUrlMap,
   urlToDocPath,
+  type PackedUrlMap,
   type UrlMap,
 } from '@/lib/navigation/url';
 
@@ -35,11 +37,24 @@ export interface UrlMapHelpers {
 /**
  * Provides the URL map to the client component tree.
  *
+ * The map arrives in its packed form and is expanded here, once per provider
+ * rather than once per page: the two lookup tables it becomes are derived from
+ * the pairs the server sent, and sending those tables ready-made would put
+ * every name on the wire twice.
+ *
  * @param props.value - Mapping produced on the server by `getUrlMap()`
  * @param props.children - Subtree that may consume the mapping
  */
-export function UrlMapProvider({ value, children }: { value: UrlMap; children: React.ReactNode }) {
-  return <UrlMapContext.Provider value={value}>{children}</UrlMapContext.Provider>;
+export function UrlMapProvider({
+  value,
+  children,
+}: {
+  value: PackedUrlMap;
+  children: React.ReactNode;
+}) {
+  const map = useMemo(() => unpackUrlMap(value), [value]);
+
+  return <UrlMapContext.Provider value={map}>{children}</UrlMapContext.Provider>;
 }
 
 /**

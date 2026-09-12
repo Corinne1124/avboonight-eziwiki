@@ -9,6 +9,8 @@ import { SearchDialog } from '@/components/search/SearchDialog';
 import { payload } from '@/payload/config';
 import { validatePayload } from '@/lib/payload/validator';
 import { getSite } from '@/lib/site';
+import { pageTitles } from '@/lib/navigation/builder';
+import { packUrlMap } from '@/lib/navigation/url';
 import { themeCss } from '@/lib/theme';
 import { asset, fileUrl, pageUrl } from '@/lib/basePath';
 
@@ -211,8 +213,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {site.strings.skipToContent}
         </a>
         <StringsProvider value={site.strings}>
-          <UrlMapProvider value={site.urlMap}>
-            <TabInitializer navigation={site.navigation} />
+          {/*
+            The URL map crosses as pairs rather than as the two lookup tables
+            it becomes, and the tab initialiser is given the page labels it
+            reads rather than the navigation tree they are in. Both are the
+            same statement said once instead of twice: the tables are how the
+            client looks things up, not what has to be sent, and the layout is
+            nearly all of this payload.
+          */}
+          <UrlMapProvider value={packUrlMap(site.urlMap)}>
+            <TabInitializer titles={pageTitles(site.navigation)} />
             <PageLayout navigation={site.navigation} repoUrl={site.global.repoUrl}>
               {children}
             </PageLayout>

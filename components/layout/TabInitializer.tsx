@@ -3,43 +3,18 @@
 import { useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import { useTabStore } from '@/lib/store/tabStore';
-import { NavigationItem } from '@/lib/payload/types';
 import { useUrlMap } from '@/components/providers/UrlMapProvider';
 import { normalizeSlug } from '@/lib/navigation/url';
 
 interface TabInitializerProps {
-  navigation: NavigationItem[];
-}
-
-/**
- * Helper function to find navigation item by path
- */
-export function findNavigationItemByPath(
-  items: NavigationItem[],
-  path: string,
-): NavigationItem | null {
-  const normalizedPath = path.replace(/\/$/, '');
-
-  for (const item of items) {
-    if (!item.path) {
-      if (item.children) {
-        const found = findNavigationItemByPath(item.children, path);
-        if (found) return found;
-      }
-      continue;
-    }
-
-    const normalizedItemPath = item.path.replace(/\/$/, '');
-    if (normalizedItemPath === normalizedPath) {
-      return item;
-    }
-
-    if (item.children) {
-      const found = findNavigationItemByPath(item.children, path);
-      if (found) return found;
-    }
-  }
-  return null;
+  /**
+   * Labels keyed by content path, from `pageTitles`.
+   *
+   * A flat record rather than the navigation tree: a tab records the title of
+   * the page it is on, which is the only thing this needs from a tree that is
+   * otherwise rendered on the server and sent separately.
+   */
+  titles: Record<string, string>;
 }
 
 /**
@@ -71,7 +46,7 @@ interface TabEntry {
 /**
  * Initializes tabs on first load and handles URL changes
  */
-export function TabInitializer({ navigation }: TabInitializerProps) {
+export function TabInitializer({ titles }: TabInitializerProps) {
   const pathname = usePathname();
   const { toPath } = useUrlMap();
   const { tabs, addTab, activeTabId, navigateInHistory, hasHydrated } = useTabStore();
@@ -86,8 +61,7 @@ export function TabInitializer({ navigation }: TabInitializerProps) {
 
       const docPath = toPath(pathname);
       if (docPath !== null) {
-        const navItem = findNavigationItemByPath(navigation, docPath);
-        return { path: docPath, title: navItem?.name || 'New Tab' };
+        return { path: docPath, title: titles[docPath] || 'New Tab' };
       }
 
       return isAppRoute(pathname) ? { path: pathname, title: routeTitle(pathname) } : null;
@@ -129,16 +103,7 @@ export function TabInitializer({ navigation }: TabInitializerProps) {
         navigateInHistory(activeTabId, entry.path, entry.title);
       }
     }
-  }, [
-    hasHydrated,
-    tabs.length,
-    pathname,
-    navigation,
-    toPath,
-    addTab,
-    activeTabId,
-    navigateInHistory,
-  ]);
+  }, [hasHydrated, tabs.length, pathname, titles, toPath, addTab, activeTabId, navigateInHistory]);
 
   return null;
 }

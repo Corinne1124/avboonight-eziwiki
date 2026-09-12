@@ -19,6 +19,58 @@ import { cached, contentGeneration, stamp } from '../cache';
 const DEFAULT_DIR_ORDER = Number.MAX_SAFE_INTEGER;
 
 /**
+ * A section node's weight among its siblings.
+ *
+ * Sections and root pages share one list, and both are placed by the `order`
+ * they declare: a page's own, or — for a section — the weight of the directory
+ * it stands for, which is its folder's `_meta.json` when it has one and the
+ * folder page's own `order` when it does not.
+ *
+ * Appending instead of placing, which is what the merge used to do, put a
+ * section wherever the first document that happened to reference it sorted. A
+ * folder whose `_meta.json` says `order: 500` landed at the top of the sidebar
+ * for that reason: the first document to reference it was a nested folder page
+ * declaring `order: 1` — a weight meant to sort that page against its own
+ * siblings, read as a weight for the whole top level.
+ *
+ * @param dir - The directory the section stands for
+ * @param dirOrder - Weight of a directory
+ * @returns The weight its siblings are sorted by
+ */
+function sectionWeight(dir: string, dirOrder: (dir: string) => number): number {
+  return dir ? dirOrder(dir) : DEFAULT_DIR_ORDER;
+}
+
+/**
+ * The directory a section node stands for, inferred from its descendants.
+ *
+ * A section built by the merge stands for the directory it was created for, and
+ * its first children are appended immediately after it is placed — so by the
+ * time another node has to be compared against it, its descendants name that
+ * directory. A section spanning several directories answers null, and is then
+ * not something to sort against.
+ *
+ * @param section - A section node
+ * @returns The directory it stands for, or null when it does not name one
+ */
+function sectionDir(section: NavigationItem): string | null {
+  const dirs = new Set<string>();
+
+  function visit(node: NavigationItem): void {
+    if (node.path) {
+      const at = node.path.lastIndexOf('/');
+      dirs.add(at === -1 ? '' : node.path.slice(0, at));
+    }
+
+    for (const child of node.children ?? []) visit(child);
+  }
+
+  for (const child of section.children ?? []) visit(child);
+
+  return dirs.size === 1 ? [...dirs][0] : null;
+}
+
+/**
  * Returns the parent directory of a content directory path.
  *
  * @param dir - Directory path relative to `content/`
@@ -175,6 +227,37 @@ export function mergeDiscoveredDocs(curated: NavigationItem[]): NavigationItem[]
   const referenced = new Set(extractAllPaths(root));
   const sections = indexSectionsByDir(root);
 
+  /**
+   * The nodes the curated tree itself put in place.
+   *
+   * Everything discovered is placed by weight; a curated entry is not, because
+   * its position is the author's statement about where it goes. Marking them
+   * lets the two rules stay out of each other's way: a curated node is skipped
+   * when looking for somewhere to insert, so the merge never pushes one down.
+   */
+  const authored = new WeakSet<NavigationItem>();
+
+  function markAuthored(items: NavigationItem[]): void {
+    for (const item of items) {
+      authored.add(item);
+      if (item.children) markAuthored(item.children);
+    }
+  }
+
+  markAuthored(root);
+
+  /**
+   * The directory each section built here stands for.
+   *
+   * Kept beside the node because a section is placed before it has any
+   * children, and at that moment its directory is the one thing that says
+   * where it belongs — it cannot be read back off a tree that is still empty.
+   *
+   * A `WeakMap` rather than a property on the node: the node is handed to the
+   * page and serialised, and this is scaffolding for the merge alone.
+   */
+  const sectionDirs = new WeakMap<NavigationItem, string>();
+
   // Directory → its folder page, for directories that have one. A page that
   // the curated tree lists, or that hides itself in frontmatter, cannot head
   // a folder here.
@@ -235,6 +318,74 @@ export function mergeDiscoveredDocs(curated: NavigationItem[]): NavigationItem[]
     }
   }
 
+  /** `order` declared by a document, keyed by its published path. */
+  const declaredOrder = new Map<string, number>();
+  for (const doc of docs) declaredOrder.set(doc.path, doc.order);
+
+  /** Weight of a page, by content path. */
+  const pageOrder = (path: string) => declaredOrder.get(path) ?? DEFAULT_DIR_ORDER;
+
+  /**
+   * Places a node among its siblings by the weight it declares.
+   *
+   * Appending — which is what creating a section on first sight used to do —
+   * puts it wherever the first document that happened to reference it sorted,
+   * and that is not the same question as where it belongs. A folder whose
+   * `_meta.json` says `order: 500` was landing at the top of the sidebar
+   * because the first document to reference it was a nested folder page with
+   * its own `order: 1`: a weight meant to sort it against its siblings, read as
+   * a weight for the whole top level.
+   *
+   * Sections and root pages are placed by one rule rather than two, because
+   * they share one list: a page declaring `order: 3` belongs before a section
+   * declaring `order: 500`, and neither belongs after an unnumbered one.
+   *
+   * @param parent - The children array to insert into
+   * @param node - The node being placed
+   * @param dir - The directory a section stands for; '' for a page
+   */
+  function insertByWeight(parent: NavigationItem[], node: NavigationItem, dir: string): void {
+    // A page is weighed by its own `order`; a section by the directory it
+    // stands for. Both are that node's answer to "where do I belong".
+    const weight = node.children
+      ? sectionWeight(dir, dirOrder)
+      : node.path
+        ? pageOrder(node.path)
+        : DEFAULT_DIR_ORDER;
+
+    /**
+     * The weight of a sibling already in the list.
+     *
+     * A section records the directory it stands for when it is created, which
+     * is what makes this answerable while a section is still empty. A curated
+     * section records nothing, so it is weighed by the directory its own
+     * descendants name, and one that names none reports the default: it then
+     * neither moves nor holds anything back.
+     *
+     * @param sibling - A node already placed
+     * @returns Its weight, or null when it is the author's to position
+     */
+    const siblingWeight = (sibling: NavigationItem): number | null => {
+      if (authored.has(sibling)) return null;
+      if (!sibling.children) return sibling.path ? pageOrder(sibling.path) : DEFAULT_DIR_ORDER;
+
+      const siblingDir = sectionDirs.get(sibling) ?? sectionDir(sibling);
+      return siblingDir === null ? DEFAULT_DIR_ORDER : sectionWeight(siblingDir, dirOrder);
+    };
+
+    const at = parent.findIndex((sibling) => {
+      const siblingWeightValue = siblingWeight(sibling);
+
+      // Curated entries are skipped rather than compared: where one sits is
+      // the payload's statement, not something a discovered document gets to
+      // rearrange.
+      return siblingWeightValue !== null && siblingWeightValue > weight;
+    });
+
+    if (at === -1) parent.push(node);
+    else parent.splice(at, 0, node);
+  }
+
   /**
    * Returns the children array that documents in `dir` should be appended to,
    * creating the section chain if it does not exist yet.
@@ -254,8 +405,9 @@ export function mergeDiscoveredDocs(curated: NavigationItem[]): NavigationItem[]
 
     const node = dirToNavItem(dir, dirMeta.get(dir) ?? {});
     attachFolderPage(node, dir);
-    childrenFor(parentDir(dir)).push(node);
+    insertByWeight(childrenFor(parentDir(dir)), node, dir);
     sections.set(dir, node);
+    sectionDirs.set(node, dir);
 
     return node.children!;
   }
@@ -267,7 +419,12 @@ export function mergeDiscoveredDocs(curated: NavigationItem[]): NavigationItem[]
     // `index.md` page).
     const physicalDir = doc.indexDir ?? doc.dir;
     if (dirMeta.get(physicalDir)?.hidden) item.hidden = true;
-    childrenFor(doc.dir).push(item);
+
+    // Placed rather than appended, so a root page and a top-level section come
+    // out in one sequence of `order` values. Appending was what left every
+    // root page behind every folder, and then behind a folder whose weight
+    // came from a nested page's own ordering.
+    insertByWeight(childrenFor(doc.dir), item, doc.dir);
   }
 
   return root;

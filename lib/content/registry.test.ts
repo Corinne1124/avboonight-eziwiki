@@ -52,7 +52,21 @@ describe('getContentRegistry', () => {
   });
 
   it('reports a root-level document as having no directory', () => {
-    expect(getDoc('jiye')?.dir).toBe('');
+    // Named rather than looked up by path: which files sit at the root is the
+    // author's to decide, and a test that required a particular one failed the
+    // day that page was renamed. The invariant is about the shape of a path,
+    // not about any page in particular.
+    //
+    // A folder page has no directory either, but its file is `<path>/index.md`,
+    // so it is excluded here — its own case is covered below.
+    const rootDocs = getContentRegistry().docs.filter((doc) => doc.dir === '' && !doc.indexDir);
+
+    expect(rootDocs.length).toBeGreaterThan(0);
+    for (const doc of rootDocs) {
+      expect(doc.path).not.toContain('/');
+      expect(doc.segments).toEqual([doc.path]);
+      expect(filePathOf(doc.path)).toBe(`${doc.path}.md`);
+    }
   });
 
   it('strips the frontmatter block from the body', () => {

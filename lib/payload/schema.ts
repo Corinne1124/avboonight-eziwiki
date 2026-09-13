@@ -83,6 +83,13 @@ export const payloadSchema = {
         },
       },
     },
+    editor: {
+      type: 'object',
+      properties: {
+        enabled: { type: 'boolean' },
+        branch: { type: 'string', minLength: 1 },
+      },
+    },
     theme: {
       type: 'object',
       properties: {

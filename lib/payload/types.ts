@@ -161,6 +161,33 @@ export interface DocumentsConfig {
 }
 
 /**
+ * The in-browser editor.
+ *
+ * A static export has no server to write to, so an edit becomes a commit made
+ * through the GitHub API, authorised by a token the reader supplies. That makes
+ * this optional and off unless a site asks for it: a wiki whose repository is
+ * private, or which would rather nobody typed a token into a browser, leaves it
+ * out entirely.
+ */
+export interface EditorConfig {
+  /**
+   * Whether the site offers the editor.
+   *
+   * Defaults to false. Enabling it also requires that {@link GlobalConfig.repoUrl}
+   * names a GitHub repository — commits have nowhere else to go.
+   */
+  enabled?: boolean;
+  /**
+   * Branch commits are made on.
+   *
+   * Defaults to {@link GlobalConfig.editBranch}, and to `main` when that is
+   * unset too, so the branch an edit link points at and the branch an edit
+   * commits to are the same unless a site says otherwise.
+   */
+  branch?: string;
+}
+
+/**
  * Complete payload structure
  */
 export interface Payload {
@@ -179,4 +206,6 @@ export interface Payload {
   theme?: Partial<ThemeConfig>;
   /** How embedded documents are shown */
   documents?: DocumentsConfig;
+  /** The in-browser editor, when the site offers one */
+  editor?: EditorConfig;
 }

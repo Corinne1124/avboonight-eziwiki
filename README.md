@@ -438,6 +438,22 @@ editUrl: 'https://git.example.com/wiki/-/edit/main/content/{path}';
 
 两者都不配置，就没有页面会提供链接——这正是私有或未发布的 wiki 想要的。
 
+### 在线编辑
+
+静态站点没有服务端可写，所以「在线编辑」的落地方式是**把改动提交到 GitHub 仓库**。开启后，页脚会多出一个「在此编辑」，侧边栏顶部会多出一个「新建页面」：读者输入一把对本仓库有写权限的 GitHub Token，即可在浏览器里改正文、改 frontmatter、新建、移动（自动补 `aliases`）或删除页面；保存即提交，已有的 Pages 工作流随后自动重新构建上线。
+
+```typescript
+global: {
+  repoUrl: 'https://github.com/you/your-wiki', // 编辑器只认识 GitHub 仓库
+},
+editor: {
+  enabled: true,
+  // branch: 'main', // 可选；默认取 global.editBranch，再默认为 main
+},
+```
+
+Token 由读者自己输入，只保存在他自己的浏览器里（勾选记住时才写入 `localStorage`），并且只发送给 `api.github.com`。纯静态站点没有安全边界可言——编辑器代码和仓库地址都是公开的——真正的权限来自 token 本身：没有 token 的人即便打开编辑器也提交不了任何东西。编辑器代码按需加载，从不编辑的读者不会为它付出任何字节。详见 [[在线编辑]]。
+
 ### 反向链接与关系图
 
 每个页面末尾都会列出链接到它的页面——同时来自 Wiki 链接和普通 Markdown 链接——以及一张展示其周边关系的小型关系图：该页面、双向一步链接可达的所有页面，以及这些邻居之间的链接。

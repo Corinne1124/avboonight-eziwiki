@@ -1,7 +1,7 @@
 ---
 title: 烬火守序
-tags: [ 人类组织 ]
-order: 54
+tags: [ 人类组织, 烬火守序 ]
+order: 05
 ---
 # 烬火守序 _AshfireUpholder_
 人类阵营：【烬火守序】

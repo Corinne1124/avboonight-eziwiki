@@ -12,6 +12,7 @@ import { SearchTrigger } from '@/components/search/SearchTrigger';
 import { useSearchStore } from '@/lib/store/searchStore';
 import { filterHiddenItems } from '@/lib/navigation/builder';
 import { useStrings } from '@/components/providers/StringsProvider';
+import { NewPageButton } from '@/components/editor/NewPageButton';
 import { format } from '@/lib/i18n/format';
 import { isLightColor } from '@/lib/color';
 import { Collapse } from './Collapse';
@@ -344,6 +345,7 @@ export function Sidebar({ navigation, repoUrl }: SidebarProps) {
         {!sidebarCollapsed ? (
           <>
             <SearchTrigger className="min-w-0 flex-1" />
+            <NewPageButton />
             <ThemeToggle className="w-4 h-4" />
             {repoUrl && <RepoLink href={repoUrl} collapsed={false} />}
             <button
@@ -365,6 +367,7 @@ export function Sidebar({ navigation, repoUrl }: SidebarProps) {
             >
               <Search className="h-4 w-4" />
             </button>
+            <NewPageButton collapsed />
             {repoUrl && <RepoLink href={repoUrl} collapsed />}
             <button
               onClick={handleToggle}

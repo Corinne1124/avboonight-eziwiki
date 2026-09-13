@@ -305,6 +305,7 @@ export default async function ContentPage({ params }: PageProps) {
           <PageMeta
             lastModified={getLastModified(resolved.path)}
             editUrl={getEditUrl(resolved.path)}
+            path={resolved.path}
           />
           <PageNavigation adjacent={getAdjacentPages(resolved.path)} />
           <Backlinks links={getBacklinks(resolved.path)} />

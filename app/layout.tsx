@@ -5,12 +5,14 @@ import { PageLayout } from '@/components/layout/PageLayout';
 import { TabInitializer } from '@/components/layout/TabInitializer';
 import { UrlMapProvider } from '@/components/providers/UrlMapProvider';
 import { StringsProvider } from '@/components/providers/StringsProvider';
+import { EditorConfigProvider } from '@/components/providers/EditorConfigProvider';
 import { SearchDialog } from '@/components/search/SearchDialog';
 import { payload } from '@/payload/config';
 import { validatePayload } from '@/lib/payload/validator';
 import { getSite } from '@/lib/site';
 import { pageTitles } from '@/lib/navigation/builder';
 import { packUrlMap } from '@/lib/navigation/url';
+import { parseRepo } from '@/lib/editor/github';
 import { themeCss } from '@/lib/theme';
 import { asset, fileUrl, pageUrl } from '@/lib/basePath';
 
@@ -169,6 +171,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const homeUrl = pageUrl('', site.global.baseUrl);
   const theme = themeCss(site.theme);
 
+  // The editor needs a GitHub repository to commit to and a site that asked for
+  // it; either one missing means the controls are never rendered, rather than
+  // rendered and failing at the first save. Resolved here so the client is told
+  // the owner, repository and branch instead of parsing a URL itself.
+  const editor = {
+    enabled: payload.editor?.enabled === true && parseRepo(site.global.repoUrl) !== null,
+    repo: parseRepo(site.global.repoUrl, payload.editor?.branch ?? site.global.editBranch),
+  };
+
   return (
     // The class the script above adds is not in the server markup, and React
     // would otherwise report the difference on every dark-mode load.
@@ -222,11 +233,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             nearly all of this payload.
           */}
           <UrlMapProvider value={packUrlMap(site.urlMap)}>
-            <TabInitializer titles={pageTitles(site.navigation)} />
-            <PageLayout navigation={site.navigation} repoUrl={site.global.repoUrl}>
-              {children}
-            </PageLayout>
-            <SearchDialog />
+            <EditorConfigProvider value={editor}>
+              <TabInitializer titles={pageTitles(site.navigation)} />
+              <PageLayout navigation={site.navigation} repoUrl={site.global.repoUrl}>
+                {children}
+              </PageLayout>
+              <SearchDialog />
+            </EditorConfigProvider>
           </UrlMapProvider>
         </StringsProvider>
       </body>

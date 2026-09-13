@@ -172,3 +172,4 @@ npm run show-urls
 - [[payload]] — 配置文件中的其他内容
 - [[theme]] — 颜色与外观
 - [[frontmatter]] — 完整的页面字段列表
+- [[editing|在线编辑]] — 在浏览器里直接修改页面

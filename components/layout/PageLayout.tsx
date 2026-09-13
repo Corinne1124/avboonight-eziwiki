@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import dynamic from 'next/dynamic';
 import { NavigationItem } from '@/lib/payload/types';
 import { Sidebar } from './Sidebar';
 import { MobileMenu } from './MobileMenu';
@@ -9,6 +10,22 @@ import { NavigationButtons } from './NavigationButtons';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { SearchTrigger } from '@/components/search/SearchTrigger';
 import { useStrings } from '@/components/providers/StringsProvider';
+import { useEditorConfig } from '@/components/providers/EditorConfigProvider';
+import { useEditorStore } from '@/lib/store/editorStore';
+
+/**
+ * The editor, fetched only when it is opened.
+ *
+ * The editor is a page-load's worth of form, commit handling and path checking
+ * that almost every reader will never use. Imported normally it would be part
+ * of the bundle every page loads; loaded on demand, the cost is paid by exactly
+ * the people who asked for it — the same trade the search index and the PDF
+ * viewer already make.
+ */
+const EditorOverlay = dynamic(
+  () => import('@/components/editor/EditorOverlay').then((module) => module.EditorOverlay),
+  { ssr: false },
+);
 
 /**
  * Props for the PageLayout component
@@ -34,6 +51,8 @@ interface PageLayoutProps {
  */
 export function PageLayout({ navigation, repoUrl, children }: PageLayoutProps) {
   const t = useStrings();
+  const { enabled: editorEnabled } = useEditorConfig();
+  const editorOpen = useEditorStore((state) => state.open);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const toggleMobileMenu = () => {
@@ -116,6 +135,8 @@ export function PageLayout({ navigation, repoUrl, children }: PageLayoutProps) {
           </div>
         </main>
       </div>
+
+      {editorEnabled && editorOpen && <EditorOverlay />}
     </div>
   );
 }

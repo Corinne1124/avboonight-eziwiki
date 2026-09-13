@@ -79,6 +79,25 @@ export const payload: Payload = {
      */
     raster: ['scans/**'],
   },
+  /**
+   * The in-browser editor.
+   *
+   * Enabled, any reader who supplies a GitHub token with write access to
+   * `global.repoUrl` can edit a page where they are reading it: the change is
+   * committed to this repository and published by the Pages workflow that
+   * already runs on every push to `main`, so nothing else has to be deployed.
+   *
+   * The token is never part of the site. It is typed by the reader, kept (only
+   * if they ask) in that browser's storage, and sent to `api.github.com` and
+   * nowhere else — which is the whole of the security model a static site can
+   * have. Anyone able to commit to this repository can already change every
+   * page, so this grants no new power; it only shortens the distance between
+   * spotting a mistake and fixing it. Set `enabled: false` to remove the
+   * controls entirely. See `content/example/configuration/editing.md`.
+   */
+  editor: {
+    enabled: true,
+  },
   theme: {
     primary: '#2563eb',
     secondary: '#7c3aed',

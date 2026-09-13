@@ -38,13 +38,65 @@ interface TabStore {
   setSidebarCollapsed: (collapsed: boolean) => void;
 }
 
+/**
+ * Repairs a persisted store blob, including one written by an older version.
+ *
+ * Kept pure and exported so the upgrade path can be tested. Storage is the one
+ * input the app does not choose — it is whatever a browser happens to hold —
+ * and a mistake here is a wrong sidebar, or an empty tab strip, for everyone
+ * who has visited before.
+ *
+ * @param persistedState - Whatever was in storage
+ * @param version - The version that blob was written at
+ * @returns The state to rehydrate with
+ */
+export function migrateTabState(persistedState: unknown, version: number): unknown {
+  const state = persistedState as Record<string, unknown> | null | undefined;
+  if (!state || typeof state !== 'object') return persistedState;
+
+  if (Array.isArray(state.tabs)) {
+    state.tabs = (state.tabs as Array<Record<string, unknown>>).map((tab) => {
+      // Handle old format (string array), or a missing or empty history
+      let history = tab.history;
+      if (!Array.isArray(history) || history.length === 0) {
+        history = [{ path: tab.path || '', title: tab.title || 'New Tab' }];
+      } else if (typeof history[0] === 'string') {
+        // Migrate from old string array format to new object format
+        history = history.map((path: string) => ({
+          path,
+          title: tab.title || 'New Tab',
+        }));
+      }
+
+      // Clamped rather than defaulted: an index outside the history
+      // enables a back button that finds nothing, and lets the next
+      // navigation slice entries away.
+      const rawIndex = typeof tab.historyIndex === 'number' ? tab.historyIndex : 0;
+      const historyIndex = Math.min(Math.max(rawIndex, 0), (history as unknown[]).length - 1);
+
+      return { ...tab, history, historyIndex };
+    });
+  }
+
+  // Every wiki visited before this version holds `false` — the sidebar used to
+  // start open — so leaving the stored value alone would mean nobody who has
+  // been here before ever sees the new default. It is adopted once, here; the
+  // reader's own choice sticks from the next collapse or expand onwards.
+  if (version < 2) state.sidebarCollapsed = true;
+
+  return state;
+}
+
 export const useTabStore = create<TabStore>()(
   persist(
     (set, get) => ({
       tabs: [],
       activeTabId: null,
       sidebarWidth: 256, // Default 256px (w-64)
-      sidebarCollapsed: false,
+      // Collapsed on a first visit: the wiki's own content is what a reader
+      // came for, and the full tree cost the article most of a narrow window.
+      // One click expands it, and that choice is remembered.
+      sidebarCollapsed: true,
       hasHydrated: false,
 
       setHasHydrated: (hydrated) => {
@@ -285,41 +337,17 @@ export const useTabStore = create<TabStore>()(
       // and both defaulted to 0 — so blobs written before tabs carried a
       // history were rehydrated unmigrated, and the first navigation read
       // `history[0]` off undefined.
-      version: 1,
+      //
+      // Version 2 adopted the collapsed sidebar as the default, which only a
+      // migration could reach for browsers that already held the old one.
+      version: 2,
       partialize: (state) => ({
         tabs: state.tabs,
         activeTabId: state.activeTabId,
         sidebarWidth: state.sidebarWidth,
         sidebarCollapsed: state.sidebarCollapsed,
       }),
-      // Migrate old tabs without history
-      migrate: (persistedState: unknown) => {
-        const state = persistedState as Record<string, unknown>;
-        if (state?.tabs && Array.isArray(state.tabs)) {
-          state.tabs = state.tabs.map((tab: Record<string, unknown>) => {
-            // Handle old format (string array), or a missing or empty history
-            let history = tab.history;
-            if (!Array.isArray(history) || history.length === 0) {
-              history = [{ path: tab.path || '', title: tab.title || 'New Tab' }];
-            } else if (typeof history[0] === 'string') {
-              // Migrate from old string array format to new object format
-              history = history.map((path: string) => ({
-                path,
-                title: tab.title || 'New Tab',
-              }));
-            }
-
-            // Clamped rather than defaulted: an index outside the history
-            // enables a back button that finds nothing, and lets the next
-            // navigation slice entries away.
-            const rawIndex = typeof tab.historyIndex === 'number' ? tab.historyIndex : 0;
-            const historyIndex = Math.min(Math.max(rawIndex, 0), (history as unknown[]).length - 1);
-
-            return { ...tab, history, historyIndex };
-          });
-        }
-        return state;
-      },
+      migrate: migrateTabState,
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated(true);
       },

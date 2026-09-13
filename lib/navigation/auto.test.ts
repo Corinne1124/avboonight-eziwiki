@@ -196,19 +196,29 @@ describe('mergeDiscoveredDocs', () => {
 
   it('places root-level documents at the top level', () => {
     const merged = mergeDiscoveredDocs([]);
-    // Leaf nodes at the top level: a folder page also carries a path, but it
-    // heads children and is a page of its own directory rather than a root one.
-    const rootPaths = merged.filter((item) => item.path && !item.children).map((item) => item.path);
+    const topLevel = merged.filter((item) => item.path).map((item) => item.path);
 
     // Whatever is at the root of `content/` — the test is that being there puts
-    // a page in the top level of the sidebar, not that any given page is.
+    // a page in the top level of the sidebar, not that any given page is. A
+    // folder page is included: `x/index.md` publishes the path `x`, which is a
+    // root path, and when the folder holds nothing else yet the page is a
+    // top-level leaf exactly like `x.md` would be.
     const expected = getAllDocPaths().filter((path) => {
       const doc = getDoc(path);
-      return doc && doc.dir === '' && !doc.indexDir && !doc.hidden;
+      return Boolean(doc && doc.dir === '' && !doc.hidden);
     });
 
     expect(expected.length).toBeGreaterThan(0);
-    expect(rootPaths.sort()).toEqual(expected.sort());
+    for (const path of expected) expect(topLevel).toContain(path);
+
+    // And nothing that lives in a folder reaches the top level on its own: it
+    // belongs to the section its directory becomes.
+    const nested = getAllDocPaths().filter((path) => {
+      const doc = getDoc(path);
+      return Boolean(doc && doc.dir !== '' && !doc.hidden);
+    });
+
+    for (const path of nested) expect(topLevel).not.toContain(path);
   });
 
   it('publishes a folder with index.md as a page holding its siblings', () => {

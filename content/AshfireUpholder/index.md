@@ -1,6 +1,6 @@
 ---
 title: 烬火守序
-tags: [ 人类组织, 烬火守序 ]
+tags: [ 组织, 烬火守序 ]
 order: 05
 ---
 # 烬火守序 _AshfireUpholder_

@@ -19,3 +19,9 @@ order: 60
 消耗等量赐福，直接将忌夜气息驱逐至忌夜世界，忌夜生灵被驱逐后不会留下QX
 
 流明赐福出现后，那位超凡者，将赐福通过特殊手段，装在了一种特殊的晶石中，使其拥有了流明赐福的效果，即「隙晶」。时至今日，人类已夺回了大部分被QX影响的区域
+
+<a rel="license" href="https://creativecommons.org/licenses/by-nd/4.0/">
+  <img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nd/4.0/88x31.png" />
+</a>
+<br />
+本作品 流明赐福 采用<a rel="license" href="https://creativecommons.org/licenses/by-nd/4.0/">知识共享署名-禁止演绎 4.0 国际许可协议</a> 由 逆风 进行许可。

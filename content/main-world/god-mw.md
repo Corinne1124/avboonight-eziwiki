@@ -18,3 +18,9 @@ order: 2
 四位大陆之神是世界之初并生的特殊生命，散发的气息塑造了世界。大陆之神对一切都漠不关心，哪怕世界不断被蚕食，哪怕自身因此不断衰弱，也一直沉眠于其所在之地。直到如今只剩匹敌世界的力量。
 
 天地同寿：只要世界不被毁灭，祂们就永远无法灭亡。同时祂们的力量随世界的兴衰而变化
+
+<a rel="license" href="https://creativecommons.org/licenses/by-nd/4.0/">
+  <img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nd/4.0/88x31.png" />
+</a>
+<br />
+本作品 大陆只神 采用<a rel="license" href="https://creativecommons.org/licenses/by-nd/4.0/">知识共享署名-禁止演绎 4.0 国际许可协议</a> 由 逆风 进行许可。

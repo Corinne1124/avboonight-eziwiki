@@ -39,4 +39,8 @@ order: 01
 下城区人的生活靠自己运营，除顶层外，越靠上水电供给困难。科学院会在此组织培训，市政对此地不收税
 
 一般各方势力都不在
-
+<a rel="license" href="https://creativecommons.org/licenses/by-nd/4.0/">
+  <img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nd/4.0/88x31.png" />
+</a>
+<br />
+本作品 中央都城 采用<a rel="license" href="https://creativecommons.org/licenses/by-nd/4.0/">知识共享署名-禁止演绎 4.0 国际许可协议</a> 由 逆风 进行许可。

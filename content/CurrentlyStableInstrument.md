@@ -1,5 +1,5 @@
 ---
-title: 现实稳定之仪
+title: 现时稳定之仪
 tags: [ 科技 ]
 order: 59
 ---
@@ -13,3 +13,9 @@ order: 59
 现时稳定之仪的诞生，使人类终于能开始了解那个试图毁灭他们的世界。[[LumenBlessing|【流明赐福】]]就是根据其现时出的忌夜血肉的研究成果
 
 每一台现时稳定之仪的诞生，都会让一位风险等级0且灾害等级0的人类永寂。现时稳定之仪的每一次催动，都会让自己也被定格，这使其难以被摧毁。定格期间，现时稳定之仪无法继续使用。
+
+<a rel="license" href="https://creativecommons.org/licenses/by-nd/4.0/">
+  <img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nd/4.0/88x31.png" />
+</a>
+<br />
+本作品 现时稳定之仪 采用<a rel="license" href="https://creativecommons.org/licenses/by-nd/4.0/">知识共享署名-禁止演绎 4.0 国际许可协议</a> 由 逆风 进行许可。

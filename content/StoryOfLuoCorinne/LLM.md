@@ -36,3 +36,9 @@ _Long-legged Mushroom_
 ## 长腿菌的用途
 饲养：你可以通过长期雇佣的方式经过紫基地系获得只终于你的菌群；当然，也可以获得去除外壳的单只细菌，帮助管理杂物。
 雇佣：蓝品系与紫品系都接受雇佣，只要你给得起价码。
+
+<a rel="license" href="https://creativecommons.org/licenses/by-nd/4.0/">
+  <img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nd/4.0/88x31.png" />
+</a>
+<br />
+本作品 『存在』 - Corinne 采用<a rel="license" href="https://creativecommons.org/licenses/by-nd/4.0/">知识共享署名-禁止演绎 4.0 国际许可协议</a> 由 Corinne1124/阡陌拾遗 进行许可。

@@ -42,7 +42,7 @@ order: 1
 
 忌夜的智慧种大多见到行者就会远离，但总有些初次见到又未曾听闻的生灵会靠近他。嗯，猜猜为什么
 
-a rel="license" href="https://creativecommons.org/licenses/by-nd/4.0/">
+<a rel="license" href="https://creativecommons.org/licenses/by-nd/4.0/">
   <img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nd/4.0/88x31.png" />
 </a>
 <br />

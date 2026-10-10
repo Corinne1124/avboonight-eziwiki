@@ -82,3 +82,9 @@ order: 38
 洛星汐抬头看去
 
 ||“星汐，好久不见”||
+
+<a rel="license" href="https://creativecommons.org/licenses/by-nd/4.0/">
+  <img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nd/4.0/88x31.png" />
+</a>
+<br />
+本作品 群星之汐 - 洛星汐 采用<a rel="license" href="https://creativecommons.org/licenses/by-nd/4.0/">知识共享署名-禁止演绎 4.0 国际许可协议</a> 由 Corinne1124/阡陌拾遗 进行许可。

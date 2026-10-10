@@ -28,3 +28,8 @@ order: 02
 东北的雨相大陆：
 
 ##
+<a rel="license" href="https://creativecommons.org/licenses/by-nd/4.0/">
+  <img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nd/4.0/88x31.png" />
+</a>
+<br />
+本作品 主世界大陆 采用<a rel="license" href="https://creativecommons.org/licenses/by-nd/4.0/">知识共享署名-禁止演绎 4.0 国际许可协议</a> 由 逆风 进行许可。

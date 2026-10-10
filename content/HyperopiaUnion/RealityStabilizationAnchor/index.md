@@ -98,3 +98,9 @@ order: 01
 本简介为不夜城科学院公开版本，用于外勤、采购、民用科普。
 
 具体技术参数、维护规程与型号差异，以[[RSA_FormulaSets|科学院技术手册]]为准。
+
+<a rel="license" href="https://creativecommons.org/licenses/by-nd/4.0/">
+  <img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nd/4.0/88x31.png" />
+</a>
+<br />
+本作品 远视者同盟 采用<a rel="license" href="https://creativecommons.org/licenses/by-nd/4.0/">知识共享署名-禁止演绎 4.0 国际许可协议</a> 由 Corinne1124/阡陌拾遗 进行许可。

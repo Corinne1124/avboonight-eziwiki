@@ -41,3 +41,9 @@ order: 02
 补充————
 
 宗罪类饮食的原材料，来自东大陆某处通道点的忌夜血肉，人类最高层知晓风的能力后思考，若是获得忌夜始祖的血肉，诞生的食饮能否使人类战胜忌夜……
+
+<a rel="license" href="https://creativecommons.org/licenses/by-nd/4.0/">
+  <img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nd/4.0/88x31.png" />
+</a>
+<br />
+本作品 风 采用<a rel="license" href="https://creativecommons.org/licenses/by-nd/4.0/">知识共享署名-禁止演绎 4.0 国际许可协议</a> 由 逆风 进行许可。

@@ -63,3 +63,9 @@ _“量产现实稳定锚！”“科技造福人类!”_
 以科技为主导的，寻求建立新社会为目标的组织，游曳于大陆与海岛间的康米幽灵。当你看到锤子与星环构成的图案，说明他们就在附近。
 
 远视者同盟最终在东北方站稳脚跟。它们可以用更低的成本阻挡忌夜蔓延，只因为纯粹的科技通常比体系的缝合怪更加易于维护和改造；极低的人口和高度的机械化让高科技量产变得更加容易。同时体制内高度统一，也几乎没有路线问题。通过模块化，自动化的通用部件组装产品与武器。一切的一切只为证明——只依靠双手，我们依旧可以行走于世间。
+
+<a rel="license" href="https://creativecommons.org/licenses/by-nd/4.0/">
+  <img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nd/4.0/88x31.png" />
+</a>
+<br />
+本作品 远视者同盟 采用<a rel="license" href="https://creativecommons.org/licenses/by-nd/4.0/">知识共享署名-禁止演绎 4.0 国际许可协议</a> 由 Corinne1124/阡陌拾遗 进行许可。
